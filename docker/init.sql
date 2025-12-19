@@ -1,8 +1,9 @@
--- EduBank Datenbank-Initialisierung
--- Diese Datei wird beim ersten Start des Containers ausgeführt
+-- EduBank Database Initialization
+-- This file is executed on first container start
 
--- Zeichensatz sicherstellen
+-- Ensure character set
 ALTER DATABASE edubank CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- Hinweis: Die Tabellen werden durch CakePHP Migrations erstellt
--- Führe nach dem Start aus: docker-compose exec web bin/cake migrations migrate
+-- Note: Tables and seed data are imported manually via:
+-- docker-compose exec web mysql -h db -u root -proot edubank < db/schema.sql
+-- docker-compose exec web mysql -h db -u root -proot edubank < db/seed.sql

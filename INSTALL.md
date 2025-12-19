@@ -26,13 +26,34 @@ git clone https://github.com/cmaj1970/EduBank.git
 cd EduBank
 ```
 
-### Schritt 3: Container starten
+### Schritt 3: Konfiguration erstellen
+
+```bash
+cp config/app.default.php config/app.php
+```
+
+Die Docker-Datenbank-Credentials sind bereits vorkonfiguriert:
+- Host: `db`
+- User: `edubank`
+- Passwort: `edubank`
+- Datenbank: `edubank`
+
+### Schritt 4: Container starten
 
 ```bash
 docker-compose up -d
 ```
 
-### Schritt 4: Datenbank initialisieren
+**Hinweis:** Der erste Start dauert einige Minuten, da PHP-Extensions und Composer-Dependencies installiert werden.
+
+Fortschritt prüfen:
+```bash
+docker-compose logs -f web
+```
+
+### Schritt 5: Datenbank initialisieren
+
+Warten bis der Container läuft, dann:
 
 ```bash
 # Schema importieren
@@ -42,9 +63,10 @@ docker-compose exec web mysql -h db -u root -proot edubank < db/schema.sql
 docker-compose exec web mysql -h db -u root -proot edubank < db/seed.sql
 ```
 
-### Schritt 5: Fertig!
+### Schritt 6: Fertig!
 
-EduBank ist erreichbar unter: **http://localhost:8080**
+- **EduBank:** http://localhost:8080
+- **phpMyAdmin:** http://localhost:8081
 
 ---
 
@@ -187,6 +209,12 @@ Nach dem Import von `seed.sql` existiert ein Superadmin:
 ### Seite lädt, aber ohne Styles
 
 - DocumentRoot muss auf `webroot/` zeigen, nicht auf das Hauptverzeichnis
+
+### Docker: Container startet nicht (Apple Silicon)
+
+Falls du einen Mac mit M1/M2/M3-Chip hast und Fehler wie "no matching manifest for linux/arm64" siehst:
+- Die docker-compose.yml enthält bereits `platform: linux/amd64`
+- Falls trotzdem Probleme: Docker Desktop → Settings → Features in Development → "Use Rosetta" aktivieren
 
 ---
 
