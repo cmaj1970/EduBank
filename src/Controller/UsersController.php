@@ -6,13 +6,23 @@ use Cake\Event\Event;
 
 class UsersController extends AppController
 {
-
+    /**
+     * Before filter - allow login/logout without authentication
+     *
+     * @param \Cake\Event\Event $event The event
+     * @return void
+     */
     public function beforeFilter(Event $event)
     {
         parent::beforeFilter($event);
         $this->Auth->allow(['login', 'logout']);
     }
 
+    /**
+     * Index method - list all users
+     *
+     * @return void
+     */
      public function index()
      {
          $query = $this->Users->query();
@@ -68,7 +78,7 @@ class UsersController extends AppController
             $user->username = $this->school['kurzname'] . "-" . $schoolusers->count();
             $user->name = $this->school['name'] . " " . $schoolusers->count();
             $user->roles = ['user' => 'User'];
-            # Standard-Passwort für Schüler aus Umgebungsvariable
+            // Default password for students from environment variable
             $user->password = env('DEFAULT_USER_PASSWORD', 'ChangeMe123');
         	$passworddefault = env('DEFAULT_USER_PASSWORD', 'ChangeMe123');
         }
@@ -125,6 +135,12 @@ class UsersController extends AppController
 
         return $this->redirect(['action' => 'index']);
     }
+
+    /**
+     * Login method - authenticate user
+     *
+     * @return \Cake\Http\Response|null Redirects on successful login
+     */
 	    public function login()
 	    {
 	        if ($this->request->is('post')) {
@@ -137,6 +153,11 @@ class UsersController extends AppController
 	        }
 	    }
 
+    /**
+     * Logout method - end user session
+     *
+     * @return \Cake\Http\Response Redirects to login page
+     */
 	    public function logout()
 	    {
 	        return $this->redirect($this->Auth->logout());

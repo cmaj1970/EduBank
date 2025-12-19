@@ -110,26 +110,31 @@ class TransactionsTable extends Table
     }
 
     /**
-     * Sanitize input vor dem Speichern (XSS-Schutz)
-     * Entfernt alle HTML/JavaScript-Tags aus Freitextfeldern
+     * Sanitize input before saving (XSS protection)
+     * Removes all HTML/JavaScript tags from free text fields
+     *
+     * @param \Cake\Event\Event $event The event
+     * @param \Cake\Datasource\EntityInterface $entity The entity being saved
+     * @param \ArrayObject $options Save options
+     * @return bool
      */
     public function beforeSave(Event $event, $entity, $options)
     {
-        # Liste der Felder die HTML-Tags enthalten könnten
+        // List of fields that could contain HTML tags
         $fieldsToSanitize = ['empfaenger_name', 'empfaenger_adresse', 'zahlungszweck'];
 
         foreach ($fieldsToSanitize as $field) {
             if (isset($entity->$field) && !empty($entity->$field)) {
-                # Entfernt alle HTML/JavaScript-Tags, behält nur Text
+                // Remove all HTML/JavaScript tags, keep only text
                 $entity->$field = strip_tags($entity->$field);
 
-                # Zusätzlich: Entities dekodieren (verhindert &lt;script&gt; Tricks)
+                // Additional: Decode entities (prevents &lt;script&gt; tricks)
                 $entity->$field = html_entity_decode($entity->$field, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
-                # Erneut strip_tags (falls durch entity_decode neue Tags entstanden)
+                // Strip tags again (in case entity_decode created new tags)
                 $entity->$field = strip_tags($entity->$field);
 
-                # Whitespace normalisieren
+                // Normalize whitespace
                 $entity->$field = trim($entity->$field);
             }
         }

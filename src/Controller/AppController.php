@@ -67,12 +67,12 @@ class AppController extends Controller
         $this->loadComponent('Flash');
 		$this->set('authuser', $this->Auth->user());
 
-        # CSRF-Protection aktiviert (Security-Hardening)
-        # Nur CSRF-Token-Validierung, keine SSL-Erzwingung oder Formular-Tampering-Checks
+        // CSRF protection enabled (security hardening)
+        // Only CSRF token validation, no SSL enforcement or form tampering checks
         $this->loadComponent('Security', [
             'blackHoleCallback' => 'blackhole',
-            'requireSecure' => false,  # Keine SSL-Erzwingung (für lokale Entwicklung)
-            'validatePost' => false    # Kein Formular-Tampering-Check (würde bestehende Forms brechen)
+            'requireSecure' => false,  // No SSL enforcement (for local development)
+            'validatePost' => false    // No form tampering check (would break existing forms)
         ]);
 
         // Prior to 3.5 use I18n::locale()
@@ -103,22 +103,25 @@ class AppController extends Controller
    }
 
    /**
-    * Blackhole-Callback für Security-Component
-    * Wird aufgerufen wenn CSRF-Token fehlt/ungültig ist
+    * Blackhole callback for Security component
+    * Called when CSRF token is missing or invalid
+    *
+    * @param string $type The type of security violation
+    * @return \Cake\Http\Response|null
     */
    public function blackhole($type)
    {
-       # Log für Debugging
+       // Log for debugging
        $this->log('Security blackhole: ' . $type, 'error');
 
-       # Benutzerfreundliche Fehlermeldung
+       // User-friendly error message
        if ($type === 'csrf') {
            $this->Flash->error(__('Sicherheitswarnung: Ihre Sitzung ist abgelaufen oder die Anfrage war ungültig. Bitte versuchen Sie es erneut.'));
        } else {
            $this->Flash->error(__('Sicherheitswarnung: Ungültige Anfrage.'));
        }
 
-       # Redirect zur Login-Seite
+       // Redirect to login page
        return $this->redirect(['controller' => 'Users', 'action' => 'login']);
    }
 }

@@ -13,30 +13,33 @@ use App\Controller\AppController;
 class SchoolsController extends AppController
 {
     /**
-     * Keine öffentlichen Actions - alles erfordert Login
+     * No public actions - all require login
      */
     public function beforeFilter(\Cake\Event\Event $event)
     {
         parent::beforeFilter($event);
-        # Keine öffentlichen Actions mehr
+        // No public actions
     }
 
     /**
-     * Authorization - wer darf was?
+     * Authorization - who can do what?
+     *
+     * @param array $user The logged in user
+     * @return bool
      */
     public function isAuthorized($user)
     {
-        # Superadmin (username='admin') darf alles
+        // Superadmin (username='admin') can do everything
         if (isset($user['username']) && $user['username'] === 'admin') {
             return true;
         }
 
-        # Schuladmins dürfen nur lesen (index, view)
+        // School admins can only read (index, view)
         if (in_array($this->request->getParam('action'), ['index', 'view'])) {
             return true;
         }
 
-        # Alles andere verboten
+        // Everything else forbidden
         return false;
     }
 
@@ -135,8 +138,8 @@ class SchoolsController extends AppController
     }
 
     /**
-     * Self-Service Registrierung für neue Schulen
-     * Öffentlich zugänglich (ohne Login)
+     * Self-service registration for new schools
+     * Publicly accessible (no login required)
      *
      * @return \Cake\Http\Response|null
      */
@@ -147,47 +150,47 @@ class SchoolsController extends AppController
         if ($this->request->is('post')) {
             $data = $this->request->getData();
 
-            # Schulname: "PTS" voranstellen
+            // Prepend "PTS" to school name
             if (!empty($data['name'])) {
                 $data['name'] = 'PTS ' . $data['name'];
             }
 
-            # Kurzname: Aus Schulname generieren falls leer
+            // Generate short name from school name if empty
             if (empty($data['kurzname']) && !empty($data['name'])) {
-                # Von "PTS Gänserndorf" → "ptsgaenserndorf"
+                // From "PTS Sonnental" → "ptssonnental"
                 $nameWithoutPTS = preg_replace('/^PTS\s*/i', '', $data['name']);
                 $data['kurzname'] = 'pts' . $this->_normalizeKurzname($nameWithoutPTS);
             } elseif (!empty($data['kurzname'])) {
-                # Kurzname vom Frontend: Umlaute konvertieren und bereinigen
+                // Short name from frontend: convert umlauts and sanitize
                 $data['kurzname'] = $this->_normalizeKurzname($data['kurzname']);
             }
 
-            # Schulname UND Kurzname eindeutig machen (synchrone Nummerierung)
+            // Make school name AND short name unique (synchronized numbering)
             if (!empty($data['name']) && !empty($data['kurzname'])) {
                 $result = $this->_makeSchoolnameAndKurznameUnique($data['name'], $data['kurzname']);
                 $data['name'] = $result['name'];
                 $data['kurzname'] = $result['kurzname'];
             }
 
-            # Verwende spezielle Validierung für Registrierung
+            // Use special validation for registration
             $school = $this->Schools->patchEntity(
                 $school,
                 $data,
                 ['validate' => 'register']
             );
 
-            # Status automatisch auf 'pending' setzen
+            // Automatically set status to 'pending'
             $school->status = 'pending';
 
-            # BIC automatisch generieren
+            // Auto-generate BIC
             $permitted_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             $school->bic = substr(str_shuffle($permitted_chars), 0, 4) . "AT" . substr(str_shuffle($permitted_chars), 0, 2);
 
-            # IBAN-Prefix automatisch generieren (nächstes freies ATxx, BTxx, ...)
+            // Auto-generate IBAN prefix (next available ATxx, BTxx, ...)
             $school->ibanprefix = $this->_generateIbanPrefix();
 
             if ($this->Schools->save($school)) {
-                # Admin-User für die Schule erstellen
+                // Create admin user for the school
                 $password = $this->_createSchoolAdminOnRegister($school);
 
                 if ($password) {
@@ -198,7 +201,7 @@ class SchoolsController extends AppController
                 return $this->redirect(['controller' => 'Schools', 'action' => 'index']);
             }
 
-            # Debug: Validation-Fehler anzeigen
+            // Debug: Show validation errors
             $errors = $school->getErrors();
             if (!empty($errors)) {
                 $errorMessages = [];
@@ -217,7 +220,7 @@ class SchoolsController extends AppController
     }
 
     /**
-     * Schule genehmigen (nur für Superadmin)
+     * Approve school (superadmin only)
      *
      * @param string|null $id School id.
      * @return \Cake\Http\Response|null
@@ -230,7 +233,7 @@ class SchoolsController extends AppController
         $school->status = 'approved';
 
         if ($this->Schools->save($school)) {
-            # Schuladmin-User erstellen
+            // Create school admin user
             $this->_createSchoolAdmin($school);
 
             $this->Flash->success(__('Die Schule "{0}" wurde genehmigt und ein Admin-Account erstellt.', $school->name));
@@ -242,7 +245,7 @@ class SchoolsController extends AppController
     }
 
     /**
-     * Schule ablehnen (nur für Superadmin)
+     * Reject school (superadmin only)
      *
      * @param string|null $id School id.
      * @return \Cake\Http\Response|null
@@ -264,14 +267,14 @@ class SchoolsController extends AppController
     }
 
     /**
-     * Normalisiert Kurzname (Umlaute konvertieren, Sonderzeichen entfernen)
+     * Normalize short name (convert umlauts, remove special characters)
      *
-     * @param string $kurzname
-     * @return string
+     * @param string $kurzname The short name to normalize
+     * @return string The normalized short name
      */
     private function _normalizeKurzname($kurzname)
     {
-        # Umlaute konvertieren
+        // Convert umlauts
         $replacements = [
             'ä' => 'ae', 'Ä' => 'ae',
             'ö' => 'oe', 'Ö' => 'oe',
@@ -281,37 +284,37 @@ class SchoolsController extends AppController
 
         $kurzname = strtr($kurzname, $replacements);
 
-        # Zu lowercase
+        // Convert to lowercase
         $kurzname = strtolower($kurzname);
 
-        # Nur alphanumerische Zeichen behalten
+        // Keep only alphanumeric characters
         $kurzname = preg_replace('/[^a-z0-9]/', '', $kurzname);
 
         return $kurzname;
     }
 
     /**
-     * Macht Schulname UND Kurzname eindeutig mit synchroner Nummerierung
-     * Beispiel: "PTS Gänserndorf" + "ptsgaenserndorf"
-     *           → "PTS Gänserndorf 2" + "ptsgaenserndorf2"
+     * Make school name AND short name unique with synchronized numbering
+     * Example: "PTS Sonnental" + "ptssonnental"
+     *          → "PTS Sonnental 2" + "ptssonnental2"
      *
-     * @param string $schoolname
-     * @param string $kurzname
+     * @param string $schoolname The school name
+     * @param string $kurzname The short name
      * @return array ['name' => '...', 'kurzname' => '...']
      */
     private function _makeSchoolnameAndKurznameUnique($schoolname, $kurzname)
     {
         $originalSchoolname = $schoolname;
         $originalKurzname = $kurzname;
-        $counter = 2; // Erste Duplikat bekommt "2"
+        $counter = 2; // First duplicate gets "2"
 
-        # Prüfe ob Schulname ODER Kurzname bereits existiert
+        // Check if school name OR short name already exists
         while (
             $this->Schools->exists(['name' => $schoolname]) ||
             $this->Schools->exists(['kurzname' => $kurzname])
         ) {
-            # Schulname: "PTS Gänserndorf" → "PTS Gänserndorf 2"
-            # Extrahiere bestehende Nummer falls vorhanden
+            // School name: "PTS Sonnental" → "PTS Sonnental 2"
+            // Extract existing number if present
             if (preg_match('/^(.+?)\s+(\d+)$/', $originalSchoolname, $matches)) {
                 $base = $matches[1];
                 $existingNumber = (int)$matches[2];
@@ -320,7 +323,7 @@ class SchoolsController extends AppController
                 $schoolname = $originalSchoolname . ' ' . $counter;
             }
 
-            # Kurzname: "ptsgaenserndorf" → "ptsgaenserndorf2"
+            // Short name: "ptssonnental" → "ptssonnental2"
             if (preg_match('/^(.+?)(\d+)$/', $originalKurzname, $matches)) {
                 $base = $matches[1];
                 $existingNumber = (int)$matches[2];
@@ -331,7 +334,7 @@ class SchoolsController extends AppController
 
             $counter++;
 
-            # Sicherheits-Break (sollte nie nötig sein)
+            // Safety break (should never be needed)
             if ($counter > 100) {
                 break;
             }
@@ -344,71 +347,71 @@ class SchoolsController extends AppController
     }
 
     /**
-     * Generiert nächstes freies IBAN-Prefix
+     * Generate next available IBAN prefix
      * Format: AT99 → AT98 → ... → AT01 → BT99 → BT98 → ... → ZT01
      *
      * @return string
      */
     private function _generateIbanPrefix()
     {
-        # Alle verwendeten Prefixes holen
+        // Get all used prefixes
         $usedPrefixes = $this->Schools->find()
             ->select(['ibanprefix'])
             ->order(['ibanprefix' => 'ASC'])
             ->extract('ibanprefix')
             ->toArray();
 
-        # Durchlaufe Buchstaben A-Z
+        // Iterate through letters A-Z
         for ($letter = 'A'; $letter <= 'Z'; $letter++) {
-            # Durchlaufe Nummern 99 bis 01 (absteigend)
+            // Iterate through numbers 99 to 01 (descending)
             for ($number = 99; $number >= 1; $number--) {
                 $prefix = $letter . 'T' . str_pad($number, 2, '0', STR_PAD_LEFT);
 
-                # Wenn dieser Prefix noch nicht verwendet wird, zurückgeben
+                // If this prefix is not yet used, return it
                 if (!in_array($prefix, $usedPrefixes)) {
                     return $prefix;
                 }
             }
         }
 
-        # Fallback (sollte nie erreicht werden, da 26*99 = 2574 Möglichkeiten)
+        // Fallback (should never be reached, as 26*99 = 2574 possibilities)
         return 'ZT01';
     }
 
     /**
-     * Erstellt Schuladmin-User direkt bei Registrierung
+     * Create school admin user directly on registration
      *
      * @param \App\Model\Entity\School $school
-     * @return string|bool Passwort wenn erfolgreich, false bei Fehler
+     * @return string|bool Password if successful, false on error
      */
     private function _createSchoolAdminOnRegister($school)
     {
         $this->loadModel('Users');
 
-        # Username: admin-{kurzname}
+        // Username: admin-{kurzname}
         $username = 'admin-' . $school->kurzname;
 
-        # Check ob User bereits existiert
+        // Check if user already exists
         $existingUser = $this->Users->find()
             ->where(['username' => $username])
             ->first();
 
         if ($existingUser) {
-            return false; // User existiert bereits
+            return false; // User already exists
         }
 
-        # Standard-Passwort für Schuladmins aus Umgebungsvariable
+        // Default password for school admins from environment variable
         $password = env('DEFAULT_ADMIN_PASSWORD', 'ChangeMe123');
 
-        # User erstellen
+        // Create user
         $user = $this->Users->newEntity([
             'username' => $username,
             'password' => $password,
-            'name' => $school->name,  // Schulname (z.B. "PTS Gänserndörf")
+            'name' => $school->name,  // School name (e.g. "PTS Sonnental")
             'role' => 'admin',
             'school_id' => $school->id,
             'active' => 1,
-            'admin' => 0  // Nicht Superadmin, nur Schuladmin
+            'admin' => 0  // Not superadmin, only school admin
         ]);
 
         if ($this->Users->save($user)) {
@@ -419,7 +422,7 @@ class SchoolsController extends AppController
     }
 
     /**
-     * Erstellt Schuladmin-User für genehmigte Schule (wird bei approve() verwendet)
+     * Create school admin user for approved school (used by approve())
      *
      * @param \App\Model\Entity\School $school
      * @return bool
@@ -428,21 +431,21 @@ class SchoolsController extends AppController
     {
         $this->loadModel('Users');
 
-        # Username: admin-{kurzname}
+        // Username: admin-{kurzname}
         $username = 'admin-' . $school->kurzname;
 
-        # Check ob User bereits existiert
+        // Check if user already exists
         $existingUser = $this->Users->find()
             ->where(['username' => $username])
             ->first();
 
         if ($existingUser) {
-            return false; // User existiert bereits
+            return false; // User already exists
         }
 
-        # Standard-Passwort für Schuladmins aus Umgebungsvariable
+        // Default password for school admins from environment variable
         $password = env('DEFAULT_ADMIN_PASSWORD', 'ChangeMe123');
-        # User erstellen
+        // Create user
         $user = $this->Users->newEntity([
             'username' => $username,
             'password' => $password,
@@ -452,8 +455,8 @@ class SchoolsController extends AppController
         ]);
 
         if ($this->Users->save($user)) {
-            # TODO: E-Mail mit Zugangsdaten senden
-            # Für jetzt: Passwort im Flash speichern
+            // TODO: Send email with credentials
+            // For now: store password in Flash message
             $this->Flash->success(
                 __('Admin-Account erstellt: Username = {0}, Passwort = {1}', $username, $password)
             );
