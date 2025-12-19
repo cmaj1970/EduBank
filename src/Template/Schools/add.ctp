@@ -12,18 +12,11 @@
 
             <div class="input text required">
                 <label for="name">Schulname *</label>
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span style="font-weight: bold; font-size: 1.1rem; color: var(--color-primary-dark);">PTS</span>
-                    <?= $this->Form->text('name', [
-                        'id' => 'name',
-                        'placeholder' => 'z.B. Musterschule',
-                        'required' => true,
-                        'style' => 'flex: 1;'
-                    ]) ?>
-                </div>
-                <small style="color: var(--color-text); display: block; margin-top: 0.25rem;">
-                    Bitte nur den Schulnamen ohne "PTS" eingeben (z.B. "Feldbach" statt "PTS Feldbach")
-                </small>
+                <?= $this->Form->text('name', [
+                    'id' => 'name',
+                    'placeholder' => 'z.B. Musterschule',
+                    'required' => true
+                ]) ?>
             </div>
 
             <div class="input text" style="margin-top: 1rem;">
@@ -31,14 +24,18 @@
                 <input type="text" id="kurzname-display" readonly disabled style="background: #f5f5f5; cursor: not-allowed;" placeholder="Wird automatisch aus dem Schulnamen erstellt">
                 <?= $this->Form->hidden('kurzname', ['id' => 'kurzname']) ?>
                 <small style="color: var(--color-text); display: block; margin-top: 0.25rem;">
-                    Der Kurzname wird automatisch aus dem Schulnamen generiert und für Benutzernamen verwendet (z.B. admin-ptsfeldbach)
+                    Der Kurzname wird automatisch aus dem Schulnamen generiert und für Benutzernamen verwendet (z.B. admin-musterschule)
                 </small>
             </div>
         </fieldset>
 
 
 
-        <div style="text-align: center; margin-top: 2rem;">
+        <div style="text-align: center; margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+            <?= $this->Html->link(__('Abbrechen'), ['action' => 'index'], [
+                'class' => 'button',
+                'style' => 'font-size: 1.1rem; padding: 0.8rem 2rem; background: #6c757d; text-decoration: none;'
+            ]) ?>
             <?= $this->Form->button(__('Speichern'), [
                 'class' => 'button',
                 'style' => 'font-size: 1.1rem; padding: 0.8rem 2rem;'
@@ -55,7 +52,7 @@
 $(document).ready(function() {
     // Auto-generate short name from school name
     function generateKurzname(name) {
-        var kurzname = 'pts' + name.toLowerCase()
+        var kurzname = name.toLowerCase()
             .replace(/ä/g, 'ae')
             .replace(/ö/g, 'oe')
             .replace(/ü/g, 'ue')
