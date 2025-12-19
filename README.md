@@ -1,6 +1,6 @@
 # EduBank
 
-**Open-Source Banking-Simulation für österreichische Schulen**
+**Open-Source Banking-Simulation für Schulen**
 
 EduBank ist eine Lernsoftware, die Schüler:innen an Bildungseinrichtungen den Umgang mit Online-Banking näherbringt. Die Software simuliert reale Banking-Prozesse in einer sicheren Lernumgebung.
 
