@@ -1,8 +1,7 @@
-version: '3.8'
-
 services:
   web:
     image: php:7.4-apache
+    platform: linux/amd64
     container_name: edubank-web
     restart: unless-stopped
     ports:
@@ -18,32 +17,38 @@ services:
       bash -c "
         docker-php-ext-install pdo pdo_mysql intl &&
         a2enmod rewrite &&
+        cd /var/www/html &&
+        if [ ! -d vendor ]; then
+          curl -sS https://getcomposer.org/installer | php &&
+          php composer.phar install --no-dev --no-interaction
+        fi &&
         apache2-foreground
       "
 
   db:
     image: mysql:5.7
+    platform: linux/amd64
     container_name: edubank-db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: edubank_root
+      MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: edubank
       MYSQL_USER: edubank
-      MYSQL_PASSWORD: edubank_password
+      MYSQL_PASSWORD: edubank
     volumes:
       - edubank-db-data:/var/lib/mysql
-      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "3306:3306"
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
+    platform: linux/amd64
     container_name: edubank-pma
     restart: unless-stopped
     environment:
       PMA_HOST: db
-      PMA_USER: edubank
-      PMA_PASSWORD: edubank_password
+      PMA_USER: root
+      PMA_PASSWORD: root
     ports:
       - "8081:80"
     depends_on:
