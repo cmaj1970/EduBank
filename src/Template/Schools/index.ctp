@@ -15,7 +15,7 @@
 <div class="card">
     <div class="table-responsive">
         <table class="table table-hover mb-0">
-            <thead class="table-dark">
+            <thead class="table-primary">
                 <tr>
                     <th><?= $this->Paginator->sort('name', 'Schulname') ?></th>
                     <th><?= $this->Paginator->sort('kurzname', 'Kurzname') ?></th>
@@ -57,7 +57,7 @@
                             <?= $this->Form->postLink(
                                 '<i class="bi bi-trash"></i>',
                                 ['action' => 'delete', $school->id],
-                                ['class' => 'btn btn-outline-danger', 'escape' => false, 'title' => 'Löschen', 'confirm' => __('Schule "{0}" wirklich löschen?', $school->name)]
+                                ['class' => 'btn btn-outline-danger', 'escape' => false, 'title' => 'Löschen', 'confirm' => __('ACHTUNG: Schule "{0}" löschen?\n\nDies löscht ALLE zugehörigen:\n- Admins und Übungsfirmen\n- Konten\n- Transaktionen\n\nDieser Vorgang kann nicht rückgängig gemacht werden!', $school->name)]
                             ) ?>
                         </div>
                     </td>

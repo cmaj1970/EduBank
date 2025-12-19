@@ -17,10 +17,10 @@
 <div class="card">
     <div class="table-responsive">
         <table class="table table-hover mb-0">
-            <thead class="table-dark">
+            <thead class="table-primary">
                 <tr>
                     <?php if($authuser['role'] == 'admin'): ?>
-                    <th><?= $this->Paginator->sort('user_id', 'Inhaber') ?></th>
+                    <th><?= $this->Paginator->sort('user_id', 'Übungsfirma') ?></th>
                     <?php endif; ?>
                     <th><?= $this->Paginator->sort('name', 'Kontoname') ?></th>
                     <th><?= $this->Paginator->sort('iban', 'IBAN') ?></th>
