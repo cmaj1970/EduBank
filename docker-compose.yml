@@ -1,28 +1,27 @@
 services:
   web:
-    image: php:7.4-apache
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
     platform: linux/amd64
     container_name: edubank-web
     restart: unless-stopped
     ports:
       - "8080:80"
     volumes:
-      - .:/var/www/html
-      - ./docker/apache.conf:/etc/apache2/sites-available/000-default.conf
+      - .:/app
     environment:
-      - APACHE_DOCUMENT_ROOT=/var/www/html/webroot
+      - WEB_DOCUMENT_ROOT=/app/webroot
+      - DEBUG=false
     depends_on:
       - db
     command: >
       bash -c "
-        docker-php-ext-install pdo pdo_mysql intl &&
-        a2enmod rewrite &&
-        cd /var/www/html &&
+        cd /app &&
         if [ ! -d vendor ]; then
-          curl -sS https://getcomposer.org/installer | php &&
-          php composer.phar install --no-dev --no-interaction
+          composer install --no-dev --no-interaction
         fi &&
-        apache2-foreground
+        /entrypoint supervisord
       "
 
   db:
