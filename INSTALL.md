@@ -35,7 +35,11 @@ docker-compose up -d
 ### Schritt 4: Datenbank initialisieren
 
 ```bash
-docker-compose exec web bin/cake migrations migrate
+# Schema importieren
+docker-compose exec web mysql -h db -u root -proot edubank < db/schema.sql
+
+# Admin-User anlegen
+docker-compose exec web mysql -h db -u root -proot edubank < db/seed.sql
 ```
 
 ### Schritt 5: Fertig!
@@ -91,10 +95,14 @@ GRANT ALL PRIVILEGES ON edubank.* TO 'edubank'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-### Schritt 5: Tabellen anlegen
+### Schritt 5: Tabellen und Admin-User anlegen
 
 ```bash
-bin/cake migrations migrate
+# Schema importieren
+mysql -u edubank -p edubank < db/schema.sql
+
+# Admin-User anlegen
+mysql -u edubank -p edubank < db/seed.sql
 ```
 
 ### Schritt 6: Webserver konfigurieren
@@ -144,9 +152,16 @@ chown -R www-data:www-data logs tmp
 
 ## Erste Schritte nach der Installation
 
-### Admin-Benutzer anlegen
+### Admin-Login
 
-Nach der Installation muss ein Admin-Benutzer erstellt werden. Dies erfolgt direkt in der Datenbank oder über die Anwendung.
+Nach dem Import von `seed.sql` existiert ein Superadmin:
+
+| Feld | Wert |
+|------|------|
+| **Benutzername** | `admin` |
+| **Passwort** | `EduBank1234!` |
+
+**Wichtig:** Ändere das Passwort nach dem ersten Login!
 
 ### Schule einrichten
 
