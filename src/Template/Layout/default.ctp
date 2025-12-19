@@ -1,57 +1,137 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
- *
- * Licensed under The MIT License
- * For full copyright and license information, please see the LICENSE.txt
- * Redistributions of files must retain the above copyright notice.
- *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
- * @link          https://cakephp.org CakePHP(tm) Project
- * @since         0.10.0
- * @license       https://opensource.org/licenses/mit-license.php MIT License
+ * EduBank - Banking Simulation für Schulen
+ * Default Layout with Bootstrap 5 - Responsive Design
  */
-
-$cakeDescription = 'CakePHP: the rapid development php framework';
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
     <?= $this->Html->charset() ?>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        PTS Banking
-    </title>
-    <?= $this->Html->css('base.css') ?>
-    <?= $this->Html->css('style.css') ?>
-	<?php echo $this->HTML->script('/js/jquery.min.js'); ?>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.0/dist/jquery.validate.min.js"></script>
-	<?php echo $this->HTML->script('/js/messages.de.js'); ?>
+    <title>EduBank - Banking Simulation</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <?= $this->Html->css('bootstrap-custom.css') ?>
+
     <?= $this->fetch('meta') ?>
     <?= $this->fetch('css') ?>
-    <?= $this->fetch('script') ?>
 </head>
-<body>
-    <nav class="top-bar expanded  hide-for-print" data-topbar role="navigation">
-        <ul class="title-area large-3 medium-4 columns">
-            <li class="name">
-                <h1><a href=""><?= $this->Html->image('logo.svg', ['alt' => 'EduBank Logo', 'class' => 'logo']) ?></a></h1>
-            </li>
-        </ul>
-        <div class="top-bar-section">
-			<?php if($authuser): ?>
-            <ul class="right">
-                <li><a target="_self" href="/users/logout">angemeldet als <?= $authuser['username']; ?> | abmelden</a></li>
-            </ul>
-			<?php endif; ?>
+<body class="d-flex flex-column min-vh-100 bg-light">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-edubank sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <?= $this->Html->image('logo.svg', ['alt' => 'EduBank Logo', 'class' => 'logo']) ?>
+            </a>
+
+            <?php if($authuser): ?>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <!-- Hauptnavigation -->
+                <ul class="navbar-nav me-auto">
+                    <?php if($authuser['role'] == 'admin' && !isset($loggedinschool)): ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/schools">
+                            <i class="bi bi-building me-1"></i>Schulen
+                        </a>
+                    </li>
+                    <?php endif; ?>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/users">
+                            <i class="bi bi-people me-1"></i>Benutzer
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/accounts">
+                            <i class="bi bi-wallet2 me-1"></i>Konten
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/transactions">
+                            <i class="bi bi-arrow-left-right me-1"></i>Transaktionen
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- User Menu -->
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle me-1"></i>
+                            <?= h($authuser['username']) ?>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <span class="dropdown-item-text text-muted small">
+                                    <?= isset($authuser['role']) ? ucfirst(h($authuser['role'])) : 'Benutzer' ?>
+                                </span>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="/users/logout">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Abmelden
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <?php endif; ?>
         </div>
     </nav>
-    <?= $this->Flash->render() ?>
-    <div class="container clearfix">
-        <?= $this->fetch('content') ?>
+
+    <!-- Flash Messages -->
+    <?php $flash = $this->Flash->render(); ?>
+    <?php if($flash): ?>
+    <div class="container-fluid py-2">
+        <?= $flash ?>
     </div>
-    <footer>
+    <?php endif; ?>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1">
+        <div class="container-fluid py-4">
+            <?= $this->fetch('content') ?>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-edubank mt-auto d-print-none">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start">
+                    <span>&copy; <?= date('Y') ?> EduBank - Banking Simulation für Schulen</span>
+                </div>
+                <div class="col-md-6 text-center text-md-end mt-2 mt-md-0">
+                    <a href="https://github.com/cmaj1970/edubank" target="_blank">
+                        <i class="bi bi-github"></i> GitHub
+                    </a>
+                </div>
+            </div>
+        </div>
     </footer>
+
+    <!-- jQuery (für bestehende Funktionalität) -->
+    <?php echo $this->Html->script('/js/jquery.min.js'); ?>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.0/dist/jquery.validate.min.js"></script>
+    <?php echo $this->Html->script('/js/messages.de.js'); ?>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <?= $this->fetch('script') ?>
 </body>
 </html>

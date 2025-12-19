@@ -14,6 +14,7 @@ class SchoolsController extends AppController
 {
     /**
      * No public actions - all require login
+     * Self-service registration will be added later
      */
     public function beforeFilter(\Cake\Event\Event $event)
     {

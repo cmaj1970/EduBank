@@ -25,10 +25,9 @@
     <path d="M 25 44 L 25 50" stroke="#ffffff" stroke-width="1" />
   </g>
 
-  <!-- Text -->
-  <text x="52" y="28" class="logo-text" font-size="20">PTS</text>
-  <text x="52" y="46" class="logo-text" font-size="20">Banking</text>
+  <!-- Text: EduBank -->
+  <text x="52" y="38" class="logo-text" font-size="24">EduBank</text>
 
   <!-- Untertitel -->
-  <text x="52" y="56" font-family="Arial, sans-serif" font-size="8" fill="#ffffff" opacity="0.8">Übungssystem</text>
+  <text x="52" y="52" font-family="Arial, sans-serif" font-size="9" fill="#ffffff" opacity="0.8">Banking-Simulation für Schulen</text>
 </svg>
