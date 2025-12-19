@@ -13,6 +13,13 @@ use App\Controller\AppController;
  */
 class AccountsController extends AppController
 {
+    /**
+     * Authorization - who can do what?
+     * Users can only view their own accounts
+     *
+     * @param array $user The logged in user
+     * @return bool
+     */
     public function isAuthorized($user) {
         if (isset($user['role']) && $user['role'] === 'user') {
             if (in_array($this->request->getParam('action'), ['index', 'view', 'history'])) {
@@ -36,7 +43,7 @@ class AccountsController extends AppController
         if ($this->Auth->user()['role'] != 'admin') {
             $query = $this->Accounts->find('all', ['contain' => ['Transactions']])->where(['user_id' => $this->Auth->user()['id']])->first();
             return $this->redirect(['action' => 'view', $query->id]);
-            #debug($query->toArray());
+            // debug($query->toArray());
         } else {
             if ($this->school) {
                 $query = $this->Accounts->find(
@@ -77,13 +84,10 @@ class AccountsController extends AppController
                 return $row;
             });
         });
-//
-//        # Überweisungen auf dieses Konto finden
-//
-//        foreach($result as $k => $account) {
-//        	#debug($k);
-
-//	    }
+        // Find transfers to this account
+        // foreach($result as $k => $account) {
+        //     debug($k);
+        // }
 
         $accounts = $this->paginate($query);
         $this->set(compact('accounts'));
@@ -108,7 +112,7 @@ class AccountsController extends AppController
         if ($this->Auth->user()['role'] !== 'admin' && $account->user_id != $this->Auth->user()['id']) {
             return $this->redirect(['action' => 'index']);
         }
-        # Überweisungen auf dieses Konto finden
+        // Find transfers to this account
         $account->transactions = $this->Accounts->Transactions->find('all', ['contain' => ['Accounts.Users']])->where(["datum <= '" . date('Y-m-d') . "'", 'or' => ['and' => ['empfaenger_iban' => $account->iban], 'account_id' => $account->id]])->order(['Transactions.datum desc', 'Transactions.id desc']);
         foreach ($account->transactions as $k => $to) {
             $account_transactions[$k] = $to;
@@ -116,17 +120,23 @@ class AccountsController extends AppController
                 $account->balance -= $to->betrag;
             } else {
                 $account->balance += $to->betrag;
-//				$account_transactions[$k]->auftraggeber_name = $to->account->user->name;
-//				$account_transactions[$k]->auftraggeber_adresse = $to->empfaenger_adresse;
-//				$account_transactions[$k]->auftraggeber_iban = $to->empfaenger_iban;
-//				$account_transactions[$k]->auftraggeber_bic = $to->empfaenger_bic;
+                // $account_transactions[$k]->auftraggeber_name = $to->account->user->name;
+                // $account_transactions[$k]->auftraggeber_adresse = $to->empfaenger_adresse;
+                // $account_transactions[$k]->auftraggeber_iban = $to->empfaenger_iban;
+                // $account_transactions[$k]->auftraggeber_bic = $to->empfaenger_bic;
             }
         }
 
         $this->set('account', $account);
-        #$this->set('account_transactions', $account_transactions);
+        // $this->set('account_transactions', $account_transactions);
     }
 
+    /**
+     * History method - show all transactions (including future dated)
+     *
+     * @param string|null $id Account id.
+     * @return \Cake\Http\Response|void
+     */
     public function history($id = null) {
         $account = $this->Accounts->get($id, [
             'contain' => [
@@ -139,7 +149,7 @@ class AccountsController extends AppController
         if ($this->Auth->user()['role'] !== 'admin' && $account->user_id != $this->Auth->user()['id']) {
             return $this->redirect(['action' => 'index']);
         }
-        # Überweisungen auf dieses Konto finden
+        // Find transfers to this account
         $account->transactions = $this->Accounts->Transactions->find('all', ['contain' => ['Accounts.Users']])->where(['or' => ['account_id' => $account->id]])->order(['Transactions.created desc']);
         foreach ($account->transactions as $k => $to) {
             $account_transactions[$k] = $to;
@@ -147,15 +157,15 @@ class AccountsController extends AppController
                 $account->balance -= $to->betrag;
             } else {
                 $account->balance += $to->betrag;
-//				$account_transactions[$k]->auftraggeber_name = $to->account->user->name;
-//				$account_transactions[$k]->auftraggeber_adresse = $to->empfaenger_adresse;
-//				$account_transactions[$k]->auftraggeber_iban = $to->empfaenger_iban;
-//				$account_transactions[$k]->auftraggeber_bic = $to->empfaenger_bic;
+                // $account_transactions[$k]->auftraggeber_name = $to->account->user->name;
+                // $account_transactions[$k]->auftraggeber_adresse = $to->empfaenger_adresse;
+                // $account_transactions[$k]->auftraggeber_iban = $to->empfaenger_iban;
+                // $account_transactions[$k]->auftraggeber_bic = $to->empfaenger_bic;
             }
         }
 
         $this->set('account', $account);
-        #$this->set('account_transactions', $account_transactions);
+        // $this->set('account_transactions', $account_transactions);
     }
 
     /**
@@ -167,8 +177,8 @@ class AccountsController extends AppController
         $account = $this->Accounts->newEntity();
         if ($this->request->is('post')) {
             $account = $this->Accounts->patchEntity($account, $this->request->getData());
-            #$account->balance = 10000;
-            #$account->limit = 2000;
+            // $account->balance = 10000;
+            // $account->limit = 2000;
             if ($this->Accounts->save($account)) {
                 $this->Flash->success(__('The account has been saved.'));
                 return $this->redirect(['action' => 'index']);
@@ -238,6 +248,13 @@ class AccountsController extends AppController
         return $this->redirect(['action' => 'index']);
     }
 
+    /**
+     * Reset method - reset account to initial state
+     * Deletes all transactions and resets balance/limit
+     *
+     * @param string|null $id Account id.
+     * @return \Cake\Http\Response|null Redirects to index.
+     */
     public function reset($id = null) {
         $this->request->allowMethod(['post', 'reset']);
         $account = $this->Accounts->find('all', ['contain' => ['Transactions']])->where(['id' => $id])->first();

@@ -92,14 +92,14 @@ class SchoolsTable extends Table
     }
 
     /**
-     * Validation rules für Self-Service Registrierung (strengere Regeln)
+     * Validation rules for self-service registration (stricter rules)
      *
      * @param \Cake\Validation\Validator $validator Validator instance.
      * @return \Cake\Validation\Validator
      */
     public function validationRegister(Validator $validator)
     {
-        # Basis-Validation
+        // Base validation
         $validator
             ->integer('id')
             ->allowEmpty('id', 'create');
@@ -110,25 +110,25 @@ class SchoolsTable extends Table
             ->requirePresence('name', 'create')
             ->notEmpty('name', 'Bitte geben Sie einen Schulnamen an.');
 
-        # Kurzname wird automatisch generiert, daher nur allowEmpty
+        // Short name is auto-generated, so just allowEmpty
         $validator
             ->scalar('kurzname')
             ->maxLength('kurzname', 20)
             ->allowEmpty('kurzname');
 
-        # IBAN-Prefix wird automatisch generiert
+        // IBAN prefix is auto-generated
         $validator
             ->scalar('ibanprefix')
             ->maxLength('ibanprefix', 4)
             ->allowEmpty('ibanprefix');
 
-        # BIC wird automatisch generiert
+        // BIC is auto-generated
         $validator
             ->scalar('bic')
             ->maxLength('bic', 255)
             ->allowEmpty('bic');
 
-        # Status wird automatisch gesetzt
+        // Status is set automatically
         $validator
             ->scalar('status')
             ->allowEmpty('status');
@@ -137,11 +137,16 @@ class SchoolsTable extends Table
     }
 
     /**
-     * Sanitize input vor dem Speichern (XSS-Schutz)
+     * Sanitize input before saving (XSS protection)
+     *
+     * @param \Cake\Event\Event $event The event
+     * @param \Cake\Datasource\EntityInterface $entity The entity being saved
+     * @param \ArrayObject $options Save options
+     * @return bool
      */
     public function beforeSave(Event $event, $entity, $options)
     {
-        # Name sanitizen
+        // Sanitize name
         if (isset($entity->name) && !empty($entity->name)) {
             $entity->name = strip_tags($entity->name);
             $entity->name = html_entity_decode($entity->name, ENT_QUOTES | ENT_HTML5, 'UTF-8');
@@ -149,15 +154,15 @@ class SchoolsTable extends Table
             $entity->name = trim($entity->name);
         }
 
-        # Kurzname sanitizen (wichtig für Benutzernamen-Generierung)
+        // Sanitize short name (important for username generation)
         if (isset($entity->kurzname) && !empty($entity->kurzname)) {
             $entity->kurzname = strip_tags($entity->kurzname);
             $entity->kurzname = html_entity_decode($entity->kurzname, ENT_QUOTES | ENT_HTML5, 'UTF-8');
             $entity->kurzname = strip_tags($entity->kurzname);
             $entity->kurzname = trim($entity->kurzname);
-            # Zusätzlich: Nur alphanumerische Zeichen erlauben (keine Spaces, Sonderzeichen)
+            // Additional: Only allow alphanumeric characters (no spaces, special chars)
             $entity->kurzname = preg_replace('/[^a-z0-9äöüß]/i', '', $entity->kurzname);
-            # Kurzname zu lowercase konvertieren für Konsistenz
+            // Convert short name to lowercase for consistency
             $entity->kurzname = strtolower($entity->kurzname);
         }
 

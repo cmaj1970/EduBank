@@ -117,8 +117,8 @@
                 input = parseFloat(input).toFixed(2);
                 input = input.replace('.', ','); // replace decimal point character with ,
                 input = input.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
-                 // replace decimal point character with
-                //Zielzeichenkette zuweisen
+                // Replace decimal point character with thousand separator
+                // Assign target string
 
                 $this.val( function() {
                     return input;
