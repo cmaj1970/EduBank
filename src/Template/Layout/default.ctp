@@ -36,7 +36,7 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
     <nav class="top-bar expanded  hide-for-print" data-topbar role="navigation">
         <ul class="title-area large-3 medium-4 columns">
             <li class="name">
-                <h1><a href=""><?= $this->Html->image('logo.svg', ['alt' => 'PTS Banking', 'class' => 'logo']) ?></a></h1>
+                <h1><a href=""><?= $this->Html->image('logo.svg', ['alt' => 'EduBank Logo', 'class' => 'logo']) ?></a></h1>
             </li>
         </ul>
         <div class="top-bar-section">
