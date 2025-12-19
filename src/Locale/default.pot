@@ -1,0 +1,345 @@
+# LANGUAGE translation of CakePHP Application
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2018-10-15 16:24+0200\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"X-Generator: Poedit 2.2\n"
+
+#: Controller/AccountsController.php:58;83
+msgid "The account has been saved."
+msgstr ""
+
+#: Controller/AccountsController.php:62;87
+msgid "The account could not be saved. Please, try again."
+msgstr ""
+
+#: Controller/AccountsController.php:105
+msgid "The account has been deleted."
+msgstr ""
+
+#: Controller/AccountsController.php:107
+msgid "The account could not be deleted. Please, try again."
+msgstr ""
+
+#: Controller/TransactionsController.php:58;83
+msgid "The transaction has been saved."
+msgstr ""
+
+#: Controller/TransactionsController.php:62;87
+msgid "The transaction could not be saved. Please, try again."
+msgstr ""
+
+#: Controller/TransactionsController.php:105
+msgid "The transaction has been deleted."
+msgstr ""
+
+#: Controller/TransactionsController.php:107
+msgid "The transaction could not be deleted. Please, try again."
+msgstr ""
+
+#: Controller/UsersController.php:55;79
+msgid "The user has been saved."
+msgstr ""
+
+#: Controller/UsersController.php:59;83
+msgid "The user could not be saved. Please, try again."
+msgstr ""
+
+#: Controller/UsersController.php:100
+msgid "The user has been deleted."
+msgstr ""
+
+#: Controller/UsersController.php:102
+msgid "The user could not be deleted. Please, try again."
+msgstr ""
+
+#: Template/Accounts/add.ctp:9 Template/Accounts/edit.ctp:9
+#: Template/Accounts/index.ctp:9;32 Template/Accounts/view.ctp:9;80
+#: Template/Transactions/add.ctp:9 Template/Transactions/edit.ctp:9
+#: Template/Transactions/index.ctp:9;30 Template/Transactions/view.ctp:9
+#: Template/Users/add.ctp:9 Template/Users/edit.ctp:9
+#: Template/Users/index.ctp:9;29 Template/Users/view.ctp:9;73
+msgid "Actions"
+msgstr ""
+
+#: Template/Accounts/add.ctp:10 Template/Accounts/edit.ctp:16
+#: Template/Accounts/view.ctp:12 Template/Transactions/add.ctp:11
+#: Template/Transactions/edit.ctp:17 Template/Transactions/index.ctp:11
+#: Template/Transactions/view.ctp:14 Template/Users/add.ctp:11
+#: Template/Users/edit.ctp:17 Template/Users/index.ctp:11
+#: Template/Users/view.ctp:14
+msgid "List Accounts"
+msgstr ""
+
+#: Template/Accounts/add.ctp:11 Template/Accounts/edit.ctp:17
+#: Template/Accounts/index.ctp:11 Template/Accounts/view.ctp:14
+#: Template/Users/add.ctp:10 Template/Users/edit.ctp:16
+#: Template/Users/view.ctp:12
+msgid "List Users"
+msgstr ""
+
+#: Template/Accounts/add.ctp:12 Template/Accounts/edit.ctp:18
+#: Template/Accounts/index.ctp:12 Template/Accounts/view.ctp:15
+#: Template/Users/index.ctp:10 Template/Users/view.ctp:13
+msgid "New User"
+msgstr ""
+
+#: Template/Accounts/add.ctp:13 Template/Accounts/edit.ctp:19
+#: Template/Accounts/index.ctp:13 Template/Accounts/view.ctp:16
+#: Template/Transactions/add.ctp:10 Template/Transactions/edit.ctp:16
+#: Template/Transactions/view.ctp:12
+msgid "List Transactions"
+msgstr ""
+
+#: Template/Accounts/add.ctp:14 Template/Accounts/edit.ctp:20
+#: Template/Accounts/index.ctp:14 Template/Accounts/view.ctp:17
+#: Template/Transactions/index.ctp:10 Template/Transactions/view.ctp:13
+msgid "New Transaction"
+msgstr ""
+
+#: Template/Accounts/add.ctp:20
+msgid "Add Account"
+msgstr ""
+
+#: Template/Accounts/add.ctp:31 Template/Accounts/edit.ctp:37
+#: Template/Transactions/add.ctp:30 Template/Transactions/edit.ctp:36
+#: Template/Users/add.ctp:28 Template/Users/edit.ctp:34
+msgid "Submit"
+msgstr ""
+
+#: Template/Accounts/edit.ctp:11 Template/Accounts/index.ctp:51
+#: Template/Accounts/view.ctp:98 Template/Transactions/edit.ctp:11
+#: Template/Transactions/index.ctp:49 Template/Users/edit.ctp:11
+#: Template/Users/index.ctp:47 Template/Users/view.ctp:90
+msgid "Delete"
+msgstr ""
+
+#: Template/Accounts/edit.ctp:13 Template/Accounts/index.ctp:51
+#: Template/Accounts/view.ctp:11;98 Template/Transactions/edit.ctp:13
+#: Template/Transactions/index.ctp:49 Template/Transactions/view.ctp:11
+#: Template/Users/edit.ctp:13 Template/Users/index.ctp:47
+#: Template/Users/view.ctp:11;90
+msgid "Are you sure you want to delete # {0}?"
+msgstr ""
+
+#: Template/Accounts/edit.ctp:26 Template/Accounts/view.ctp:10
+msgid "Edit Account"
+msgstr ""
+
+#: Template/Accounts/index.ctp:10 Template/Accounts/view.ctp:13
+#: Template/Transactions/add.ctp:12 Template/Transactions/edit.ctp:18
+#: Template/Transactions/index.ctp:12 Template/Transactions/view.ctp:15
+#: Template/Users/add.ctp:12 Template/Users/edit.ctp:18
+#: Template/Users/index.ctp:12 Template/Users/view.ctp:15
+msgid "New Account"
+msgstr ""
+
+#: Template/Accounts/index.ctp:18
+msgid "Accounts"
+msgstr ""
+
+#: Template/Accounts/index.ctp:49 Template/Accounts/view.ctp:96
+#: Template/Transactions/index.ctp:47 Template/Users/index.ctp:45
+#: Template/Users/view.ctp:88 View/Helper/PaginatorHelper.php:1212
+msgid "View"
+msgstr ""
+
+#: Template/Accounts/index.ctp:50 Template/Accounts/view.ctp:97
+#: Template/Transactions/index.ctp:48 Template/Users/index.ctp:46
+#: Template/Users/view.ctp:89
+msgid "Edit"
+msgstr ""
+
+#: Template/Accounts/index.ctp:59 Template/Transactions/index.ctp:57
+#: Template/Users/index.ctp:55
+msgid "first"
+msgstr ""
+
+#: Template/Accounts/index.ctp:60 Template/Transactions/index.ctp:58
+#: Template/Users/index.ctp:56
+msgid "previous"
+msgstr ""
+
+#: Template/Accounts/index.ctp:62 Template/Transactions/index.ctp:60
+#: Template/Users/index.ctp:58
+msgid "next"
+msgstr ""
+
+#: Template/Accounts/index.ctp:63 Template/Transactions/index.ctp:61
+#: Template/Users/index.ctp:59
+msgid "last"
+msgstr ""
+
+#: Template/Accounts/index.ctp:65 Template/Transactions/index.ctp:63
+#: Template/Users/index.ctp:61
+msgid "Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total"
+msgstr ""
+
+#: Template/Accounts/view.ctp:11
+msgid "Delete Account"
+msgstr ""
+
+#: Template/Accounts/view.ctp:24
+msgid "User"
+msgstr ""
+
+#: Template/Accounts/view.ctp:28 Template/Users/view.ctp:22;65
+msgid "Name"
+msgstr ""
+
+#: Template/Accounts/view.ctp:32 Template/Users/view.ctp:66
+msgid "Iban"
+msgstr ""
+
+#: Template/Accounts/view.ctp:36 Template/Users/view.ctp:67
+msgid "Bic"
+msgstr ""
+
+#: Template/Accounts/view.ctp:40;69 Template/Transactions/view.ctp:42
+#: Template/Users/view.ctp:38;63
+msgid "Id"
+msgstr ""
+
+#: Template/Accounts/view.ctp:44 Template/Users/view.ctp:68
+msgid "Maxlimit"
+msgstr ""
+
+#: Template/Accounts/view.ctp:48 Template/Users/view.ctp:69
+msgid "Balance"
+msgstr ""
+
+#: Template/Accounts/view.ctp:52;78 Template/Transactions/view.ctp:54
+#: Template/Users/view.ctp:46;71
+msgid "Created"
+msgstr ""
+
+#: Template/Accounts/view.ctp:56;79 Template/Transactions/view.ctp:58
+#: Template/Users/view.ctp:50;72
+msgid "Modified"
+msgstr ""
+
+#: Template/Accounts/view.ctp:60 Template/Users/view.ctp:54;70
+msgid "Active"
+msgstr ""
+
+#: Template/Accounts/view.ctp:61 Template/Users/view.ctp:55
+msgid "Yes"
+msgstr ""
+
+#: Template/Accounts/view.ctp:61 Template/Users/view.ctp:55
+msgid "No"
+msgstr ""
+
+#: Template/Accounts/view.ctp:65
+msgid "Related Transactions"
+msgstr ""
+
+#: Template/Accounts/view.ctp:70
+msgid "Account Id"
+msgstr ""
+
+#: Template/Accounts/view.ctp:71 Template/Transactions/view.ctp:26
+msgid "Empfaenger Name"
+msgstr ""
+
+#: Template/Accounts/view.ctp:72 Template/Transactions/view.ctp:30
+msgid "Empfaenger Adresse"
+msgstr ""
+
+#: Template/Accounts/view.ctp:73 Template/Transactions/view.ctp:34
+msgid "Empfaenger Iban"
+msgstr ""
+
+#: Template/Accounts/view.ctp:74 Template/Transactions/view.ctp:38
+msgid "Empfaenger Bic"
+msgstr ""
+
+#: Template/Accounts/view.ctp:75 Template/Transactions/view.ctp:46
+msgid "Betrag"
+msgstr ""
+
+#: Template/Accounts/view.ctp:76 Template/Transactions/view.ctp:50
+msgid "Datum"
+msgstr ""
+
+#: Template/Accounts/view.ctp:77 Template/Transactions/view.ctp:63
+msgid "Zahlungszweck"
+msgstr ""
+
+#: Template/Layout/error.ctp:35
+msgid "Error"
+msgstr ""
+
+#: Template/Layout/error.ctp:43
+msgid "Back"
+msgstr ""
+
+#: Template/Transactions/add.ctp:18
+msgid "Add Transaction"
+msgstr ""
+
+#: Template/Transactions/edit.ctp:24 Template/Transactions/view.ctp:10
+msgid "Edit Transaction"
+msgstr ""
+
+#: Template/Transactions/index.ctp:16
+msgid "Transactions"
+msgstr ""
+
+#: Template/Transactions/view.ctp:11
+msgid "Delete Transaction"
+msgstr ""
+
+#: Template/Transactions/view.ctp:22
+msgid "Account"
+msgstr ""
+
+#: Template/Users/add.ctp:18
+msgid "Add User"
+msgstr ""
+
+#: Template/Users/edit.ctp:24 Template/Users/view.ctp:10
+msgid "Edit User"
+msgstr ""
+
+#: Template/Users/index.ctp:16
+msgid "Users"
+msgstr ""
+
+#: Template/Users/view.ctp:11
+msgid "Delete User"
+msgstr ""
+
+#: Template/Users/view.ctp:26
+msgid "Username"
+msgstr ""
+
+#: Template/Users/view.ctp:30
+msgid "Verfuegername"
+msgstr ""
+
+#: Template/Users/view.ctp:34
+msgid "Password"
+msgstr ""
+
+#: Template/Users/view.ctp:42
+msgid "Verfuegernummer"
+msgstr ""
+
+#: Template/Users/view.ctp:59
+msgid "Related Accounts"
+msgstr ""
+
+#: Template/Users/view.ctp:64
+msgid "User Id"
+msgstr ""
