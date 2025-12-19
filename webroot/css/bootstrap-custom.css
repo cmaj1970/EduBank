@@ -1,0 +1,260 @@
+/* EduBank Bootstrap 5 Customizations
+   Banking-Look: Dunkelblau für Vertrauen, Grün für positive Beträge
+*/
+
+:root {
+    /* Banking Farbschema */
+    --bs-primary: #1a365d;      /* Dunkelblau - Vertrauen, Seriosität */
+    --bs-primary-rgb: 26, 54, 93;
+    --bs-secondary: #4a5568;    /* Grau - Neutral */
+    --bs-secondary-rgb: 74, 85, 104;
+    --bs-success: #38a169;      /* Grün - Positiv, Guthaben */
+    --bs-success-rgb: 56, 161, 105;
+    --bs-danger: #e53e3e;       /* Rot - Negativ, Warnung */
+    --bs-danger-rgb: 229, 62, 62;
+    --bs-warning: #d69e2e;      /* Gelb/Orange - Achtung */
+    --bs-warning-rgb: 214, 158, 46;
+    --bs-info: #3182ce;         /* Hellblau - Info */
+    --bs-info-rgb: 49, 130, 206;
+    --bs-light: #f7fafc;        /* Heller Hintergrund */
+    --bs-light-rgb: 247, 250, 252;
+    --bs-dark: #1a202c;         /* Navbar/Footer */
+    --bs-dark-rgb: 26, 32, 44;
+
+    /* Zusätzliche Banking-Farben */
+    --edubank-sidebar-bg: #f8f9fa;
+    --edubank-sidebar-border: #e9ecef;
+    --edubank-amount-positive: #38a169;
+    --edubank-amount-negative: #e53e3e;
+    --edubank-link: #2563eb;
+    --edubank-link-hover: #1d4ed8;
+}
+
+/* Navbar - Dunkler Banking-Look */
+.navbar-edubank {
+    background: linear-gradient(135deg, #1a365d 0%, #2d4a7c 100%);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-edubank .navbar-brand {
+    font-weight: 700;
+    color: #fff !important;
+}
+
+.navbar-edubank .nav-link {
+    color: rgba(255, 255, 255, 0.85) !important;
+    transition: color 0.2s ease;
+}
+
+.navbar-edubank .nav-link:hover {
+    color: #fff !important;
+}
+
+.navbar-edubank .navbar-text {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Logo im Navbar */
+.navbar-edubank .logo {
+    height: 40px;
+    width: auto;
+}
+
+/* Content-Bereich */
+.main-content {
+    padding: 1.5rem;
+}
+
+/* Cards für Banking-Look */
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border-radius: 0.5rem;
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #e9ecef;
+    font-weight: 600;
+}
+
+/* Tabellen im Banking-Stil */
+.table-banking {
+    background: #fff;
+}
+
+.table-banking thead th {
+    background-color: var(--bs-primary);
+    color: #fff;
+    font-weight: 500;
+    border: none;
+    padding: 0.875rem 1rem;
+}
+
+.table-banking tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.table-banking td {
+    padding: 0.875rem 1rem;
+    vertical-align: middle;
+}
+
+/* Beträge */
+.amount-positive {
+    color: var(--edubank-amount-positive);
+    font-weight: 600;
+}
+
+.amount-negative {
+    color: var(--edubank-amount-negative);
+    font-weight: 600;
+}
+
+.amount-balance {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* Buttons im Banking-Stil */
+.btn-primary {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.btn-primary:hover {
+    background-color: #153050;
+    border-color: #153050;
+}
+
+.btn-success {
+    background-color: var(--bs-success);
+    border-color: var(--bs-success);
+}
+
+/* Footer */
+.footer-edubank {
+    background-color: var(--bs-dark);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 1rem 0;
+    font-size: 0.875rem;
+}
+
+.footer-edubank a {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+}
+
+.footer-edubank a:hover {
+    color: #fff;
+}
+
+/* Flash Messages */
+.alert {
+    border-radius: 0.375rem;
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.alert-success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border-left: 4px solid var(--bs-success);
+}
+
+.alert-danger {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border-left: 4px solid var(--bs-danger);
+}
+
+.alert-warning {
+    background-color: #fef3c7;
+    color: #92400e;
+    border-left: 4px solid var(--bs-warning);
+}
+
+.alert-info {
+    background-color: #dbeafe;
+    color: #1e40af;
+    border-left: 4px solid var(--bs-info);
+}
+
+/* Formulare */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(26, 54, 93, 0.25);
+}
+
+.form-label {
+    font-weight: 500;
+    color: #374151;
+}
+
+/* Login-Seite spezifisch */
+.login-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a365d 0%, #2d4a7c 50%, #1a365d 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-card {
+    max-width: 400px;
+    width: 100%;
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    padding: 2.5rem;
+}
+
+.login-logo {
+    max-height: 60px;
+    margin-bottom: 1.5rem;
+}
+
+/* Pagination */
+.pagination .page-link {
+    color: var(--bs-primary);
+    border: none;
+    margin: 0 0.125rem;
+    border-radius: 0.25rem;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--bs-primary);
+    color: #fff;
+}
+
+.pagination .page-link:hover {
+    background-color: #e9ecef;
+    color: var(--bs-primary);
+}
+
+/* Responsive Anpassungen */
+@media (max-width: 991.98px) {
+    .main-content {
+        padding: 1rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .navbar-edubank,
+    .footer-edubank,
+    .btn {
+        display: none !important;
+    }
+
+    .main-content {
+        padding: 0;
+        width: 100%;
+    }
+
+    .card {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+}

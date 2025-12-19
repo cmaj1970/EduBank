@@ -41,9 +41,16 @@ class AccountsController extends AppController
             'contain' => ['Users'],
         ];
         if ($this->Auth->user()['role'] != 'admin') {
-            $query = $this->Accounts->find('all', ['contain' => ['Transactions']])->where(['user_id' => $this->Auth->user()['id']])->first();
-            return $this->redirect(['action' => 'view', $query->id]);
-            // debug($query->toArray());
+            # Schüler: Eigenes Konto suchen und anzeigen
+            $account = $this->Accounts->find('all', ['contain' => ['Transactions']])->where(['user_id' => $this->Auth->user()['id']])->first();
+            if ($account) {
+                return $this->redirect(['action' => 'view', $account->id]);
+            } else {
+                # Kein Konto vorhanden - leere Seite mit Hinweis
+                $this->Flash->warning(__('Sie haben noch kein Konto. Bitte wenden Sie sich an Ihren Schuladministrator.'));
+                $this->set('accounts', []);
+                return;
+            }
         } else {
             if ($this->school) {
                 $query = $this->Accounts->find(
