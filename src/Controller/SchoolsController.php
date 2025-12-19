@@ -129,10 +129,50 @@ class SchoolsController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $school = $this->Schools->get($id);
+
+        # Statistiken für Lösch-Feedback sammeln
+        $this->loadModel('Users');
+        $this->loadModel('Accounts');
+        $this->loadModel('Transactions');
+
+        # Alle User dieser Schule finden
+        $users = $this->Users->find('all')
+            ->where(['school_id' => $id])
+            ->toArray();
+
+        $deletedUsers = 0;
+        $deletedAccounts = 0;
+        $deletedTransactions = 0;
+
+        # Für jeden User: Konten und Transaktionen löschen
+        foreach ($users as $user) {
+            # Konten des Users finden
+            $accounts = $this->Accounts->find('all')
+                ->where(['user_id' => $user->id])
+                ->toArray();
+
+            foreach ($accounts as $account) {
+                # Transaktionen löschen (als Auftraggeber)
+                $deletedTransactions += $this->Transactions->deleteAll(['account_id' => $account->id]);
+                # Transaktionen löschen (als Empfänger)
+                $deletedTransactions += $this->Transactions->deleteAll(['empfaenger_iban' => $account->iban]);
+                $deletedAccounts++;
+            }
+
+            # Konten des Users löschen
+            $this->Accounts->deleteAll(['user_id' => $user->id]);
+            $deletedUsers++;
+        }
+
+        # Alle User der Schule löschen
+        $this->Users->deleteAll(['school_id' => $id]);
+
+        # Schule löschen
         if ($this->Schools->delete($school)) {
-            $this->Flash->success(__('The school has been deleted.'));
+            $this->Flash->success(__('Schule "{0}" gelöscht inkl. {1} Benutzer, {2} Konten, {3} Transaktionen.',
+                $school->name, $deletedUsers, $deletedAccounts, $deletedTransactions));
         } else {
-            $this->Flash->error(__('The school could not be deleted. Please, try again.'));
+            $this->Flash->error(__('Die Schule konnte nicht gelöscht werden.'));
         }
 
         return $this->redirect(['action' => 'index']);
@@ -151,18 +191,11 @@ class SchoolsController extends AppController
         if ($this->request->is('post')) {
             $data = $this->request->getData();
 
-            // Prepend "PTS" to school name
-            if (!empty($data['name'])) {
-                $data['name'] = 'PTS ' . $data['name'];
-            }
-
-            // Generate short name from school name if empty
+            # Kurzname generieren falls leer (aus dem Schulnamen)
             if (empty($data['kurzname']) && !empty($data['name'])) {
-                // From "PTS Sonnental" → "ptssonnental"
-                $nameWithoutPTS = preg_replace('/^PTS\s*/i', '', $data['name']);
-                $data['kurzname'] = 'pts' . $this->_normalizeKurzname($nameWithoutPTS);
+                $data['kurzname'] = $this->_normalizeKurzname($data['name']);
             } elseif (!empty($data['kurzname'])) {
-                // Short name from frontend: convert umlauts and sanitize
+                # Kurzname vom Frontend: Umlaute konvertieren und bereinigen
                 $data['kurzname'] = $this->_normalizeKurzname($data['kurzname']);
             }
 
@@ -191,13 +224,15 @@ class SchoolsController extends AppController
             $school->ibanprefix = $this->_generateIbanPrefix();
 
             if ($this->Schools->save($school)) {
-                // Create admin user for the school
+                # Admin-User für die Schule erstellen
                 $password = $this->_createSchoolAdminOnRegister($school);
 
                 if ($password) {
-                    $this->Flash->success(__('Ihre Registrierung wurde erfolgreich übermittelt. Benutzername: admin-{0}, Passwort: {1}', $school->kurzname, $password));
+                    $this->Flash->success(__('Schule erstellt! Admin: admin-{0}, Passwort: {1}', $school->kurzname, $password));
                 } else {
-                    $this->Flash->success(__('Ihre Registrierung wurde erfolgreich übermittelt.'));
+                    # Admin konnte nicht erstellt werden - Warnung anzeigen (Fehler kommt von _createSchoolAdminOnRegister)
+                    $this->Flash->warning(__('Schule "{0}" erstellt, aber Admin-User konnte nicht erstellt werden. Kurzname: {1}, School-ID: {2}',
+                        $school->name, $school->kurzname, $school->id));
                 }
                 return $this->redirect(['controller' => 'Schools', 'action' => 'index']);
             }
@@ -295,27 +330,25 @@ class SchoolsController extends AppController
     }
 
     /**
-     * Make school name AND short name unique with synchronized numbering
-     * Example: "PTS Sonnental" + "ptssonnental"
-     *          → "PTS Sonnental 2" + "ptssonnental2"
+     * Schulname und Kurzname eindeutig machen mit synchroner Nummerierung
+     * Beispiel: "Sonnental" + "sonnental" → "Sonnental 2" + "sonnental2"
      *
-     * @param string $schoolname The school name
-     * @param string $kurzname The short name
+     * @param string $schoolname Schulname
+     * @param string $kurzname Kurzname
      * @return array ['name' => '...', 'kurzname' => '...']
      */
     private function _makeSchoolnameAndKurznameUnique($schoolname, $kurzname)
     {
         $originalSchoolname = $schoolname;
         $originalKurzname = $kurzname;
-        $counter = 2; // First duplicate gets "2"
+        $counter = 2; # Erstes Duplikat bekommt "2"
 
-        // Check if school name OR short name already exists
+        # Prüfen ob Schulname ODER Kurzname bereits existiert
         while (
             $this->Schools->exists(['name' => $schoolname]) ||
             $this->Schools->exists(['kurzname' => $kurzname])
         ) {
-            // School name: "PTS Sonnental" → "PTS Sonnental 2"
-            // Extract existing number if present
+            # Schulname: "Sonnental" → "Sonnental 2"
             if (preg_match('/^(.+?)\s+(\d+)$/', $originalSchoolname, $matches)) {
                 $base = $matches[1];
                 $existingNumber = (int)$matches[2];
@@ -324,7 +357,7 @@ class SchoolsController extends AppController
                 $schoolname = $originalSchoolname . ' ' . $counter;
             }
 
-            // Short name: "ptssonnental" → "ptssonnental2"
+            # Kurzname: "sonnental" → "sonnental2"
             if (preg_match('/^(.+?)(\d+)$/', $originalKurzname, $matches)) {
                 $base = $matches[1];
                 $existingNumber = (int)$matches[2];
@@ -335,7 +368,7 @@ class SchoolsController extends AppController
 
             $counter++;
 
-            // Safety break (should never be needed)
+            # Sicherheitsabbruch (sollte nie erreicht werden)
             if ($counter > 100) {
                 break;
             }
@@ -389,36 +422,49 @@ class SchoolsController extends AppController
     {
         $this->loadModel('Users');
 
-        // Username: admin-{kurzname}
+        # Username: admin-{kurzname}
         $username = 'admin-' . $school->kurzname;
 
-        // Check if user already exists
+        # Prüfen ob User bereits existiert
         $existingUser = $this->Users->find()
             ->where(['username' => $username])
             ->first();
 
         if ($existingUser) {
-            return false; // User already exists
+            $this->log("SchoolAdmin: User '$username' existiert bereits", 'info');
+            return false;
         }
 
-        // Default password for school admins from environment variable
+        # Standard-Passwort für Schuladmins
         $password = env('DEFAULT_ADMIN_PASSWORD', 'ChangeMe123');
 
-        // Create user
+        # User erstellen
         $user = $this->Users->newEntity([
             'username' => $username,
             'password' => $password,
-            'name' => $school->name,  // School name (e.g. "PTS Sonnental")
+            'name' => $school->name,
             'role' => 'admin',
             'school_id' => $school->id,
-            'active' => 1,
-            'admin' => 0  // Not superadmin, only school admin
+            'active' => 1
         ]);
 
+        # Debug: Validierungsfehler prüfen
+        $errors = $user->getErrors();
+        if (!empty($errors)) {
+            $this->log("SchoolAdmin Validierungsfehler: " . json_encode($errors), 'error');
+            $this->Flash->error(__('Admin-Fehler: {0}', json_encode($errors)));
+            return false;
+        }
+
         if ($this->Users->save($user)) {
+            $this->log("SchoolAdmin '$username' erfolgreich erstellt", 'info');
             return $password;
         }
 
+        # Debug: Save-Fehler
+        $saveErrors = $user->getErrors();
+        $this->log("SchoolAdmin Save-Fehler: " . json_encode($saveErrors), 'error');
+        $this->Flash->error(__('Admin konnte nicht erstellt werden: {0}', json_encode($saveErrors)));
         return false;
     }
 

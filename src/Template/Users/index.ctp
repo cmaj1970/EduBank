@@ -6,16 +6,16 @@
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="mb-0"><i class="bi bi-people me-2"></i><?= __('Benutzer') ?></h3>
+    <h3 class="mb-0"><i class="bi bi-people me-2"></i><?= __('Übungsfirmen') ?></h3>
     <a href="/users/add" class="btn btn-primary">
-        <i class="bi bi-plus-lg me-1"></i><?= __('Neuer Benutzer') ?>
+        <i class="bi bi-plus-lg me-1"></i><?= __('Neue Übungsfirma') ?>
     </a>
 </div>
 
 <div class="card">
     <div class="table-responsive">
         <table class="table table-hover mb-0">
-            <thead class="table-dark">
+            <thead class="table-primary">
                 <tr>
                     <th><?= $this->Paginator->sort('name', 'Name') ?></th>
                     <th><?= $this->Paginator->sort('username', 'Benutzername') ?></th>
@@ -62,7 +62,7 @@
                             <?= $this->Form->postLink(
                                 '<i class="bi bi-trash"></i>',
                                 ['action' => 'delete', $user->id],
-                                ['class' => 'btn btn-outline-danger', 'escape' => false, 'title' => 'Löschen', 'confirm' => __('Benutzer "{0}" wirklich löschen?', $user->name)]
+                                ['class' => 'btn btn-outline-danger', 'escape' => false, 'title' => 'Löschen', 'confirm' => __('Übungsfirma "{0}" wirklich löschen?', $user->name)]
                             ) ?>
                         </div>
                     </td>

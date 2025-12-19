@@ -39,31 +39,44 @@
             <div class="collapse navbar-collapse" id="navbarMain">
                 <!-- Hauptnavigation -->
                 <ul class="navbar-nav me-auto">
-                    <?php if($authuser['role'] == 'admin' && !isset($loggedinschool)): ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/schools">
-                            <i class="bi bi-building me-1"></i>Schulen
-                        </a>
-                    </li>
+                    <?php if($authuser['role'] == 'admin'): ?>
+                        <?php if(!isset($loggedinschool)): ?>
+                        <!-- Superadmin: Schulen anzeigen -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/schools">
+                                <i class="bi bi-building me-1"></i>Schulen
+                            </a>
+                        </li>
+                        <?php endif; ?>
+
+                        <!-- Admins: Übungsfirmen verwalten -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/users">
+                                <i class="bi bi-people me-1"></i>Übungsfirmen
+                            </a>
+                        </li>
+
+                        <!-- Admins: Konten -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/accounts">
+                                <i class="bi bi-wallet2 me-1"></i>Konten
+                            </a>
+                        </li>
+
+                        <!-- Admins: Transaktionen -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/transactions">
+                                <i class="bi bi-arrow-left-right me-1"></i>Transaktionen
+                            </a>
+                        </li>
+                    <?php else: ?>
+                        <!-- Übungsfirma: Nur Mein Konto (von dort zur Überweisung) -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/accounts">
+                                <i class="bi bi-wallet2 me-1"></i>Mein Konto
+                            </a>
+                        </li>
                     <?php endif; ?>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="/users">
-                            <i class="bi bi-people me-1"></i>Benutzer
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="/accounts">
-                            <i class="bi bi-wallet2 me-1"></i>Konten
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="/transactions">
-                            <i class="bi bi-arrow-left-right me-1"></i>Transaktionen
-                        </a>
-                    </li>
                 </ul>
 
                 <!-- User Menu -->
@@ -74,12 +87,6 @@
                             <?= h($authuser['username']) ?>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <span class="dropdown-item-text text-muted small">
-                                    <?= isset($authuser['role']) ? ucfirst(h($authuser['role'])) : 'Benutzer' ?>
-                                </span>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a class="dropdown-item" href="/users/logout">
                                     <i class="bi bi-box-arrow-right me-2"></i>Abmelden

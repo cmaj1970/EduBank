@@ -46,7 +46,7 @@ class UsersTable extends Table
 
         $this->belongsTo('Schools', [
             'foreignKey' => 'school_id',
-            'joinType' => 'INNER'
+            'joinType' => 'LEFT'  # LEFT statt INNER - erlaubt User ohne Schule (z.B. Superadmin)
         ]);
         $this->hasMany('Accounts', [
             'foreignKey' => 'user_id'
@@ -105,12 +105,14 @@ class UsersTable extends Table
                 $entity->verfuegername = trim($entity->verfuegername);
             }
 
-            // Make a password for digest auth.
-            $entity->digest_hash = DigestAuthenticate::password(
-                $entity->username,
-                $entity->plain_password,
-                env('SERVER_NAME')
-            );
+            # Digest-Hash nur erstellen wenn plain_password gesetzt ist
+            if (isset($entity->plain_password) && !empty($entity->plain_password)) {
+                $entity->digest_hash = DigestAuthenticate::password(
+                    $entity->username,
+                    $entity->plain_password,
+                    env('SERVER_NAME')
+                );
+            }
             return true;
         }
 }

@@ -10,13 +10,22 @@
 <div class="row mb-4">
     <div class="col-12">
         <h3><i class="bi bi-speedometer2 me-2"></i>Dashboard</h3>
+        <?php if (isset($loggedinschool)): ?>
+        <p class="text-muted">Willkommen zurück! Schuladministrator: <?= h($loggedinschool['name']) ?></p>
+        <?php elseif ($authuser['role'] == 'admin'): ?>
+        <p class="text-muted">Willkommen zurück, <?= h($authuser['name']) ?>! (Superadministrator)</p>
+        <?php else: ?>
         <p class="text-muted">Willkommen zurück, <?= h($authuser['name']) ?>!</p>
+        <?php endif; ?>
     </div>
 </div>
 
 <div class="row g-4">
     <?php if ($authuser['role'] == 'admin'): ?>
     <!-- Admin Dashboard -->
+
+    <?php if (!isset($loggedinschool)): ?>
+    <!-- Nur Superadmin: Schulen -->
     <div class="col-md-6 col-lg-3">
         <div class="card h-100 border-0 shadow-sm">
             <div class="card-body text-center">
@@ -27,13 +36,14 @@
             </div>
         </div>
     </div>
+    <?php endif; ?>
 
     <div class="col-md-6 col-lg-3">
         <div class="card h-100 border-0 shadow-sm">
             <div class="card-body text-center">
                 <i class="bi bi-people text-info fs-1 mb-3"></i>
-                <h5 class="card-title">Benutzer</h5>
-                <p class="card-text text-muted small">Benutzer verwalten</p>
+                <h5 class="card-title">Übungsfirmen</h5>
+                <p class="card-text text-muted small">Übungsfirmen verwalten</p>
                 <a href="/users" class="btn btn-outline-info">Öffnen</a>
             </div>
         </div>
@@ -62,7 +72,7 @@
     </div>
 
     <?php else: ?>
-    <!-- Schüler Dashboard -->
+    <!-- Übungsfirma Dashboard -->
     <div class="col-md-6">
         <div class="card h-100 border-0 shadow-sm">
             <div class="card-body text-center">
@@ -109,7 +119,7 @@
                         <div class="card-body">
                             <i class="bi bi-wallet2 text-primary fs-1 mb-3"></i>
                             <h5 class="card-title">Konten verwalten</h5>
-                            <p class="card-text text-muted small">Erstellen und verwalten Sie virtuelle Bankkonten für Schüler.</p>
+                            <p class="card-text text-muted small">Erstellen und verwalten Sie virtuelle Bankkonten für Übungsfirmen.</p>
                         </div>
                     </div>
                 </div>

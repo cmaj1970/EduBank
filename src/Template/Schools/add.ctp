@@ -26,7 +26,7 @@
 
                 <div class="mb-3">
                     <label for="kurzname-display" class="form-label"><?= __('Kurzname') ?></label>
-                    <input type="text" id="kurzname-display" class="form-control" readonly disabled placeholder="Wird automatisch generiert">
+                    <input type="text" id="kurzname-display" class="form-control bg-light" readonly placeholder="Wird automatisch generiert">
                     <?= $this->Form->hidden('kurzname', ['id' => 'kurzname']) ?>
                     <div class="form-text">
                         Der Kurzname wird automatisch aus dem Schulnamen generiert und für Benutzernamen verwendet (z.B. admin-musterschule)
@@ -44,9 +44,10 @@
     </div>
 </div>
 
+<?php $this->start('script'); ?>
 <script>
 $(document).ready(function() {
-    // Auto-generate short name from school name
+    // Kurzname automatisch aus Schulname generieren
     function generateKurzname(name) {
         var kurzname = name.toLowerCase()
             .replace(/ä/g, 'ae')
@@ -57,7 +58,7 @@ $(document).ready(function() {
         return kurzname;
     }
 
-    // On input in school name field
+    // Bei Eingabe im Schulnamen-Feld
     $('#name').on('input', function() {
         var schoolName = $(this).val();
         var kurzname = generateKurzname(schoolName);
@@ -65,7 +66,7 @@ $(document).ready(function() {
         $('#kurzname').val(kurzname);
     });
 
-    // Ensure short name is set before submit
+    // Vor dem Absenden sicherstellen dass Kurzname gesetzt ist
     $('form#registerform').on('submit', function(e) {
         var schoolName = $('#name').val();
         if (schoolName && !$('#kurzname').val()) {
@@ -80,7 +81,7 @@ $(document).ready(function() {
         }
     });
 
-    // Form validation
+    // Formularvalidierung
     $("form#registerform").validate({
         lang: 'de',
         rules: {
@@ -98,3 +99,4 @@ $(document).ready(function() {
     });
 });
 </script>
+<?php $this->end(); ?>
