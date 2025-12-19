@@ -53,38 +53,38 @@
 
 <script>
 $(document).ready(function() {
-    # Kurzname automatisch aus Schulname generieren
+    // Auto-generate short name from school name
     function generateKurzname(name) {
         var kurzname = 'pts' + name.toLowerCase()
             .replace(/ä/g, 'ae')
             .replace(/ö/g, 'oe')
             .replace(/ü/g, 'ue')
             .replace(/ß/g, 'ss')
-            .replace(/[^a-z0-9]/g, ''); // Alle Sonderzeichen entfernen
+            .replace(/[^a-z0-9]/g, ''); // Remove all special characters
         return kurzname;
     }
 
-    # Bei Eingabe im Schulname-Feld
+    // On input in school name field
     $('#name').on('input', function() {
         var schoolName = $(this).val();
         var kurzname = generateKurzname(schoolName);
 
-        # Display-Feld aktualisieren
+        // Update display field
         $('#kurzname-display').val(kurzname);
-        # Hidden-Feld aktualisieren (wird submitted)
+        // Update hidden field (will be submitted)
         $('#kurzname').val(kurzname);
     });
 
-    # Vor dem Submit sicherstellen, dass Kurzname gesetzt ist
+    // Ensure short name is set before submit
     $('form#registerform').on('submit', function(e) {
         var schoolName = $('#name').val();
         if (schoolName && !$('#kurzname').val()) {
-            // Kurzname generieren falls noch nicht geschehen
+            // Generate short name if not done yet
             var kurzname = generateKurzname(schoolName);
             $('#kurzname').val(kurzname);
         }
 
-        // Prüfen ob Kurzname jetzt gesetzt ist
+        // Check if short name is now set
         if (!$('#kurzname').val() || $('#kurzname').val().length < 3) {
             e.preventDefault();
             alert('Bitte geben Sie einen Schulnamen ein (mindestens 3 Zeichen).');
@@ -92,7 +92,7 @@ $(document).ready(function() {
         }
     });
 
-    # Formular-Validierung
+    // Form validation
     $("form#registerform").validate({
         lang: 'de',
         rules: {

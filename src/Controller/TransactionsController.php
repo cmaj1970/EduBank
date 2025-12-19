@@ -14,6 +14,13 @@
 	 */
 	class TransactionsController extends AppController
 	{
+		/**
+		 * Authorization - who can do what?
+		 * Users can view, add, storno and check IBAN
+		 *
+		 * @param array $user The logged in user
+		 * @return bool
+		 */
 		public function isAuthorized($user)
 		{
 			if (isset($user['role']) && $user['role'] === 'user') {
@@ -67,7 +74,7 @@
 		public function add()
 		{
 			$transaction = $this->Transactions->newEntity();
-			# Überweisungslimit checken
+			// Check transfer limit
 			$account = $this->Transactions->Accounts->find('all')->where(['user_id' => $this->Auth->user()['id']])->first();
 			$account->transactions = $this->Transactions->find('all')->where(["datum <= '" . date('Y-m-d') . "'", 'or' => ['and' => ['empfaenger_iban' => $account->iban], 'account_id' => $account->id]]);
             foreach ($account->transactions as $k => $to) {
@@ -87,11 +94,11 @@
 				}
 				if($valid_tan == true) {
                     $transaction = $this->Transactions->patchEntity($transaction, $this->request->getData());
-                    #debug($transaction->betrag);
+                    // debug($transaction->betrag);
                     $transaction->betrag = str_replace('.', '', $transaction->betrag);
-                    #debug($transaction->betrag);
+                    // debug($transaction->betrag);
                     $transaction->betrag = str_replace(',', '.', $transaction->betrag);
-                    #debug($transaction->betrag);die();
+                    // debug($transaction->betrag); die();
 
 					if ($transaction->betrag <= 0) {
 						$this->Flash->error(__('Bitte einen gültigen Betrag eingeben.'));
@@ -158,6 +165,13 @@
 
 			return $this->redirect(['action' => 'index']);
 		}
+
+        /**
+         * Storno method - cancel a scheduled transaction
+         *
+         * @param string|null $id Transaction id.
+         * @return \Cake\Http\Response|null Redirects to account history.
+         */
         public function storno($id = null)
         {
             $this->request->allowMethod(['post', 'delete']);
@@ -169,6 +183,13 @@
             }
             return $this->redirect(['controller' => 'Accounts', 'action' => 'history', $transaction->account_id]);
         }
+
+        /**
+         * Check IBAN method - AJAX endpoint to validate IBAN
+         * Returns JSON true/false if IBAN exists in system
+         *
+         * @return \Cake\Http\Response JSON response
+         */
         public function checkiban() {
             $this->autoRender = false;
             $iban_ok = false;
