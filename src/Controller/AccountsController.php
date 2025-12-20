@@ -53,30 +53,17 @@ class AccountsController extends AppController
             }
         } else {
             if ($this->school) {
-                $query = $this->Accounts->find(
-                    'all',
-                    [
-                        'contain' => [
-                            'Transactions',
-                            'Users.Schools'
-                            => function ($q) {
-                                return $q->where(['Schools.id' => $this->school['id']]);
-                            }
-                            ,
-                        ]
-                    ]
-                );
+                # Schuladmin: Nur Konten von Benutzern dieser Schule anzeigen
+                $query = $this->Accounts->find('all')
+                    ->contain(['Transactions', 'Users'])
+                    ->matching('Users', function ($q) {
+                        return $q->where(['Users.school_id' => $this->school['id']]);
+                    });
             } else {
-                $query = $this->Accounts->find(
-                    'all',
-                    [
-                        'contain' => [
-                            'Transactions',
-                        ]
-                    ]
-                );
+                # Superadmin: Alle Konten anzeigen
+                $query = $this->Accounts->find('all')
+                    ->contain(['Transactions', 'Users']);
             }
-
         }
         $query->formatResults(function (\Cake\Collection\CollectionInterface $results) {
             return $results->map(function ($row) {
@@ -116,7 +103,15 @@ class AccountsController extends AppController
                 }
             ]
         ]);
+
+        # Zugriffsschutz: Übungsfirma darf nur eigenes Konto sehen
         if ($this->Auth->user()['role'] !== 'admin' && $account->user_id != $this->Auth->user()['id']) {
+            return $this->redirect(['action' => 'index']);
+        }
+
+        # Schuladmin darf nur Konten seiner Schule sehen
+        if ($this->school && $account->user->school_id != $this->school['id']) {
+            $this->Flash->error(__('Sie können nur Konten Ihrer eigenen Schule einsehen.'));
             return $this->redirect(['action' => 'index']);
         }
         // Find transfers to this account
@@ -153,7 +148,15 @@ class AccountsController extends AppController
                 }
             ]
         ]);
+
+        # Zugriffsschutz: Übungsfirma darf nur eigene Historie sehen
         if ($this->Auth->user()['role'] !== 'admin' && $account->user_id != $this->Auth->user()['id']) {
+            return $this->redirect(['action' => 'index']);
+        }
+
+        # Schuladmin darf nur Konten seiner Schule sehen
+        if ($this->school && $account->user->school_id != $this->school['id']) {
+            $this->Flash->error(__('Sie können nur Konten Ihrer eigenen Schule einsehen.'));
             return $this->redirect(['action' => 'index']);
         }
         // Find transfers to this account
