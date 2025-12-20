@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\Mailer\Email;
 
 /**
  * Schools Controller
@@ -237,11 +238,23 @@ class SchoolsController extends AppController
             $school->ibanprefix = $this->_generateIbanPrefix();
 
             if ($this->Schools->save($school)) {
+                # E-Mail-Adresse aus Formular holen
+                $email = $this->request->getData('email');
+
                 # Admin-User für die Schule erstellen
                 $password = $this->_createSchoolAdminOnRegister($school);
 
                 if ($password) {
-                    $this->Flash->success(__('Schule erstellt! Admin: admin-{0}, Passwort: {1}', $school->kurzname, $password));
+                    $username = 'admin-' . $school->kurzname;
+
+                    # E-Mail mit Zugangsdaten versenden
+                    $emailSent = $this->_sendWelcomeEmail($email, $school->name, $username, $password);
+
+                    if ($emailSent) {
+                        $this->Flash->success(__('Schule erstellt! Die Zugangsdaten wurden an {0} gesendet.', $email));
+                    } else {
+                        $this->Flash->success(__('Schule erstellt! Admin: admin-{0}, Passwort: {1} (E-Mail konnte nicht gesendet werden)', $school->kurzname, $password));
+                    }
                 } else {
                     # Admin konnte nicht erstellt werden - Warnung anzeigen (Fehler kommt von _createSchoolAdminOnRegister)
                     $this->Flash->warning(__('Schule "{0}" erstellt, aber Admin-User konnte nicht erstellt werden. Kurzname: {1}, School-ID: {2}',
@@ -524,6 +537,53 @@ class SchoolsController extends AppController
         }
 
         return false;
+    }
+
+    /**
+     * Send welcome email with login credentials
+     *
+     * @param string $toEmail Recipient email address
+     * @param string $schoolName Name of the school
+     * @param string $username Admin username
+     * @param string $password Admin password
+     * @return bool True if email was sent successfully
+     */
+    private function _sendWelcomeEmail($toEmail, $schoolName, $username, $password)
+    {
+        if (empty($toEmail)) {
+            $this->log('WelcomeEmail: Keine E-Mail-Adresse angegeben', 'warning');
+            return false;
+        }
+
+        try {
+            // Login-URL generieren
+            $loginUrl = 'https://edubank.solidcode.at/users/login';
+
+            $email = new Email();
+            $email
+                ->setTransport('default')
+                ->setEmailFormat('html')
+                ->setFrom(['noreply@edubank.solidcode.at' => 'EduBank'])
+                ->setTo($toEmail)
+                ->setSubject('Willkommen bei EduBank - Ihre Zugangsdaten')
+                ->setViewVars([
+                    'schoolName' => $schoolName,
+                    'username' => $username,
+                    'password' => $password,
+                    'loginUrl' => $loginUrl
+                ])
+                ->setTemplate('welcome_school')
+                ->setLayout('welcome');
+
+            $email->send();
+
+            $this->log("WelcomeEmail: E-Mail an $toEmail gesendet", 'info');
+            return true;
+
+        } catch (\Exception $e) {
+            $this->log('WelcomeEmail Fehler: ' . $e->getMessage(), 'error');
+            return false;
+        }
     }
 
 }
