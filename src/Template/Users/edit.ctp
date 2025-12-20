@@ -22,10 +22,11 @@ $isSchoolAdminLoggedIn = isset($loggedinschool);
                 <?= $this->Form->create($user) ?>
 
                 <div class="mb-3">
-                    <label for="name" class="form-label"><?= __('Name') ?> <span class="text-danger">*</span></label>
+                    <label for="name" class="form-label"><?= __('Name der Übungsfirma') ?> <span class="text-danger">*</span></label>
                     <?= $this->Form->text('name', [
                         'class' => 'form-control',
                         'id' => 'name',
+                        'placeholder' => 'Name der Übungsfirma',
                         'required' => true
                     ]) ?>
                 </div>
@@ -89,16 +90,6 @@ $isSchoolAdminLoggedIn = isset($loggedinschool);
                     </div>
                 </div>
                 <?php endif; ?>
-
-                <div class="mb-3">
-                    <label for="password" class="form-label"><?= __('Neues Passwort') ?></label>
-                    <?= $this->Form->password('password', [
-                        'class' => 'form-control',
-                        'id' => 'password',
-                        'value' => ''
-                    ]) ?>
-                    <div class="form-text">Leer lassen um das Passwort nicht zu ändern</div>
-                </div>
 
                 <div class="mb-3">
                     <div class="form-check form-switch">
