@@ -135,7 +135,8 @@ $(document).ready(function() {
 
 $('#requesttan').click(function () {
     var $form = $("form");
-    var $iban = $form.find('#empfaenger-iban').val();
+    // IBAN ohne Leerzeichen für Server-Validierung
+    var $iban = $form.find('#empfaenger-iban').val().replace(/\s/g, '');
     var $checkiban = true;
 
     $.ajax({
@@ -182,6 +183,9 @@ $('#tansubmit').click(function () {
     if(tanval == 0 || modulo > 0 || tanval < 10000 || tanval > 99999) {
         alert('Ungültige TAN');
     } else {
+        // IBAN ohne Leerzeichen speichern
+        var $iban = $('#empfaenger-iban');
+        $iban.val($iban.val().replace(/\s/g, ''));
         this.form.submit();
     }
 });
@@ -209,17 +213,37 @@ $('#tansubmit').click(function () {
         });
     });
 
-    // IBAN-Formatierung (Leerzeichen entfernen)
+    // IBAN-Formatierung (Vierergruppen mit Leerzeichen)
     $(function() {
-        var $form = $("form");
-        var $checkiban = $form.find("#empfaenger-iban");
-        $checkiban.on("focusout", function(event) {
+        var $ibanInput = $("#empfaenger-iban");
+
+        function formatIBAN(value) {
+            // Alle Leerzeichen und Nicht-Alphanumerischen Zeichen entfernen
+            var cleaned = value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+            // In Vierergruppen aufteilen
+            var formatted = cleaned.match(/.{1,4}/g);
+            return formatted ? formatted.join(' ') : '';
+        }
+
+        // Bei Eingabe und Einfügen formatieren
+        $ibanInput.on("input paste", function(event) {
             var $this = $(this);
-            var input = $this.val();
-            input = input.replace(' ', '');
-            $this.val(function() {
-                return input;
-            });
+            // Timeout für paste-Event, damit der Wert verfügbar ist
+            setTimeout(function() {
+                var cursorPos = $this[0].selectionStart;
+                var oldVal = $this.val();
+                var newVal = formatIBAN(oldVal);
+                $this.val(newVal);
+
+                // Cursor-Position anpassen
+                var diff = newVal.length - oldVal.length;
+                $this[0].setSelectionRange(cursorPos + diff, cursorPos + diff);
+            }, 0);
+        });
+
+        // Bei Verlassen des Feldes nochmal formatieren
+        $ibanInput.on("focusout", function() {
+            $(this).val(formatIBAN($(this).val()));
         });
     });
 })(jQuery);
