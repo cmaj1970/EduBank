@@ -123,9 +123,11 @@
                     <span>&copy; <?= date('Y') ?> EduBank - Banking Simulation für Schulen</span>
                 </div>
                 <div class="col-md-6 text-center text-md-end mt-2 mt-md-0">
-                    <a href="https://github.com/cmaj1970/edubank" target="_blank">
-                        <i class="bi bi-github"></i> GitHub
-                    </a>
+                    <?php
+                    $versionFile = ROOT . DS . 'Version.txt';
+                    $version = file_exists($versionFile) ? trim(file_get_contents($versionFile)) : 'unknown';
+                    ?>
+                    <span class="text-muted">v<?= $version ?></span>
                 </div>
             </div>
         </div>
