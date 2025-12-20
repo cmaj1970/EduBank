@@ -91,16 +91,6 @@ $isSchoolAdminLoggedIn = isset($loggedinschool);
                 <?php endif; ?>
 
                 <div class="mb-3">
-                    <label for="password" class="form-label"><?= __('Neues Passwort') ?></label>
-                    <?= $this->Form->password('password', [
-                        'class' => 'form-control',
-                        'id' => 'password',
-                        'value' => ''
-                    ]) ?>
-                    <div class="form-text">Leer lassen um das Passwort nicht zu ändern</div>
-                </div>
-
-                <div class="mb-3">
                     <div class="form-check form-switch">
                         <?= $this->Form->checkbox('active', [
                             'class' => 'form-check-input',
