@@ -69,28 +69,38 @@ class UsersController extends AppController
         if ($this->request->is('post')) {
             $user = $this->Users->patchEntity($user, $this->request->getData());
             if ($this->Users->save($user)) {
-                $this->Flash->success(__('The user has been saved.'));
+                $this->Flash->success(__('Benutzer wurde erstellt.'));
 
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The user could not be saved. Please, try again.'));
+            $this->Flash->error(__('Der Benutzer konnte nicht erstellt werden.'));
         }
+
+        # Standard-Passwörter aus .env
+        $defaultAdminPassword = env('DEFAULT_ADMIN_PASSWORD', 'SchulAdmin2024');
+        $defaultUserPassword = env('DEFAULT_USER_PASSWORD', 'Schueler2024');
+
         $user->roles = ['admin' => 'Admin', 'user' => 'User'];
         $conditions = [];
-        $passworddefault = '';
+
         if($this->school) {
+            # Schuladmin erstellt Übungsfirma
             $conditions = ['id' => $this->school['id']];
             $schoolusers = $this->Users->find('all')->where(['school_id' => $this->school['id']]);
             $user->username = $this->school['kurzname'] . "-" . $schoolusers->count();
             $user->name = $this->school['name'] . " " . $schoolusers->count();
             $user->roles = ['user' => 'User'];
-            // Default password for students from environment variable
-            $user->password = env('DEFAULT_USER_PASSWORD', 'ChangeMe123');
-        	$passworddefault = env('DEFAULT_USER_PASSWORD', 'ChangeMe123');
+            $user->password = $defaultUserPassword;
+            $passworddefault = $defaultUserPassword;
+        } else {
+            # Superadmin erstellt User - Standard-Passwort je nach Rolle
+            # Default ist User-Passwort, wird im Template per JS aktualisiert
+            $passworddefault = $defaultUserPassword;
         }
+
         $user->active = 1;
         $schools = $this->Users->Schools->find('list')->where($conditions);
-        $this->set(compact('user', 'schools', 'passworddefault'));
+        $this->set(compact('user', 'schools', 'passworddefault', 'defaultAdminPassword', 'defaultUserPassword'));
     }
 
     /**
@@ -119,7 +129,13 @@ class UsersController extends AppController
                 $data['school_id'] = $this->school['id'];
             }
 
-            $user = $this->Users->patchEntity($user, $data);
+            # Leeres Passwort entfernen (nicht ändern)
+            if (empty($data['password'])) {
+                unset($data['password']);
+            }
+
+            # Update-Validierung verwenden (Passwort optional)
+            $user = $this->Users->patchEntity($user, $data, ['validate' => 'update']);
             if ($this->Users->save($user)) {
                 $this->Flash->success(__('Benutzer wurde gespeichert.'));
                 return $this->redirect(['action' => 'index']);
