@@ -1,0 +1,29 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - feature/bootstrap5-redesign
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan srv.solidcode.at >> ~/.ssh/known_hosts
+
+      - name: Deploy via git pull
+        run: |
+          ssh -i ~/.ssh/deploy_key carl_edubank@srv.solidcode.at "cd web && git pull origin ${{ github.ref_name }} && rm -rf tmp/cache/models/* tmp/cache/persistent/* 2>/dev/null || true"
+
+      - name: Deployment Status
+        run: |
+          echo "Deployed branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "URL: https://edubank.solidcode.at"
