@@ -31,25 +31,22 @@ EduBank ist eine Lernsoftware, die Schüler:innen an Bildungseinrichtungen den U
 ```bash
 git clone https://github.com/cmaj1970/EduBank.git
 cd EduBank
+cp config/app.default.php config/app.php
+docker-compose build
 docker-compose up -d
+```
+
+Datenbank initialisieren (nach Start):
+```bash
+docker-compose exec -T db mysql -u root -proot edubank < db/schema.sql
+docker-compose exec -T db mysql -u root -proot edubank < db/seed.sql
 ```
 
 Dann: http://localhost:8080
 
 ### Manuell
 
-```bash
-git clone https://github.com/cmaj1970/EduBank.git
-cd EduBank
-composer install
-```
-
-Datenbank konfigurieren in `config/app.php`, dann:
-
-```bash
-bin/cake migrations migrate
-bin/cake server
-```
+Siehe [INSTALL.md](INSTALL.md) für die vollständige Anleitung.
 
 ## Technologie
 
