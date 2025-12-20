@@ -46,8 +46,14 @@ class UsersController extends AppController
     public function view($id = null)
     {
         $user = $this->Users->get($id, [
-            'contain' => ['Accounts']
+            'contain' => ['Accounts', 'Schools']
         ]);
+
+        # Schuladmin darf nur User seiner Schule sehen
+        if ($this->school && $user->school_id != $this->school['id']) {
+            $this->Flash->error(__('Sie können nur Benutzer Ihrer eigenen Schule einsehen.'));
+            return $this->redirect(['action' => 'index']);
+        }
 
         $this->set('user', $user);
     }
@@ -99,17 +105,30 @@ class UsersController extends AppController
         $user = $this->Users->get($id, [
             'contain' => ['Accounts', 'Schools']
         ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $user = $this->Users->patchEntity($user, $this->request->getData());
-            if ($this->Users->save($user)) {
-                $this->Flash->success(__('The user has been saved.'));
 
+        # Schuladmin darf nur User seiner Schule bearbeiten
+        if ($this->school && $user->school_id != $this->school['id']) {
+            $this->Flash->error(__('Sie können nur Benutzer Ihrer eigenen Schule bearbeiten.'));
+            return $this->redirect(['action' => 'index']);
+        }
+
+        if ($this->request->is(['patch', 'post', 'put'])) {
+            # Schuladmin darf school_id nicht ändern
+            $data = $this->request->getData();
+            if ($this->school) {
+                $data['school_id'] = $this->school['id'];
+            }
+
+            $user = $this->Users->patchEntity($user, $data);
+            if ($this->Users->save($user)) {
+                $this->Flash->success(__('Benutzer wurde gespeichert.'));
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The user could not be saved. Please, try again.'));
+            $this->Flash->error(__('Der Benutzer konnte nicht gespeichert werden.'));
         }
+
         $conditions = [];
-        if($this->school) {
+        if ($this->school) {
             $conditions = ['id' => $this->school['id']];
         }
         $schools = $this->Users->Schools->find('list')->where($conditions);
@@ -127,10 +146,43 @@ class UsersController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $user = $this->Users->get($id);
+
+        # Schuladmin darf nur User seiner Schule löschen
+        if ($this->school && $user->school_id != $this->school['id']) {
+            $this->Flash->error(__('Sie können nur Benutzer Ihrer eigenen Schule löschen.'));
+            return $this->redirect(['action' => 'index']);
+        }
+
+        # Superadmin "admin" darf nicht gelöscht werden
+        if ($user->username === 'admin') {
+            $this->Flash->error(__('Der Superadmin "admin" kann nicht gelöscht werden.'));
+            return $this->redirect(['action' => 'index']);
+        }
+
+        # Konten und Transaktionen des Users löschen
+        $this->loadModel('Accounts');
+        $this->loadModel('Transactions');
+
+        $deletedAccounts = 0;
+        $deletedTransactions = 0;
+
+        $accounts = $this->Accounts->find('all')
+            ->where(['user_id' => $user->id])
+            ->toArray();
+
+        foreach ($accounts as $account) {
+            $deletedTransactions += $this->Transactions->deleteAll(['account_id' => $account->id]);
+            $deletedTransactions += $this->Transactions->deleteAll(['empfaenger_iban' => $account->iban]);
+            $deletedAccounts++;
+        }
+
+        $this->Accounts->deleteAll(['user_id' => $user->id]);
+
         if ($this->Users->delete($user)) {
-            $this->Flash->success(__('The user has been deleted.'));
+            $this->Flash->success(__('Benutzer "{0}" gelöscht inkl. {1} Konten, {2} Transaktionen.',
+                $user->name, $deletedAccounts, $deletedTransactions));
         } else {
-            $this->Flash->error(__('The user could not be deleted. Please, try again.'));
+            $this->Flash->error(__('Der Benutzer konnte nicht gelöscht werden.'));
         }
 
         return $this->redirect(['action' => 'index']);

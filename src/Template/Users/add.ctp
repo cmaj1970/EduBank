@@ -3,27 +3,111 @@
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\User $user
  */
+# Prüfen ob Schuladmin (dann ist $loggedinschool gesetzt)
+$isSchoolAdmin = isset($loggedinschool);
 ?>
-<?= $this->element('nav'); ?>
-<div class="users form large-9 medium-8 columns content">
-    <?= $this->Form->create($user) ?>
-    <fieldset>
-        <legend><?= __('Add User') ?></legend>
-        <?php
-            echo $this->Form->control('name');
-            echo $this->Form->control('username');
 
-            echo $this->Form->control('school_id');
-	    echo $this->Form->control('role', [
-                'options' => $user->roles
-            ]);
-            #echo $this->Form->control('verfuegernummer');
-            #echo $this->Form->control('verfuegername');
-            echo $this->Form->control('password', array('value' => $passworddefault));
-            echo $this->Form->control('active');
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-person-plus me-2"></i><?= __('Neue Übungsfirma') ?></h5>
+                <?= $this->Html->link('<i class="bi bi-arrow-left"></i> Zurück', ['action' => 'index'], ['class' => 'btn btn-sm btn-outline-secondary', 'escape' => false]) ?>
+            </div>
+            <div class="card-body">
+                <?= $this->Form->create($user) ?>
 
-        ?>
-    </fieldset>
-    <?= $this->Form->button(__('Submit')) ?>
-    <?= $this->Form->end() ?>
+                <div class="mb-3">
+                    <label for="name" class="form-label"><?= __('Name') ?> <span class="text-danger">*</span></label>
+                    <?= $this->Form->text('name', [
+                        'class' => 'form-control',
+                        'id' => 'name',
+                        'placeholder' => 'Vor- und Nachname',
+                        'required' => true
+                    ]) ?>
+                    <?php if ($isSchoolAdmin): ?>
+                    <div class="form-text">Vorschlag: <?= h($user->name) ?></div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="mb-3">
+                    <label for="username" class="form-label"><?= __('Benutzername') ?> <span class="text-danger">*</span></label>
+                    <?= $this->Form->text('username', [
+                        'class' => 'form-control',
+                        'id' => 'username',
+                        'required' => true
+                    ]) ?>
+                    <?php if ($isSchoolAdmin): ?>
+                    <div class="form-text">Vorschlag: <?= h($user->username) ?> (automatisch generiert)</div>
+                    <?php endif; ?>
+                </div>
+
+                <?php if ($isSchoolAdmin): ?>
+                <!-- Schuladmin: Schule ist fix -->
+                <div class="mb-3">
+                    <label class="form-label"><?= __('Schule') ?></label>
+                    <input type="text" class="form-control bg-light" readonly value="<?= h($loggedinschool['name']) ?>">
+                    <?= $this->Form->hidden('school_id', ['value' => $loggedinschool['id']]) ?>
+                </div>
+
+                <!-- Schuladmin: Nur Übungsfirma-Rolle -->
+                <?= $this->Form->hidden('role', ['value' => 'user']) ?>
+                <div class="mb-3">
+                    <label class="form-label"><?= __('Rolle') ?></label>
+                    <input type="text" class="form-control bg-light" readonly value="Übungsfirma">
+                </div>
+                <?php else: ?>
+                <!-- Superadmin: Kann Schule und Rolle wählen -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="school-id" class="form-label"><?= __('Schule') ?></label>
+                        <?= $this->Form->select('school_id', $schools, [
+                            'class' => 'form-select',
+                            'id' => 'school-id',
+                            'empty' => '-- Schule wählen --'
+                        ]) ?>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="role" class="form-label"><?= __('Rolle') ?> <span class="text-danger">*</span></label>
+                        <?= $this->Form->select('role', ['admin' => 'Admin', 'user' => 'Übungsfirma'], [
+                            'class' => 'form-select',
+                            'id' => 'role',
+                            'required' => true
+                        ]) ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label"><?= __('Passwort') ?> <span class="text-danger">*</span></label>
+                    <?= $this->Form->password('password', [
+                        'class' => 'form-control',
+                        'id' => 'password',
+                        'value' => $passworddefault,
+                        'required' => true
+                    ]) ?>
+                    <?php if (!empty($passworddefault)): ?>
+                    <div class="form-text text-success"><i class="bi bi-check-circle me-1"></i>Standard-Passwort vorausgefüllt</div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <?= $this->Form->checkbox('active', [
+                            'class' => 'form-check-input',
+                            'id' => 'active'
+                        ]) ?>
+                        <label class="form-check-label" for="active"><?= __('Aktiv') ?></label>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 justify-content-end">
+                    <?= $this->Html->link(__('Abbrechen'), ['action' => 'index'], ['class' => 'btn btn-secondary']) ?>
+                    <?= $this->Form->button(__('Speichern'), ['class' => 'btn btn-primary']) ?>
+                </div>
+
+                <?= $this->Form->end() ?>
+            </div>
+        </div>
+    </div>
 </div>
