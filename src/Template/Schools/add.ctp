@@ -25,6 +25,19 @@
                 </div>
 
                 <div class="mb-3">
+                    <label for="email" class="form-label"><?= __('E-Mail-Adresse') ?> <span class="text-danger">*</span></label>
+                    <?= $this->Form->email('email', [
+                        'class' => 'form-control',
+                        'id' => 'email',
+                        'placeholder' => 'z.B. admin@schule.at',
+                        'required' => true
+                    ]) ?>
+                    <div class="form-text">
+                        <i class="bi bi-info-circle me-1"></i>Die Zugangsdaten werden an diese E-Mail-Adresse verschickt.
+                    </div>
+                </div>
+
+                <div class="mb-3">
                     <label for="kurzname-display" class="form-label"><?= __('Kurzname') ?></label>
                     <input type="text" id="kurzname-display" class="form-control bg-light" readonly placeholder="Wird automatisch generiert">
                     <?= $this->Form->hidden('kurzname', ['id' => 'kurzname']) ?>
@@ -88,12 +101,20 @@ $(document).ready(function() {
             name: {
                 required: true,
                 minlength: 3
+            },
+            email: {
+                required: true,
+                email: true
             }
         },
         messages: {
             name: {
                 required: "Bitte geben Sie einen Schulnamen ein.",
                 minlength: "Der Schulname muss mindestens 3 Zeichen lang sein."
+            },
+            email: {
+                required: "Bitte geben Sie eine E-Mail-Adresse ein.",
+                email: "Bitte geben Sie eine gültige E-Mail-Adresse ein."
             }
         }
     });
