@@ -18,11 +18,11 @@ $isSchoolAdmin = isset($loggedinschool);
                 <?= $this->Form->create($user) ?>
 
                 <div class="mb-3">
-                    <label for="name" class="form-label"><?= __('Name') ?> <span class="text-danger">*</span></label>
+                    <label for="name" class="form-label"><?= __('Name der Übungsfirma') ?> <span class="text-danger">*</span></label>
                     <?= $this->Form->text('name', [
                         'class' => 'form-control',
                         'id' => 'name',
-                        'placeholder' => 'Vor- und Nachname',
+                        'placeholder' => 'Name der Übungsfirma',
                         'required' => true
                     ]) ?>
                     <?php if ($isSchoolAdmin): ?>
@@ -35,6 +35,7 @@ $isSchoolAdmin = isset($loggedinschool);
                     <?= $this->Form->text('username', [
                         'class' => 'form-control',
                         'id' => 'username',
+                        'placeholder' => 'Name der Übungsfirma',
                         'required' => true
                     ]) ?>
                     <?php if ($isSchoolAdmin): ?>
@@ -78,18 +79,7 @@ $isSchoolAdmin = isset($loggedinschool);
                 </div>
                 <?php endif; ?>
 
-                <div class="mb-3">
-                    <label for="password" class="form-label"><?= __('Passwort') ?> <span class="text-danger">*</span></label>
-                    <?= $this->Form->password('password', [
-                        'class' => 'form-control',
-                        'id' => 'password',
-                        'value' => $passworddefault,
-                        'required' => true
-                    ]) ?>
-                    <?php if (!empty($passworddefault)): ?>
-                    <div class="form-text text-success"><i class="bi bi-check-circle me-1"></i>Standard-Passwort vorausgefüllt</div>
-                    <?php endif; ?>
-                </div>
+                <?= $this->Form->hidden('password', ['value' => $passworddefault, 'id' => 'password']) ?>
 
                 <div class="mb-3">
                     <div class="form-check form-switch">
