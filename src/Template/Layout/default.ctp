@@ -127,7 +127,7 @@
                     $versionFile = ROOT . DS . 'Version.txt';
                     $version = file_exists($versionFile) ? trim(file_get_contents($versionFile)) : 'unknown';
                     ?>
-                    <span class="text-muted">v<?= $version ?></span>
+                    <span class="text-white">v<?= $version ?></span>
                 </div>
             </div>
         </div>
