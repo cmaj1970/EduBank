@@ -22,10 +22,11 @@ $isSchoolAdminLoggedIn = isset($loggedinschool);
                 <?= $this->Form->create($user) ?>
 
                 <div class="mb-3">
-                    <label for="name" class="form-label"><?= __('Name') ?> <span class="text-danger">*</span></label>
+                    <label for="name" class="form-label"><?= __('Name der Übungsfirma') ?> <span class="text-danger">*</span></label>
                     <?= $this->Form->text('name', [
                         'class' => 'form-control',
                         'id' => 'name',
+                        'placeholder' => 'Name der Übungsfirma',
                         'required' => true
                     ]) ?>
                 </div>
