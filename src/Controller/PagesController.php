@@ -28,6 +28,14 @@ use Cake\View\Exception\MissingTemplateException;
  */
 class PagesController extends AppController
 {
+    /**
+     * Allow public access to home page
+     */
+    public function beforeFilter(\Cake\Event\Event $event)
+    {
+        parent::beforeFilter($event);
+        $this->Auth->allow(['display']);
+    }
 
     /**
      * Displays a view
