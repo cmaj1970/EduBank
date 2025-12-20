@@ -54,7 +54,7 @@ class UsersTable extends Table
     }
 
     /**
-     * Default validation rules.
+     * Default validation rules (for creating new users).
      *
      * @param \Cake\Validation\Validator $validator Validator instance.
      * @return \Cake\Validation\Validator
@@ -65,6 +65,25 @@ class UsersTable extends Table
         			->allowEmpty('name')
                     ->notEmpty('username', 'A username is required')
                     ->notEmpty('password', 'A password is required')
+                    ->notEmpty('role', 'A role is required')
+                    ->add('role', 'inList', [
+                        'rule' => ['inList', ['admin', 'user']],
+                        'message' => 'Please enter a valid role'
+                    ]);
+    }
+
+    /**
+     * Validation rules for updating users (password optional).
+     *
+     * @param \Cake\Validation\Validator $validator Validator instance.
+     * @return \Cake\Validation\Validator
+     */
+    public function validationUpdate(Validator $validator)
+    {
+        return $validator
+                    ->allowEmpty('name')
+                    ->notEmpty('username', 'A username is required')
+                    ->allowEmpty('password')
                     ->notEmpty('role', 'A role is required')
                     ->add('role', 'inList', [
                         'rule' => ['inList', ['admin', 'user']],

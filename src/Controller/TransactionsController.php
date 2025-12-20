@@ -41,9 +41,21 @@
 		public function index()
 		{
 			$this->paginate = [
-				'contain' => ['Accounts']
+				'contain' => ['Accounts.Users']
 			];
-			$transactions = $this->paginate($this->Transactions);
+
+			if ($this->school) {
+				# Schuladmin: Nur Transaktionen von Konten dieser Schule
+				$query = $this->Transactions->find('all')
+					->contain(['Accounts.Users'])
+					->matching('Accounts.Users', function ($q) {
+						return $q->where(['Users.school_id' => $this->school['id']]);
+					});
+				$transactions = $this->paginate($query);
+			} else {
+				# Superadmin: Alle Transaktionen
+				$transactions = $this->paginate($this->Transactions);
+			}
 
 			$this->set(compact('transactions'));
 		}
@@ -58,11 +70,20 @@
 		public function view($id = null)
 		{
 			$transaction = $this->Transactions->get($id, [
-				'contain' => ['Accounts']
+				'contain' => ['Accounts.Users']
 			]);
-            if ($this->Auth->user()['role'] !== 'admin' && $transaction->account->user_id != $this->Auth->user()['id']) {
-                return $this->redirect(['action' => 'index']);
-            }
+
+			# Zugriffsschutz: Übungsfirma darf nur eigene Transaktionen sehen
+			if ($this->Auth->user()['role'] !== 'admin' && $transaction->account->user_id != $this->Auth->user()['id']) {
+				return $this->redirect(['action' => 'index']);
+			}
+
+			# Schuladmin darf nur Transaktionen seiner Schule sehen
+			if ($this->school && $transaction->account->user->school_id != $this->school['id']) {
+				$this->Flash->error(__('Sie können nur Transaktionen Ihrer eigenen Schule einsehen.'));
+				return $this->redirect(['action' => 'index']);
+			}
+
 			$this->set('transaction', $transaction);
 		}
 
@@ -131,18 +152,33 @@
 		public function edit($id = null)
 		{
 			$transaction = $this->Transactions->get($id, [
-				'contain' => []
+				'contain' => ['Accounts.Users']
 			]);
+
+			# Schuladmin darf nur Transaktionen seiner Schule bearbeiten
+			if ($this->school && $transaction->account->user->school_id != $this->school['id']) {
+				$this->Flash->error(__('Sie können nur Transaktionen Ihrer eigenen Schule bearbeiten.'));
+				return $this->redirect(['action' => 'index']);
+			}
+
 			if ($this->request->is(['patch', 'post', 'put'])) {
 				$transaction = $this->Transactions->patchEntity($transaction, $this->request->getData());
 				if ($this->Transactions->save($transaction)) {
-					$this->Flash->success(__('The transaction has been saved.'));
+					$this->Flash->success(__('Die Transaktion wurde gespeichert.'));
 
 					return $this->redirect(['action' => 'index']);
 				}
-				$this->Flash->error(__('The transaction could not be saved. Please, try again.'));
+				$this->Flash->error(__('Die Transaktion konnte nicht gespeichert werden.'));
 			}
-			$accounts = $this->Transactions->Accounts->find('list', ['limit' => 200]);
+
+			$conditions = [];
+			if ($this->school) {
+				$conditions = ['school_id' => $this->school['id']];
+			}
+			$accounts = $this->Transactions->Accounts->find('list', ['limit' => 200])
+				->matching('Users', function ($q) use ($conditions) {
+					return empty($conditions) ? $q : $q->where($conditions);
+				});
 			$this->set(compact('transaction', 'accounts'));
 		}
 
@@ -156,11 +192,20 @@
 		public function delete($id = null)
 		{
 			$this->request->allowMethod(['post', 'delete']);
-			$transaction = $this->Transactions->get($id);
+			$transaction = $this->Transactions->get($id, [
+				'contain' => ['Accounts.Users']
+			]);
+
+			# Schuladmin darf nur Transaktionen seiner Schule löschen
+			if ($this->school && $transaction->account->user->school_id != $this->school['id']) {
+				$this->Flash->error(__('Sie können nur Transaktionen Ihrer eigenen Schule löschen.'));
+				return $this->redirect(['action' => 'index']);
+			}
+
 			if ($this->Transactions->delete($transaction)) {
-				$this->Flash->success(__('The transaction has been deleted.'));
+				$this->Flash->success(__('Die Transaktion wurde gelöscht.'));
 			} else {
-				$this->Flash->error(__('The transaction could not be deleted. Please, try again.'));
+				$this->Flash->error(__('Die Transaktion konnte nicht gelöscht werden.'));
 			}
 
 			return $this->redirect(['action' => 'index']);
@@ -176,14 +221,20 @@
         {
             $this->request->allowMethod(['post', 'delete']);
             $transaction = $this->Transactions->get($id, [
-                'contain' => ['Accounts']
+                'contain' => ['Accounts.Users']
             ]);
 
-            # Sicherheitsprüfung: Nur eigene Transaktionen stornieren
+            # Sicherheitsprüfung: Nur eigene Transaktionen stornieren (Übungsfirma)
             $user = $this->Auth->user();
             if ($user['role'] !== 'admin' && $transaction->account->user_id != $user['id']) {
                 $this->Flash->error(__('Sie können nur eigene Transaktionen stornieren.'));
                 return $this->redirect(['controller' => 'Accounts', 'action' => 'index']);
+            }
+
+            # Schuladmin darf nur Transaktionen seiner Schule stornieren
+            if ($this->school && $transaction->account->user->school_id != $this->school['id']) {
+                $this->Flash->error(__('Sie können nur Transaktionen Ihrer eigenen Schule stornieren.'));
+                return $this->redirect(['action' => 'index']);
             }
 
             if ($this->Transactions->delete($transaction)) {

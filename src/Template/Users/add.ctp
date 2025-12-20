@@ -111,3 +111,27 @@ $isSchoolAdmin = isset($loggedinschool);
         </div>
     </div>
 </div>
+
+<?php if (!$isSchoolAdmin): ?>
+<?php $this->start('script'); ?>
+<script>
+$(document).ready(function() {
+    var defaultAdminPassword = <?= json_encode($defaultAdminPassword ?? '') ?>;
+    var defaultUserPassword = <?= json_encode($defaultUserPassword ?? '') ?>;
+
+    // Passwort basierend auf Rolle aktualisieren
+    $('#role').on('change', function() {
+        var role = $(this).val();
+        if (role === 'admin') {
+            $('#password').val(defaultAdminPassword);
+        } else {
+            $('#password').val(defaultUserPassword);
+        }
+    });
+
+    // Initial setzen
+    $('#role').trigger('change');
+});
+</script>
+<?php $this->end(); ?>
+<?php endif; ?>
