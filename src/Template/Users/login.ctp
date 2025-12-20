@@ -1,11 +1,57 @@
-<div class="users form" style="max-width: 500px; margin: 2rem auto;">
-<?= $this->Flash->render() ?>
-<?= $this->Form->create() ?>
-    <fieldset>
-        <legend><?= __('Bitte geben Sie den Benutzernamen und das Passwort ein.') ?></legend>
-        <?= $this->Form->control('username') ?>
-        <?= $this->Form->control('password') ?>
-    </fieldset>
-<?= $this->Form->button(__('Anmelden')); ?>
-<?= $this->Form->end() ?>
+<div class="row justify-content-center py-5">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <!-- Logo -->
+                <div class="text-center mb-4">
+                    <?= $this->Html->image('logo.svg', ['alt' => 'EduBank Logo', 'style' => 'height: 50px; filter: brightness(0);']) ?>
+                </div>
+
+                <h4 class="text-center mb-4">Anmelden</h4>
+
+                <?= $this->Form->create(null, ['class' => 'needs-validation']) ?>
+
+                <div class="mb-3">
+                    <label for="username" class="form-label">Benutzername</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <?= $this->Form->text('username', [
+                            'class' => 'form-control',
+                            'id' => 'username',
+                            'placeholder' => 'Benutzername eingeben',
+                            'required' => true,
+                            'autofocus' => true
+                        ]) ?>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="form-label">Passwort</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <?= $this->Form->password('password', [
+                            'class' => 'form-control',
+                            'id' => 'password',
+                            'placeholder' => 'Passwort eingeben',
+                            'required' => true
+                        ]) ?>
+                    </div>
+                </div>
+
+                <div class="d-grid">
+                    <?= $this->Form->button(__('Anmelden'), [
+                        'class' => 'btn btn-primary btn-lg',
+                        'type' => 'submit'
+                    ]) ?>
+                </div>
+
+                <?= $this->Form->end() ?>
+            </div>
+        </div>
+
+        <p class="text-center text-muted mt-3 small">
+            <i class="bi bi-shield-check me-1"></i>
+            Sichere Verbindung
+        </p>
+    </div>
 </div>

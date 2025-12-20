@@ -41,9 +41,16 @@ class AccountsController extends AppController
             'contain' => ['Users'],
         ];
         if ($this->Auth->user()['role'] != 'admin') {
-            $query = $this->Accounts->find('all', ['contain' => ['Transactions']])->where(['user_id' => $this->Auth->user()['id']])->first();
-            return $this->redirect(['action' => 'view', $query->id]);
-            // debug($query->toArray());
+            # Schüler: Eigenes Konto suchen und anzeigen
+            $account = $this->Accounts->find('all', ['contain' => ['Transactions']])->where(['user_id' => $this->Auth->user()['id']])->first();
+            if ($account) {
+                return $this->redirect(['action' => 'view', $account->id]);
+            } else {
+                # Kein Konto vorhanden - leere Seite mit Hinweis
+                $this->Flash->warning(__('Sie haben noch kein Konto. Bitte wenden Sie sich an Ihren Schuladministrator.'));
+                $this->set('accounts', []);
+                return;
+            }
         } else {
             if ($this->school) {
                 $query = $this->Accounts->find(
@@ -210,8 +217,15 @@ class AccountsController extends AppController
      */
     public function edit($id = null) {
         $account = $this->Accounts->get($id, [
-            'contain' => []
+            'contain' => ['Users']
         ]);
+
+        # Schuladmin darf nur Konten seiner Schule bearbeiten
+        if ($this->school && $account->user->school_id != $this->school['id']) {
+            $this->Flash->error(__('Sie können nur Konten Ihrer eigenen Schule bearbeiten.'));
+            return $this->redirect(['action' => 'index']);
+        }
+
         if ($this->request->is(['patch', 'post', 'put'])) {
             $account = $this->Accounts->patchEntity($account, $this->request->getData());
             if ($this->Accounts->save($account)) {
@@ -238,7 +252,16 @@ class AccountsController extends AppController
      */
     public function delete($id = null) {
         $this->request->allowMethod(['post', 'delete']);
-        $account = $this->Accounts->get($id);
+        $account = $this->Accounts->get($id, [
+            'contain' => ['Users']
+        ]);
+
+        # Schuladmin darf nur Konten seiner Schule löschen
+        if ($this->school && $account->user->school_id != $this->school['id']) {
+            $this->Flash->error(__('Sie können nur Konten Ihrer eigenen Schule löschen.'));
+            return $this->redirect(['action' => 'index']);
+        }
+
         if ($this->Accounts->delete($account)) {
             $this->Flash->success(__('The account has been deleted.'));
         } else {
@@ -257,7 +280,14 @@ class AccountsController extends AppController
      */
     public function reset($id = null) {
         $this->request->allowMethod(['post', 'reset']);
-        $account = $this->Accounts->find('all', ['contain' => ['Transactions']])->where(['id' => $id])->first();
+        $account = $this->Accounts->find('all', ['contain' => ['Transactions', 'Users']])->where(['Accounts.id' => $id])->first();
+
+        # Schuladmin darf nur Konten seiner Schule zurücksetzen
+        if ($this->school && $account->user->school_id != $this->school['id']) {
+            $this->Flash->error(__('Sie können nur Konten Ihrer eigenen Schule zurücksetzen.'));
+            return $this->redirect(['action' => 'index']);
+        }
+
         $account->balance = 10000;
         $account->maxlimit = 2000;
 

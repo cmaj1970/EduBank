@@ -175,7 +175,17 @@
         public function storno($id = null)
         {
             $this->request->allowMethod(['post', 'delete']);
-            $transaction = $this->Transactions->get($id);
+            $transaction = $this->Transactions->get($id, [
+                'contain' => ['Accounts']
+            ]);
+
+            # Sicherheitsprüfung: Nur eigene Transaktionen stornieren
+            $user = $this->Auth->user();
+            if ($user['role'] !== 'admin' && $transaction->account->user_id != $user['id']) {
+                $this->Flash->error(__('Sie können nur eigene Transaktionen stornieren.'));
+                return $this->redirect(['controller' => 'Accounts', 'action' => 'index']);
+            }
+
             if ($this->Transactions->delete($transaction)) {
                 $this->Flash->success(__('Der geplante Auftrag wurde storniert.'));
             } else {
