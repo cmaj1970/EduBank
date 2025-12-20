@@ -46,8 +46,14 @@ class UsersController extends AppController
     public function view($id = null)
     {
         $user = $this->Users->get($id, [
-            'contain' => ['Accounts']
+            'contain' => ['Accounts', 'Schools']
         ]);
+
+        # Schuladmin darf nur User seiner Schule sehen
+        if ($this->school && $user->school_id != $this->school['id']) {
+            $this->Flash->error(__('Sie können nur Benutzer Ihrer eigenen Schule einsehen.'));
+            return $this->redirect(['action' => 'index']);
+        }
 
         $this->set('user', $user);
     }
@@ -140,6 +146,12 @@ class UsersController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $user = $this->Users->get($id);
+
+        # Schuladmin darf nur User seiner Schule löschen
+        if ($this->school && $user->school_id != $this->school['id']) {
+            $this->Flash->error(__('Sie können nur Benutzer Ihrer eigenen Schule löschen.'));
+            return $this->redirect(['action' => 'index']);
+        }
 
         # Superadmin "admin" darf nicht gelöscht werden
         if ($user->username === 'admin') {

@@ -51,7 +51,14 @@ class SchoolsController extends AppController
      */
     public function index()
     {
-        $schools = $this->paginate($this->Schools);
+        $query = $this->Schools->query();
+
+        # Schuladmin sieht nur eigene Schule
+        if ($this->school) {
+            $query->where(['id' => $this->school['id']]);
+        }
+
+        $schools = $this->paginate($query);
 
         $this->set(compact('schools'));
     }
@@ -65,6 +72,12 @@ class SchoolsController extends AppController
      */
     public function view($id = null)
     {
+        # Schuladmin darf nur eigene Schule sehen
+        if ($this->school && $id != $this->school['id']) {
+            $this->Flash->error(__('Sie können nur Ihre eigene Schule einsehen.'));
+            return $this->redirect(['action' => 'index']);
+        }
+
         $school = $this->Schools->get($id, [
             'contain' => ['Users']
         ]);

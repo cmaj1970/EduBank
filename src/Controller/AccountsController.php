@@ -217,8 +217,15 @@ class AccountsController extends AppController
      */
     public function edit($id = null) {
         $account = $this->Accounts->get($id, [
-            'contain' => []
+            'contain' => ['Users']
         ]);
+
+        # Schuladmin darf nur Konten seiner Schule bearbeiten
+        if ($this->school && $account->user->school_id != $this->school['id']) {
+            $this->Flash->error(__('Sie können nur Konten Ihrer eigenen Schule bearbeiten.'));
+            return $this->redirect(['action' => 'index']);
+        }
+
         if ($this->request->is(['patch', 'post', 'put'])) {
             $account = $this->Accounts->patchEntity($account, $this->request->getData());
             if ($this->Accounts->save($account)) {
@@ -245,7 +252,16 @@ class AccountsController extends AppController
      */
     public function delete($id = null) {
         $this->request->allowMethod(['post', 'delete']);
-        $account = $this->Accounts->get($id);
+        $account = $this->Accounts->get($id, [
+            'contain' => ['Users']
+        ]);
+
+        # Schuladmin darf nur Konten seiner Schule löschen
+        if ($this->school && $account->user->school_id != $this->school['id']) {
+            $this->Flash->error(__('Sie können nur Konten Ihrer eigenen Schule löschen.'));
+            return $this->redirect(['action' => 'index']);
+        }
+
         if ($this->Accounts->delete($account)) {
             $this->Flash->success(__('The account has been deleted.'));
         } else {
@@ -264,7 +280,14 @@ class AccountsController extends AppController
      */
     public function reset($id = null) {
         $this->request->allowMethod(['post', 'reset']);
-        $account = $this->Accounts->find('all', ['contain' => ['Transactions']])->where(['id' => $id])->first();
+        $account = $this->Accounts->find('all', ['contain' => ['Transactions', 'Users']])->where(['Accounts.id' => $id])->first();
+
+        # Schuladmin darf nur Konten seiner Schule zurücksetzen
+        if ($this->school && $account->user->school_id != $this->school['id']) {
+            $this->Flash->error(__('Sie können nur Konten Ihrer eigenen Schule zurücksetzen.'));
+            return $this->redirect(['action' => 'index']);
+        }
+
         $account->balance = 10000;
         $account->maxlimit = 2000;
 
