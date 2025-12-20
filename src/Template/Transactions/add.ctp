@@ -225,25 +225,22 @@ $('#tansubmit').click(function () {
             return formatted ? formatted.join(' ') : '';
         }
 
-        // Bei Eingabe und Einfügen formatieren
-        $ibanInput.on("input paste", function(event) {
-            var $this = $(this);
-            // Timeout für paste-Event, damit der Wert verfügbar ist
-            setTimeout(function() {
-                var cursorPos = $this[0].selectionStart;
-                var oldVal = $this.val();
-                var newVal = formatIBAN(oldVal);
-                $this.val(newVal);
-
-                // Cursor-Position anpassen
-                var diff = newVal.length - oldVal.length;
-                $this[0].setSelectionRange(cursorPos + diff, cursorPos + diff);
-            }, 0);
+        // Nur bei Verlassen des Feldes formatieren (stabiler)
+        $ibanInput.on("blur", function() {
+            // Nicht formatieren wenn readonly (nach TAN-Request)
+            if (!$(this).prop('readonly')) {
+                $(this).val(formatIBAN($(this).val()));
+            }
         });
 
-        // Bei Verlassen des Feldes nochmal formatieren
-        $ibanInput.on("focusout", function() {
-            $(this).val(formatIBAN($(this).val()));
+        // Bei Paste auch formatieren
+        $ibanInput.on("paste", function() {
+            var $this = $(this);
+            setTimeout(function() {
+                if (!$this.prop('readonly')) {
+                    $this.val(formatIBAN($this.val()));
+                }
+            }, 10);
         });
     });
 })(jQuery);
