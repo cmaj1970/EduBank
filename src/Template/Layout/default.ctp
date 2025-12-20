@@ -51,7 +51,12 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
     <div class="container clearfix">
         <?= $this->fetch('content') ?>
     </div>
-    <footer>
+    <footer class="hide-for-print" style="position: fixed; bottom: 10px; right: 15px; font-size: 12px; color: #666;">
+        <?php
+        $versionFile = ROOT . DS . 'Version.txt';
+        $version = file_exists($versionFile) ? trim(file_get_contents($versionFile)) : 'unknown';
+        ?>
+        v<?= $version ?>
     </footer>
 </body>
 </html>
