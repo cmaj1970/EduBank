@@ -38,13 +38,17 @@ The Docker database credentials are pre-configured:
 - Password: `edubank`
 - Database: `edubank`
 
-### Step 4: Start containers
+### Step 4: Build Docker image and start
 
 ```bash
+# First time: Build image (takes a few minutes)
+docker-compose build
+
+# Start containers
 docker-compose up -d
 ```
 
-**Note:** The first start takes a few minutes as PHP extensions and Composer dependencies are installed.
+**Note:** The first start takes a bit longer as Composer dependencies are installed.
 
 Check progress:
 ```bash
@@ -53,14 +57,14 @@ docker-compose logs -f web
 
 ### Step 5: Initialize database
 
-Wait until the container is running, then:
+Wait until the container is running (logs show no more activity), then:
 
 ```bash
 # Import schema
-docker-compose exec web mysql -h db -u root -proot edubank < db/schema.sql
+docker-compose exec -T db mysql -u root -proot edubank < db/schema.sql
 
 # Create admin user
-docker-compose exec web mysql -h db -u root -proot edubank < db/seed.sql
+docker-compose exec -T db mysql -u root -proot edubank < db/seed.sql
 ```
 
 ### Step 6: Done!
