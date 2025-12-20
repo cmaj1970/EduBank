@@ -25,25 +25,17 @@ $isSchoolAdmin = isset($loggedinschool);
                         'placeholder' => 'Name der Übungsfirma',
                         'required' => true
                     ]) ?>
-                    <?php if ($isSchoolAdmin): ?>
-                    <div class="form-text">Vorschlag: <?= h($user->name) ?></div>
-                    <?php endif; ?>
-                </div>
-
-                <div class="mb-3">
-                    <label for="username" class="form-label"><?= __('Benutzername') ?> <span class="text-danger">*</span></label>
-                    <?= $this->Form->text('username', [
-                        'class' => 'form-control',
-                        'id' => 'username',
-                        'placeholder' => 'Name der Übungsfirma',
-                        'required' => true
-                    ]) ?>
-                    <?php if ($isSchoolAdmin): ?>
-                    <div class="form-text">Vorschlag: <?= h($user->username) ?> (automatisch generiert)</div>
-                    <?php endif; ?>
                 </div>
 
                 <?php if ($isSchoolAdmin): ?>
+                <!-- Schuladmin: Benutzername wird automatisch generiert -->
+                <div class="mb-3">
+                    <label class="form-label"><?= __('Benutzername') ?></label>
+                    <input type="text" class="form-control bg-light" readonly value="<?= h($user->username) ?>">
+                    <?= $this->Form->hidden('username', ['value' => $user->username]) ?>
+                    <div class="form-text"><i class="bi bi-info-circle me-1"></i>Wird automatisch generiert</div>
+                </div>
+
                 <!-- Schuladmin: Schule ist fix -->
                 <div class="mb-3">
                     <label class="form-label"><?= __('Schule') ?></label>

@@ -3,10 +3,6 @@
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\User $user
  */
-# Prüfen ob Schul-Admin (username beginnt mit "admin-")
-$isSchoolAdminUser = (strpos($user->username, 'admin-') === 0);
-# Prüfen ob Superadmin
-$isSuperAdmin = ($user->username === 'admin');
 # Prüfen ob eingeloggter User ein Schuladmin ist
 $isSchoolAdminLoggedIn = isset($loggedinschool);
 ?>
@@ -32,28 +28,9 @@ $isSchoolAdminLoggedIn = isset($loggedinschool);
                 </div>
 
                 <div class="mb-3">
-                    <label for="username" class="form-label"><?= __('Benutzername') ?></label>
-                    <?php if ($isSchoolAdminUser || $isSuperAdmin): ?>
-                        <?= $this->Form->text('username', [
-                            'class' => 'form-control bg-light',
-                            'id' => 'username',
-                            'readonly' => true
-                        ]) ?>
-                        <div class="form-text text-warning">
-                            <i class="bi bi-lock me-1"></i>
-                            <?php if ($isSuperAdmin): ?>
-                                Der Superadmin-Benutzername kann nicht geändert werden.
-                            <?php else: ?>
-                                Schul-Admin Benutzernamen können nicht geändert werden.
-                            <?php endif; ?>
-                        </div>
-                    <?php else: ?>
-                        <?= $this->Form->text('username', [
-                            'class' => 'form-control',
-                            'id' => 'username',
-                            'required' => true
-                        ]) ?>
-                    <?php endif; ?>
+                    <label class="form-label"><?= __('Benutzername') ?></label>
+                    <input type="text" class="form-control bg-light" readonly value="<?= h($user->username) ?>">
+                    <div class="form-text"><i class="bi bi-info-circle me-1"></i>Der Benutzername wird automatisch generiert und kann nicht geändert werden.</div>
                 </div>
 
                 <?php if ($isSchoolAdminLoggedIn): ?>
