@@ -211,17 +211,47 @@ class UsersController extends AppController
      *
      * @return \Cake\Http\Response|null Redirects on successful login
      */
-	    public function login()
-	    {
-	        if ($this->request->is('post')) {
-	            $user = $this->Auth->identify();
-	            if ($user) {
-	                $this->Auth->setUser($user);
-	                return $this->redirect($this->Auth->redirectUrl());
-	            }
-	            $this->Flash->error(__('Bitte überprüfen Sie den Benutzernamen und das Passwort'));
-	        }
-	    }
+    public function login()
+    {
+        if ($this->request->is('post')) {
+            $user = $this->Auth->identify();
+            if ($user) {
+                $this->Auth->setUser($user);
+
+                // Role-based redirect after login
+                $redirectUrl = $this->_getLoginRedirect($user);
+                return $this->redirect($redirectUrl);
+            }
+            $this->Flash->error(__('Bitte überprüfen Sie den Benutzernamen und das Passwort'));
+        }
+    }
+
+    /**
+     * Determine redirect URL based on user role
+     *
+     * @param array $user The authenticated user
+     * @return array The redirect URL
+     */
+    private function _getLoginRedirect($user)
+    {
+        // Superadmin (username='admin'): Schools overview
+        if ($user['username'] === 'admin') {
+            return ['controller' => 'Schools', 'action' => 'index'];
+        }
+
+        // Schuladmin (admin role with 'admin-' prefix): Übungsfirmen overview
+        if ($user['role'] === 'admin' && strpos($user['username'], 'admin-') === 0) {
+            return ['controller' => 'Users', 'action' => 'index'];
+        }
+
+        // Übungsfirma (user role): Account page
+        if ($user['role'] === 'user') {
+            return ['controller' => 'Accounts', 'action' => 'index'];
+        }
+
+        // Fallback: Home page
+        return ['controller' => 'Pages', 'action' => 'display', 'home'];
+    }
 
     /**
      * Logout method - end user session
