@@ -295,6 +295,12 @@ class UsersController extends AppController
                 }
 
                 if ($authenticated) {
+                    # Prüfen ob Übungsfirma aktiv ist
+                    if ($user->role === 'user' && !$user->active) {
+                        $this->Flash->error(__('Diese Übungsfirma wurde deaktiviert. Bitte wenden Sie sich an Ihren Schuladministrator.'));
+                        return;
+                    }
+
                     $this->Auth->setUser($user->toArray());
 
                     # Role-based redirect after login
