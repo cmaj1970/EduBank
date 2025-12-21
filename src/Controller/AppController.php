@@ -94,8 +94,8 @@ class AppController extends Controller
     {
         // Redirect pending schools to verification page
         if (isset($this->school) && $this->school && $this->school->status === 'pending') {
-            // Allow access to logout and the pending page itself
-            $allowedActions = ['logout', 'pendingVerification', 'resendVerification'];
+            // Allow access to logout, pending page, and verification
+            $allowedActions = ['logout', 'pendingVerification', 'resendVerification', 'verify'];
             $controller = $this->request->getParam('controller');
             $action = $this->request->getParam('action');
 
