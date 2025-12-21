@@ -6,6 +6,7 @@
 
 // Für Übungsfirma: Erstes Konto des Users für Navigation holen
 $userAccountId = null;
+$userSchool = null;
 if ($authuser && $authuser['role'] == 'user') {
     $accountsTable = \Cake\ORM\TableRegistry::get('Accounts');
     $userAccount = $accountsTable->find()
@@ -14,7 +15,16 @@ if ($authuser && $authuser['role'] == 'user') {
     if ($userAccount) {
         $userAccountId = $userAccount->id;
     }
+
+    // Schule für Übungsfirma laden
+    if (!empty($authuser['school_id'])) {
+        $schoolsTable = \Cake\ORM\TableRegistry::get('Schools');
+        $userSchool = $schoolsTable->get($authuser['school_id']);
+    }
 }
+
+// Aktive Schule ermitteln (für Schuladmin oder Übungsfirma)
+$activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -40,7 +50,31 @@ if ($authuser && $authuser['role'] == 'user') {
     <nav class="navbar navbar-expand-lg navbar-dark navbar-edubank sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="/">
+                <?php if ($activeSchool): ?>
+                <!-- Dynamisches Logo mit Schulname -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 60" width="50" height="60" class="me-2">
+                    <g fill="#ffffff">
+                        <!-- Dach/Giebel -->
+                        <path d="M 5 18 L 25 8 L 45 18 L 43 18 L 25 10 L 7 18 Z" />
+                        <!-- Säulen -->
+                        <rect x="9" y="19" width="5" height="20" />
+                        <rect x="18" y="19" width="5" height="20" />
+                        <rect x="27" y="19" width="5" height="20" />
+                        <rect x="36" y="19" width="5" height="20" />
+                        <!-- Basis -->
+                        <rect x="6" y="39" width="38" height="3" />
+                        <!-- Buch -->
+                        <path d="M 25 44 L 17 46 L 17 52 L 25 50 L 33 52 L 33 46 Z" fill="none" stroke="#ffffff" stroke-width="1.5" />
+                        <path d="M 25 44 L 25 50" stroke="#ffffff" stroke-width="1" />
+                    </g>
+                </svg>
+                <div class="d-flex flex-column lh-sm">
+                    <span class="fw-bold" style="font-size: 1.25rem;">EduBank</span>
+                    <span class="text-white-50" style="font-size: 0.75rem;"><?= h($activeSchool->name) ?></span>
+                </div>
+                <?php else: ?>
                 <?= $this->Html->image('logo.svg', ['alt' => 'EduBank Logo', 'class' => 'logo']) ?>
+                <?php endif; ?>
             </a>
 
             <?php if($authuser): ?>
