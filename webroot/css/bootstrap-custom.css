@@ -240,6 +240,41 @@
     }
 }
 
+/* iOS Safari Fixes */
+/* Fix für graue Box beim Scrollen (Momentum Scrolling Bug) */
+html, body {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Sticky Navbar Fix für iOS */
+.navbar-edubank.sticky-top {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+/* Main Content braucht eigenen Stacking Context */
+main.flex-grow-1 {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    position: relative;
+    z-index: 1;
+}
+
+/* Footer Fix für iOS */
+.footer-edubank {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+}
+
+/* Touch-Aktionen für Buttons auf iOS */
+.btn {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    cursor: pointer;
+}
+
 /* Print Styles */
 @media print {
     .navbar-edubank,
