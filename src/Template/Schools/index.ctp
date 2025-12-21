@@ -58,6 +58,7 @@
                     <th class="text-center"><?= __('Übungsfirmen') ?></th>
                     <th class="text-center"><?= __('Konten') ?></th>
                     <th class="text-center"><?= __('Transaktionen') ?></th>
+                    <th><?= $this->Paginator->sort('created', 'Erstellt') ?></th>
                     <th class="text-end"><?= __('Aktionen') ?></th>
                 </tr>
             </thead>
@@ -103,6 +104,9 @@
                                 -
                             <?php endif; ?>
                         </small>
+                    </td>
+                    <td>
+                        <small><?= h($school->created->format('d.m.Y')) ?></small>
                     </td>
                     <td class="text-end">
                         <div class="btn-group btn-group-sm">

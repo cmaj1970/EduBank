@@ -83,6 +83,9 @@ class SchoolsController extends AppController
             $query->where(['Schools.id' => $this->school['id']]);
         }
 
+        # Neueste zuerst
+        $query->order(['Schools.created' => 'DESC']);
+
         $schools = $this->paginate($query);
 
         # Stats pro Schule laden

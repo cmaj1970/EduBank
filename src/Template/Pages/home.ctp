@@ -20,7 +20,7 @@
     </div>
 </div>
 
-<div class="row g-4">
+<div class="row g-4 justify-content-center">
     <?php if ($authuser['role'] == 'admin'): ?>
     <!-- Admin Dashboard -->
 
