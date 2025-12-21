@@ -7,11 +7,16 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="mb-0"><i class="bi bi-wallet2 me-2"></i><?= __('Konten') ?></h3>
-    <?php if($authuser['role'] == 'admin'): ?>
-    <a href="/accounts/add" class="btn btn-primary">
-        <i class="bi bi-plus-lg me-1"></i><?= __('Neues Konto') ?>
-    </a>
-    <?php endif; ?>
+    <div class="d-flex gap-2">
+        <a href="/accounts/directory" class="btn btn-outline-info">
+            <i class="bi bi-building me-1"></i><?= __('Alle Übungsfirmen') ?>
+        </a>
+        <?php if($authuser['role'] == 'admin'): ?>
+        <a href="/accounts/add" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i><?= __('Neues Konto') ?>
+        </a>
+        <?php endif; ?>
+    </div>
 </div>
 
 <?php if ($accounts->isEmpty()): ?>
@@ -24,12 +29,12 @@
         <h4 class="mb-3">Noch keine Konten vorhanden</h4>
         <p class="text-muted mb-4" style="max-width: 500px; margin: 0 auto;">
             Jede Übungsfirma benötigt ein Bankkonto, um Überweisungen tätigen zu können.
-            Erstellen Sie ein neues Konto, um loszulegen.
+            Konten werden automatisch beim Erstellen einer Übungsfirma angelegt.
         </p>
 
         <?php if($authuser['role'] == 'admin'): ?>
-        <a href="/accounts/add" class="btn btn-primary btn-lg">
-            <i class="bi bi-plus-lg me-2"></i>Neues Konto erstellen
+        <a href="/users/add" class="btn btn-primary btn-lg">
+            <i class="bi bi-people me-2"></i>Übungsfirma erstellen
         </a>
         <?php endif; ?>
     </div>
