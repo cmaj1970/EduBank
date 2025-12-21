@@ -7,13 +7,8 @@
 
 <?php if ($authuser['role'] != 'admin'): ?>
 <!-- Übungsfirma-Ansicht -->
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="mb-4">
     <h3 class="text-success mb-0"><?= h($account->name) ?></h3>
-    <div class="btn-group">
-        <?= $this->Html->link('<i class="bi bi-list-ul me-1"></i>Umsätze', ['action' => 'view', $account->id], ['class' => 'btn btn-outline-primary', 'escape' => false]) ?>
-        <?= $this->Html->link('<i class="bi bi-clock-history me-1"></i>Auftragshistorie', ['action' => 'history', $account->id], ['class' => 'btn btn-outline-secondary', 'escape' => false]) ?>
-        <?= $this->Html->link('<i class="bi bi-send me-1"></i>Überweisung', ['controller' => 'Transactions', 'action' => 'add', $account->id], ['class' => 'btn btn-primary', 'escape' => false]) ?>
-    </div>
 </div>
 
 <div class="row">

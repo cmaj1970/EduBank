@@ -3,6 +3,18 @@
  * EduBank - Banking Simulation für Schulen
  * Default Layout with Bootstrap 5 - Responsive Design
  */
+
+// Für Übungsfirma: Erstes Konto des Users für Navigation holen
+$userAccountId = null;
+if ($authuser && $authuser['role'] == 'user') {
+    $accountsTable = \Cake\ORM\TableRegistry::get('Accounts');
+    $userAccount = $accountsTable->find()
+        ->where(['user_id' => $authuser['id']])
+        ->first();
+    if ($userAccount) {
+        $userAccountId = $userAccount->id;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -70,12 +82,30 @@
                             </a>
                         </li>
                     <?php else: ?>
-                        <!-- Übungsfirma: Nur Mein Konto (von dort zur Überweisung) -->
+                        <!-- Übungsfirma: Konto-Navigation -->
+                        <?php if ($userAccountId): ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/accounts/view/<?= $userAccountId ?>">
+                                <i class="bi bi-wallet2 me-1"></i>Mein Konto
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/accounts/history/<?= $userAccountId ?>">
+                                <i class="bi bi-clock-history me-1"></i>Auftragshistorie
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/transactions/add/<?= $userAccountId ?>">
+                                <i class="bi bi-send me-1"></i>Neue Überweisung
+                            </a>
+                        </li>
+                        <?php else: ?>
                         <li class="nav-item">
                             <a class="nav-link" href="/accounts">
                                 <i class="bi bi-wallet2 me-1"></i>Mein Konto
                             </a>
                         </li>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </ul>
 
