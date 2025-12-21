@@ -912,6 +912,7 @@ class SchoolsController extends AppController
             // Email mit Default-Profil (nutzt Konfiguration aus app.php/.env)
             $email = new Email('default');
             $email
+                ->setFrom(['no-reply@edubank.solidcode.at' => 'EduBank'])
                 ->setEmailFormat('html')
                 ->setTo($toEmail)
                 ->setSubject('Willkommen bei EduBank - Bitte bestätigen Sie Ihre E-Mail')
