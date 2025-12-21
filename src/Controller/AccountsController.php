@@ -159,23 +159,30 @@ class AccountsController extends AppController
             $this->Flash->error(__('Sie können nur Konten Ihrer eigenen Schule einsehen.'));
             return $this->redirect(['action' => 'index']);
         }
-        // Find transfers to this account
-        $account->transactions = $this->Accounts->Transactions->find('all', ['contain' => ['Accounts.Users']])->where(['or' => ['account_id' => $account->id]])->order(['Transactions.created desc']);
-        foreach ($account->transactions as $k => $to) {
-            $account_transactions[$k] = $to;
+
+        # Kontostand berechnen: Alle durchgeführten Transaktionen (eingehend + ausgehend)
+        $allTransactions = $this->Accounts->Transactions->find('all')
+            ->where([
+                "datum <= '" . date('Y-m-d') . "'",
+                'or' => [
+                    'empfaenger_iban' => $account->iban,
+                    'account_id' => $account->id
+                ]
+            ]);
+        foreach ($allTransactions as $to) {
             if ($to->account_id == $account->id) {
                 $account->balance -= $to->betrag;
             } else {
                 $account->balance += $to->betrag;
-                // $account_transactions[$k]->auftraggeber_name = $to->account->user->name;
-                // $account_transactions[$k]->auftraggeber_adresse = $to->empfaenger_adresse;
-                // $account_transactions[$k]->auftraggeber_iban = $to->empfaenger_iban;
-                // $account_transactions[$k]->auftraggeber_bic = $to->empfaenger_bic;
             }
         }
 
+        # Auftragshistorie: Nur ausgehende Transaktionen (alle, auch zukünftige)
+        $account->transactions = $this->Accounts->Transactions->find('all', ['contain' => ['Accounts.Users']])
+            ->where(['account_id' => $account->id])
+            ->order(['Transactions.created desc']);
+
         $this->set('account', $account);
-        // $this->set('account_transactions', $account_transactions);
     }
 
     /**

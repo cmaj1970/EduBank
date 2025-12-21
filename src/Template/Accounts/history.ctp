@@ -5,51 +5,17 @@
  */
 ?>
 
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-0"><i class="bi bi-clock-history me-2"></i><?= h($account->name) ?> - Auftragshistorie</h3>
+    <a href="/transactions/add/<?= $account->id ?>" class="btn btn-primary">
+        <i class="bi bi-arrow-right-circle me-1"></i><?= __('Neue Überweisung') ?>
+    </a>
+</div>
+
 <div class="row">
-    <!-- Kontoinformationen -->
+    <!-- Kontodaten Card -->
     <div class="col-lg-4 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-wallet2 me-2"></i><?= h($account->name) ?></h5>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label text-muted small"><?= __('IBAN') ?></label>
-                    <div class="font-monospace">
-                        <?= h($account->iban) ?>
-                        <button type="button" class="btn btn-sm btn-link p-0 ms-1 copy-iban" data-iban="<?= h($account->iban) ?>" title="IBAN kopieren">
-                            <i class="bi bi-clipboard"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label text-muted small"><?= __('BIC') ?></label>
-                    <div class="font-monospace"><?= h($account->bic) ?></div>
-                </div>
-            </div>
-
-            <!-- Navigation -->
-            <div class="card-footer bg-transparent">
-                <?php if ($authuser['role'] == 'admin'): ?>
-                    <div class="d-flex gap-2 flex-wrap mb-3">
-                        <?= $this->Html->link('<i class="bi bi-arrow-left me-1"></i>Zurück', ['action' => 'index'], ['class' => 'btn btn-sm btn-outline-secondary', 'escape' => false]) ?>
-                        <?= $this->Html->link('<i class="bi bi-pencil me-1"></i>Bearbeiten', ['action' => 'edit', $account->id], ['class' => 'btn btn-sm btn-outline-primary', 'escape' => false]) ?>
-                    </div>
-                <?php endif; ?>
-                <div class="d-grid gap-2">
-                    <?= $this->Html->link('<i class="bi bi-list-ul me-1"></i>Umsätze', ['action' => 'view', $account->id], ['class' => 'btn btn-outline-secondary', 'escape' => false]) ?>
-                    <?= $this->Html->link('<i class="bi bi-send me-1"></i>Neue Überweisung', ['controller' => 'Transactions', 'action' => 'add', $account->id], ['class' => 'btn btn-primary', 'escape' => false]) ?>
-                </div>
-            </div>
-        </div>
-
-        <!-- Drucken-Button -->
-        <div class="d-grid mt-3 d-print-none">
-            <button class="btn btn-outline-secondary" onclick="window.print();return false;">
-                <i class="bi bi-printer me-1"></i>Drucken
-            </button>
-        </div>
+        <?= $this->element('account_sidebar', ['account' => $account, 'authuser' => $authuser, 'currentPage' => 'history']) ?>
     </div>
 
     <!-- Auftragshistorie -->
