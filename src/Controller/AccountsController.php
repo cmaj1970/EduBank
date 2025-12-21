@@ -22,7 +22,7 @@ class AccountsController extends AppController
      */
     public function isAuthorized($user) {
         if (isset($user['role']) && $user['role'] === 'user') {
-            if (in_array($this->request->getParam('action'), ['index', 'view', 'history'])) {
+            if (in_array($this->request->getParam('action'), ['index', 'view', 'history', 'directory'])) {
                 return true;
             } else {
                 return false;
@@ -304,5 +304,50 @@ class AccountsController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+
+    /**
+     * Directory method - show all practice companies from all schools
+     * Shows company names and IBAN/BIC without account balances
+     *
+     * @return \Cake\Http\Response|void
+     */
+    public function directory() {
+        $this->loadModel('Users');
+        $this->loadModel('Schools');
+
+        // Get all approved schools
+        $schools = $this->Schools->find('all')
+            ->where(['status' => 'approved'])
+            ->order(['name' => 'ASC'])
+            ->toArray();
+
+        // Get all practice companies (users with role 'user') with their accounts
+        $query = $this->Users->find('all')
+            ->contain(['Accounts', 'Schools'])
+            ->where(['Users.role' => 'user', 'Users.active' => 1])
+            ->order(['Schools.name' => 'ASC', 'Users.name' => 'ASC']);
+
+        // For non-admins, only show companies from approved schools
+        $query->matching('Schools', function ($q) {
+            return $q->where(['Schools.status' => 'approved']);
+        });
+
+        $companies = $query->toArray();
+
+        // Group companies by school
+        $companiesBySchool = [];
+        foreach ($companies as $company) {
+            $schoolId = $company->school_id;
+            if (!isset($companiesBySchool[$schoolId])) {
+                $companiesBySchool[$schoolId] = [
+                    'school' => $company->school,
+                    'companies' => []
+                ];
+            }
+            $companiesBySchool[$schoolId]['companies'][] = $company;
+        }
+
+        $this->set(compact('companiesBySchool'));
     }
 }

@@ -22,7 +22,7 @@ $isSchoolAdmin = isset($loggedinschool);
                     <?= $this->Form->text('name', [
                         'class' => 'form-control',
                         'id' => 'name',
-                        'placeholder' => 'Name der Übungsfirma',
+                        'placeholder' => 'z.B. Musterfirma GmbH',
                         'required' => true
                     ]) ?>
                 </div>
@@ -36,21 +36,34 @@ $isSchoolAdmin = isset($loggedinschool);
                     <div class="form-text"><i class="bi bi-info-circle me-1"></i>Wird automatisch generiert</div>
                 </div>
 
-                <!-- Schuladmin: Schule ist fix -->
+                <!-- Schuladmin: Schule und Rolle werden automatisch gesetzt (nicht angezeigt) -->
+                <?= $this->Form->hidden('school_id', ['value' => $loggedinschool['id']]) ?>
+                <?= $this->Form->hidden('role', ['value' => 'user']) ?>
+
+                <!-- Kontoname für automatische Kontoerstellung -->
+                <hr class="my-4">
+                <h6 class="mb-3"><i class="bi bi-wallet2 me-2"></i><?= __('Bankkonto') ?></h6>
                 <div class="mb-3">
-                    <label class="form-label"><?= __('Schule') ?></label>
-                    <input type="text" class="form-control bg-light" readonly value="<?= h($loggedinschool['name']) ?>">
-                    <?= $this->Form->hidden('school_id', ['value' => $loggedinschool['id']]) ?>
+                    <label for="account_name" class="form-label"><?= __('Kontoname') ?></label>
+                    <?= $this->Form->text('account_name', [
+                        'class' => 'form-control',
+                        'id' => 'account_name',
+                        'placeholder' => 'z.B. Geschäftskonto (optional, wird automatisch aus Firmenname erstellt)'
+                    ]) ?>
+                    <div class="form-text"><i class="bi bi-info-circle me-1"></i>Ein Konto mit IBAN und BIC wird automatisch angelegt</div>
                 </div>
 
-                <!-- Schuladmin: Nur Übungsfirma-Rolle -->
-                <?= $this->Form->hidden('role', ['value' => 'user']) ?>
-                <div class="mb-3">
-                    <label class="form-label"><?= __('Rolle') ?></label>
-                    <input type="text" class="form-control bg-light" readonly value="Übungsfirma">
-                </div>
                 <?php else: ?>
                 <!-- Superadmin: Kann Schule und Rolle wählen -->
+                <div class="mb-3">
+                    <label for="username" class="form-label"><?= __('Benutzername') ?> <span class="text-danger">*</span></label>
+                    <?= $this->Form->text('username', [
+                        'class' => 'form-control',
+                        'id' => 'username',
+                        'required' => true
+                    ]) ?>
+                </div>
+
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="school-id" class="form-label"><?= __('Schule') ?></label>
