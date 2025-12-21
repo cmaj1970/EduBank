@@ -1,7 +1,7 @@
 <?php
 /**
  * EduBank - Willkommens-E-Mail für neue Schulen
- * HTML-Template im Design der Webseite
+ * HTML-Template im Design der Webseite (Dunkelblau)
  */
 ?>
 <!DOCTYPE html>
@@ -19,9 +19,9 @@
 
                     <!-- Header -->
                     <tr>
-                        <td style="background: linear-gradient(135deg, #d77611 0%, #92500c 100%); padding: 30px 40px; border-radius: 8px 8px 0 0; text-align: center;">
+                        <td style="background: linear-gradient(135deg, #1a365d 0%, #2d4a7c 100%); padding: 30px 40px; border-radius: 8px 8px 0 0; text-align: center;">
                             <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">
-                                🏫 EduBank
+                                EduBank
                             </h1>
                             <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 14px;">
                                 Banking-Simulation für Schulen
@@ -32,7 +32,7 @@
                     <!-- Content -->
                     <tr>
                         <td style="padding: 40px;">
-                            <h2 style="color: #92500c; margin: 0 0 20px 0; font-size: 22px;">
+                            <h2 style="color: #1a365d; margin: 0 0 20px 0; font-size: 22px;">
                                 Willkommen bei EduBank!
                             </h2>
 
@@ -42,7 +42,7 @@
                             </p>
 
                             <!-- Credentials Box -->
-                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f8f9fa; border-radius: 8px; margin: 25px 0;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f0f4f8; border-radius: 8px; border-left: 4px solid #1a365d; margin: 25px 0;">
                                 <tr>
                                     <td style="padding: 25px;">
                                         <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
@@ -51,7 +51,7 @@
                                                     <span style="color: #666; font-size: 14px;">Benutzername:</span>
                                                 </td>
                                                 <td style="padding: 8px 0; text-align: right;">
-                                                    <strong style="color: #92500c; font-size: 16px; font-family: monospace; background-color: #fff; padding: 4px 10px; border-radius: 4px;"><?= h($username) ?></strong>
+                                                    <strong style="color: #1a365d; font-size: 16px; font-family: monospace; background-color: #fff; padding: 4px 10px; border-radius: 4px;"><?= h($username) ?></strong>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -59,7 +59,7 @@
                                                     <span style="color: #666; font-size: 14px;">Passwort:</span>
                                                 </td>
                                                 <td style="padding: 8px 0; text-align: right; border-top: 1px solid #dee2e6;">
-                                                    <strong style="color: #92500c; font-size: 16px; font-family: monospace; background-color: #fff; padding: 4px 10px; border-radius: 4px;"><?= h($password) ?></strong>
+                                                    <strong style="color: #1a365d; font-size: 16px; font-family: monospace; background-color: #fff; padding: 4px 10px; border-radius: 4px;"><?= h($password) ?></strong>
                                                 </td>
                                             </tr>
                                         </table>
@@ -71,20 +71,19 @@
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                                 <tr>
                                     <td align="center" style="padding: 20px 0;">
-                                        <a href="<?= h($loginUrl) ?>" style="display: inline-block; background-color: #027c15; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 6px; font-size: 16px; font-weight: bold;">
-                                            Jetzt anmelden →
+                                        <a href="<?= h($loginUrl) ?>" style="display: inline-block; background: linear-gradient(135deg, #1a365d 0%, #2d4a7c 100%); color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 6px; font-size: 16px; font-weight: bold;">
+                                            Jetzt anmelden
                                         </a>
                                     </td>
                                 </tr>
                             </table>
 
-                            <!-- Security Notice -->
-                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #fff3cd; border-radius: 6px; margin-top: 25px;">
+                            <!-- Info Box -->
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #e8f4fd; border-radius: 6px; margin-top: 25px;">
                                 <tr>
                                     <td style="padding: 15px 20px;">
-                                        <p style="color: #856404; font-size: 14px; margin: 0; line-height: 1.5;">
-                                            <strong>⚠️ Sicherheitshinweis:</strong><br>
-                                            Bitte ändern Sie Ihr Passwort nach der ersten Anmeldung.
+                                        <p style="color: #1a365d; font-size: 14px; margin: 0; line-height: 1.5;">
+                                            <strong>Tipp:</strong> Als Schuladmin können Sie Übungsfirmen anlegen, die dann mit eigenen Konten arbeiten können.
                                         </p>
                                     </td>
                                 </tr>
@@ -94,9 +93,9 @@
 
                     <!-- Footer -->
                     <tr>
-                        <td style="background-color: #92500c; padding: 25px 40px; border-radius: 0 0 8px 8px; text-align: center;">
+                        <td style="background: linear-gradient(135deg, #1a365d 0%, #2d4a7c 100%); padding: 25px 40px; border-radius: 0 0 8px 8px; text-align: center;">
                             <p style="color: rgba(255,255,255,0.8); font-size: 13px; margin: 0 0 5px 0;">
-                                © <?= date('Y') ?> EduBank - Banking-Simulation für Schulen
+                                &copy; <?= date('Y') ?> EduBank - Banking-Simulation für Schulen
                             </p>
                             <p style="color: rgba(255,255,255,0.6); font-size: 12px; margin: 0;">
                                 Diese E-Mail wurde automatisch generiert.
