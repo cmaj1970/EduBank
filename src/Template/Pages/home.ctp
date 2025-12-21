@@ -112,7 +112,7 @@
                 </h1>
                 <p class="lead mb-4 opacity-90">
                     EduBank ist die kostenlose Banking-Simulation für Schulen.
-                    Schüler lernen den Umgang mit Finanzen in einer realistischen, aber sicheren Umgebung.
+                    Schüler lernen den Umgang mit E-Banking in einer realistischen, aber sicheren Umgebung.
                 </p>
                 <div class="d-flex gap-3 flex-wrap">
                     <a href="/users/login" class="btn btn-light btn-lg px-4">
@@ -134,7 +134,7 @@
 <div class="container mb-5">
     <div class="text-center mb-5">
         <h2 class="fw-bold">Warum EduBank?</h2>
-        <p class="text-muted">Die ideale Plattform für praxisnahes Finanzwissen</p>
+        <p class="text-muted">Die ideale Plattform für praxisnahes Erlernen des Umgangs mit digitalem Zahlungsverkehr.</p>
     </div>
 
     <div class="row g-4">
@@ -232,7 +232,7 @@
                         Schülern praktische Erfahrungen mit digitalem Zahlungsverkehr zu ermöglichen.
                     </p>
                     <p class="card-text opacity-90 small mb-3">
-                        <i class="bi bi-heart-fill me-1"></i> 100% kostenlos · Open Source · Made with ❤️ for Education
+                        <i class="bi bi-heart-fill me-1"></i> 100% kostenlos · Open Source
                     </p>
                     <hr class="opacity-25">
                     <div class="d-flex gap-3">
