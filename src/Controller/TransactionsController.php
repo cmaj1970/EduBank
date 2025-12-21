@@ -40,6 +40,7 @@
 		 */
 		public function index()
 		{
+			# Neueste zuerst (als Default, kann durch Paginator überschrieben werden)
 			$this->paginate = [
 				'contain' => ['Accounts.Users'],
 				'order' => ['Transactions.created' => 'DESC']
@@ -51,15 +52,11 @@
 					->contain(['Accounts.Users'])
 					->matching('Accounts.Users', function ($q) {
 						return $q->where(['Users.school_id' => $this->school['id']]);
-					})
-					->order(['Transactions.created' => 'DESC']);
+					});
 				$transactions = $this->paginate($query);
 			} else {
-				# Superadmin: Alle Transaktionen (neueste zuerst)
-				$query = $this->Transactions->find('all')
-					->contain(['Accounts.Users'])
-					->order(['Transactions.created' => 'DESC']);
-				$transactions = $this->paginate($query);
+				# Superadmin: Alle Transaktionen
+				$transactions = $this->paginate($this->Transactions);
 			}
 
 			$this->set(compact('transactions'));
