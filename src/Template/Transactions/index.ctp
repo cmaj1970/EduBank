@@ -72,21 +72,21 @@
                         <small><?= h($transaction->created->format('d.m.Y H:i')) ?></small>
                     </td>
                     <td class="text-end">
-                        <div class="btn-group btn-group-sm">
+                        <div class="d-flex flex-column gap-1">
                             <?= $this->Html->link(
-                                '<i class="bi bi-eye"></i>',
+                                'Ansehen',
                                 ['action' => 'view', $transaction->id],
-                                ['class' => 'btn btn-outline-primary', 'escape' => false, 'title' => 'Anzeigen']
+                                ['class' => 'btn btn-sm btn-outline-primary']
                             ) ?>
                             <?= $this->Html->link(
-                                '<i class="bi bi-pencil"></i>',
+                                'Bearbeiten',
                                 ['action' => 'edit', $transaction->id],
-                                ['class' => 'btn btn-outline-secondary', 'escape' => false, 'title' => 'Bearbeiten']
+                                ['class' => 'btn btn-sm btn-outline-secondary']
                             ) ?>
                             <?= $this->Form->postLink(
-                                '<i class="bi bi-trash"></i>',
+                                'Löschen',
                                 ['action' => 'delete', $transaction->id],
-                                ['class' => 'btn btn-outline-danger', 'escape' => false, 'title' => 'Löschen', 'confirm' => __('Transaktion wirklich löschen?')]
+                                ['class' => 'btn btn-sm btn-outline-danger', 'confirm' => __('Transaktion wirklich löschen?')]
                             ) ?>
                         </div>
                     </td>
