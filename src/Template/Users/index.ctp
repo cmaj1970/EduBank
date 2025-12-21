@@ -23,7 +23,7 @@
             <i class="bi bi-clipboard"></i>
         </button>
     </div>
-    <small class="text-muted ms-3">Dieses Passwort an Schüler weitergeben</small>
+    <small class="text-muted ms-3">Dieses Passwort an Schüler:innen weitergeben</small>
 </div>
 <?php endif; ?>
 
