@@ -26,9 +26,12 @@
                     <?= $this->Form->text('name', [
                         'class' => 'form-control form-control-lg',
                         'id' => 'name',
-                        'placeholder' => 'z.B. Testschule Musterstadt',
+                        'placeholder' => 'z.B. PTS Musterstadt',
                         'required' => true
                     ]) ?>
+                    <div class="form-text">
+                        <i class="bi bi-lightbulb me-1"></i>Bitte im Format <strong>Schultyp Schulname</strong> eingeben, z.B. „PTS Musterstadt", „BG Musterstadt", „HAK Musterstadt"
+                    </div>
                 </div>
 
                 <div class="mb-3">
