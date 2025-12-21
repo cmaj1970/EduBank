@@ -1,0 +1,398 @@
+<!--
+  EduBank - Login-Seite im ELBA-Stil
+
+  Übernommene ELBA-Elemente:
+  - Raiffeisen-Gelb (#FFE300) als Primärfarbe für Header und Buttons
+  - Schwarze Schrift auf gelbem Hintergrund für hohen Kontrast
+  - Login mit Verfügernummer (16-stellig, z.B. ELVIE32V8H251087) + 5-stellige PIN
+  - Klares, minimalistisches Layout
+  - Zentriertes Login-Formular
+  - Sicherheitshinweise unterhalb des Formulars
+
+  Quellen:
+  - https://www.raiffeisen.at/de/online-banking/mein-elba.html
+  - https://www.raiffeisen.at/ooe/de/online-banking/mein-elba/neues-login-center.html
+-->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduBank - Anmelden</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --elba-yellow: #FFE300;
+      --elba-yellow-hover: #E6CC00;
+      --elba-black: #000000;
+      --elba-dark-gray: #333333;
+      --elba-light-gray: #F5F5F5;
+      --elba-white: #FFFFFF;
+      --elba-border: #DDDDDD;
+    }
+
+    * {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--elba-light-gray);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .elba-header {
+      background-color: var(--elba-yellow);
+      padding: 1rem 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .elba-logo {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--elba-black);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .elba-logo:hover {
+      color: var(--elba-black);
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background-color: var(--elba-black);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--elba-yellow);
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+
+    /* Login Container */
+    .login-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .login-card {
+      background-color: var(--elba-white);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .login-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--elba-black);
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    .login-subtitle {
+      color: var(--elba-dark-gray);
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+
+    /* Form Elements */
+    .form-label {
+      font-weight: 500;
+      color: var(--elba-dark-gray);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+      border: 2px solid var(--elba-border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--elba-yellow);
+      box-shadow: 0 0 0 3px rgba(255, 227, 0, 0.25);
+    }
+
+    .form-control::placeholder {
+      color: #999;
+    }
+
+    /* Buttons */
+    .btn-elba-primary {
+      background-color: var(--elba-yellow);
+      border: 2px solid var(--elba-yellow);
+      color: var(--elba-black);
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      width: 100%;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .btn-elba-primary:hover {
+      background-color: var(--elba-yellow-hover);
+      border-color: var(--elba-yellow-hover);
+      color: var(--elba-black);
+      transform: translateY(-1px);
+    }
+
+    .btn-elba-primary:active {
+      transform: translateY(0);
+    }
+
+    /* Help Links */
+    .help-links {
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+
+    .help-links a {
+      color: var(--elba-dark-gray);
+      text-decoration: none;
+      font-size: 0.9rem;
+      display: inline-block;
+      margin: 0.25rem 0;
+    }
+
+    .help-links a:hover {
+      color: var(--elba-black);
+      text-decoration: underline;
+    }
+
+    /* Security Info */
+    .security-info {
+      background-color: var(--elba-light-gray);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .security-info h6 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--elba-dark-gray);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .security-info p {
+      font-size: 0.8rem;
+      color: #666;
+      margin-bottom: 0;
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    .elba-footer {
+      background-color: var(--elba-white);
+      border-top: 1px solid var(--elba-border);
+      padding: 1rem 0;
+      text-align: center;
+    }
+
+    .elba-footer p {
+      margin: 0;
+      color: #666;
+      font-size: 0.85rem;
+    }
+
+    .elba-footer a {
+      color: var(--elba-dark-gray);
+      text-decoration: none;
+    }
+
+    .elba-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Input Group */
+    .input-group-text {
+      background-color: var(--elba-light-gray);
+      border: 2px solid var(--elba-border);
+      border-right: none;
+      color: var(--elba-dark-gray);
+    }
+
+    .input-group .form-control {
+      border-left: none;
+    }
+
+    .input-group:focus-within .input-group-text {
+      border-color: var(--elba-yellow);
+    }
+
+    /* Password Toggle */
+    .password-toggle {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      padding: 0;
+      z-index: 10;
+    }
+
+    .password-toggle:hover {
+      color: var(--elba-dark-gray);
+    }
+
+    .position-relative {
+      position: relative;
+    }
+
+    /* Responsive */
+    @media (max-width: 576px) {
+      .login-card {
+        padding: 1.5rem;
+        margin: 0 0.5rem;
+      }
+
+      .elba-logo {
+        font-size: 1.25rem;
+      }
+
+      .logo-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="elba-header">
+    <div class="container">
+      <a href="login.html" class="elba-logo">
+        <span class="logo-icon">EB</span>
+        <span>EduBank</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Login Form -->
+  <main class="login-container">
+    <div class="login-card">
+      <h1 class="login-title">Willkommen bei EduBank</h1>
+      <p class="login-subtitle">Bitte melden Sie sich mit Ihren Zugangsdaten an</p>
+
+      <form action="dashboard.html" method="get">
+        <div class="mb-3">
+          <label for="verfuegernummer" class="form-label">Verfügernummer</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-person"></i></span>
+            <input
+              type="text"
+              class="form-control"
+              id="verfuegernummer"
+              name="verfuegernummer"
+              placeholder="z.B. ELVIE32V8H251087"
+              maxlength="16"
+              autocomplete="username"
+              required
+            >
+          </div>
+          <div class="form-text text-muted" style="font-size: 0.8rem; margin-top: 0.5rem;">
+            16-stellige Kennung aus Ihrem PIN-Brief
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="pin" class="form-label">ELBA-PIN</label>
+          <div class="position-relative">
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-lock"></i></span>
+              <input
+                type="password"
+                class="form-control"
+                id="pin"
+                name="pin"
+                placeholder="5-stellige PIN"
+                maxlength="5"
+                pattern="[0-9]{5}"
+                autocomplete="current-password"
+                required
+                style="padding-right: 3rem;"
+              >
+            </div>
+            <button type="button" class="password-toggle" onclick="togglePassword()" aria-label="Passwort anzeigen">
+              <i class="bi bi-eye" id="toggleIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-elba-primary">
+          <i class="bi bi-box-arrow-in-right me-2"></i>Einloggen
+        </button>
+      </form>
+
+      <div class="help-links">
+        <a href="#"><i class="bi bi-question-circle me-1"></i>PIN vergessen?</a>
+        <br>
+        <a href="#"><i class="bi bi-envelope me-1"></i>Kontakt zum Support</a>
+      </div>
+
+      <div class="security-info">
+        <h6><i class="bi bi-shield-check"></i> Sicherheitshinweis</h6>
+        <p>
+          Dies ist ein Übungssystem für Bildungszwecke. Geben Sie niemals echte
+          Bankdaten ein. Die Verbindung ist verschlüsselt.
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="elba-footer">
+    <div class="container">
+      <p>
+        EduBank - Banking-Simulation für Schulen |
+        <a href="#">Impressum</a> |
+        <a href="#">Datenschutz</a> |
+        <a href="#">Hilfe</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function togglePassword() {
+      const pinInput = document.getElementById('pin');
+      const toggleIcon = document.getElementById('toggleIcon');
+
+      if (pinInput.type === 'password') {
+        pinInput.type = 'text';
+        toggleIcon.classList.remove('bi-eye');
+        toggleIcon.classList.add('bi-eye-slash');
+      } else {
+        pinInput.type = 'password';
+        toggleIcon.classList.remove('bi-eye-slash');
+        toggleIcon.classList.add('bi-eye');
+      }
+    }
+  </script>
+</body>
+</html>
