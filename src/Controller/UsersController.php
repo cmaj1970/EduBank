@@ -53,16 +53,53 @@ class UsersController extends AppController
              'contain' => ['Accounts', 'Schools'],
              'order' => ['Users.created' => 'DESC']
          ];
-         if($this->school) {
-             $query->where(['school_id' => $this->school['id'], 'role' => 'user']);
+
+         # Filter: Nur Übungsfirmen anzeigen (role=user)
+         $query->where(['Users.role' => 'user']);
+
+         if ($this->school) {
+             # Schuladmin: Nur eigene Schule
+             $query->where(['Users.school_id' => $this->school['id']]);
+         } else {
+             # Superadmin: Filter nach Schule (Dropdown)
+             $selectedSchool = $this->request->getQuery('school_id');
+             if ($selectedSchool) {
+                 $query->where(['Users.school_id' => $selectedSchool]);
+             }
          }
+
+         # Textsuche (Name, Benutzername, Schulname)
+         $search = $this->request->getQuery('search');
+         if ($search) {
+             $query->matching('Schools', function ($q) use ($search) {
+                 return $q;
+             })->where([
+                 'OR' => [
+                     'Users.name LIKE' => '%' . $search . '%',
+                     'Users.username LIKE' => '%' . $search . '%',
+                     'Schools.name LIKE' => '%' . $search . '%'
+                 ]
+             ]);
+         }
+
          $users = $this->paginate($query);
 
-         // Pass default password for school admin display
+         # Schulen für Dropdown (nur Superadmin)
+         $schoolList = [];
+         $isSuperadmin = !$this->school;
+         if ($isSuperadmin) {
+             $this->loadModel('Schools');
+             $schoolList = $this->Schools->find('list')
+                 ->where(['status' => 'approved'])
+                 ->order('name')
+                 ->toArray();
+         }
+
          $defaultPassword = env('DEFAULT_USER_PASSWORD', 'Schueler2024');
          $isSchoolAdmin = ($this->school !== null);
+         $selectedSchool = $this->request->getQuery('school_id');
 
-         $this->set(compact('users', 'defaultPassword', 'isSchoolAdmin'));
+         $this->set(compact('users', 'defaultPassword', 'isSchoolAdmin', 'isSuperadmin', 'schoolList', 'selectedSchool', 'search'));
     }
 
     /**
