@@ -3,7 +3,6 @@ name: Deploy to Server
 on:
   push:
     branches:
-      - feature/bootstrap5-redesign
       - main
 
 jobs:
