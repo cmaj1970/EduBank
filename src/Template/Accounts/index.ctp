@@ -14,6 +14,40 @@
     <?php endif; ?>
 </div>
 
+<?php if ($accounts->isEmpty()): ?>
+<!-- Empty State -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body text-center py-5">
+        <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-4" style="width: 100px; height: 100px;">
+            <i class="bi bi-wallet2 text-success" style="font-size: 3rem;"></i>
+        </div>
+        <h4 class="mb-3">Noch keine Konten vorhanden</h4>
+        <p class="text-muted mb-4" style="max-width: 500px; margin: 0 auto;">
+            Jede Übungsfirma benötigt ein Bankkonto, um Überweisungen tätigen zu können.
+            Konten werden automatisch beim Erstellen einer Übungsfirma angelegt.
+        </p>
+
+        <div class="card bg-light border-0 mb-4 mx-auto" style="max-width: 450px;">
+            <div class="card-body text-start">
+                <h6 class="card-title"><i class="bi bi-info-circle me-2"></i>So erhalten Übungsfirmen Konten:</h6>
+                <ol class="mb-0 text-muted small">
+                    <li>Erstellen Sie zunächst eine Übungsfirma</li>
+                    <li>Ein Konto wird automatisch mit angelegt</li>
+                    <li>Das Konto erhält eine eigene IBAN und BIC</li>
+                </ol>
+            </div>
+        </div>
+
+        <?php if($authuser['role'] == 'admin'): ?>
+        <a href="/users/add" class="btn btn-primary btn-lg">
+            <i class="bi bi-people me-2"></i>Übungsfirma erstellen
+        </a>
+        <?php endif; ?>
+    </div>
+</div>
+
+<?php else: ?>
+<!-- Accounts Table -->
 <div class="card">
     <div class="table-responsive">
         <table class="table table-hover mb-0">
@@ -41,7 +75,10 @@
                         <strong><?= h($account->name) ?></strong>
                     </td>
                     <td>
-                        <code><?= h($account->iban) ?></code>
+                        <code class="iban-display"><?= h($account->iban) ?></code>
+                        <button type="button" class="btn btn-sm btn-link p-0 ms-1 copy-iban" data-iban="<?= h($account->iban) ?>" title="IBAN kopieren">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
                         <br><small class="text-muted">BIC: <?= h($account->bic) ?></small>
                     </td>
                     <td class="text-end">
@@ -104,3 +141,20 @@
     </div>
     <?php endif; ?>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.copy-iban').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var iban = this.getAttribute('data-iban');
+            navigator.clipboard.writeText(iban).then(function() {
+                btn.innerHTML = '<i class="bi bi-check text-success"></i>';
+                setTimeout(function() {
+                    btn.innerHTML = '<i class="bi bi-clipboard"></i>';
+                }, 2000);
+            });
+        });
+    });
+});
+</script>
+<?php endif; ?>

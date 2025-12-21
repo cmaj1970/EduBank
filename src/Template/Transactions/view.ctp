@@ -38,7 +38,12 @@
                 <div class="row">
                     <div class="col-md-8 mb-3">
                         <label class="form-label text-muted small"><?= __('Empfänger IBAN') ?></label>
-                        <div class="font-monospace"><?= h($transaction->empfaenger_iban) ?></div>
+                        <div class="font-monospace">
+                            <?= h($transaction->empfaenger_iban) ?>
+                            <button type="button" class="btn btn-sm btn-link p-0 ms-1 copy-iban" data-iban="<?= h($transaction->empfaenger_iban) ?>" title="IBAN kopieren">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label text-muted small"><?= __('Empfänger BIC') ?></label>
@@ -81,3 +86,19 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.copy-iban').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var iban = this.getAttribute('data-iban');
+            navigator.clipboard.writeText(iban).then(function() {
+                btn.innerHTML = '<i class="bi bi-check text-success"></i>';
+                setTimeout(function() {
+                    btn.innerHTML = '<i class="bi bi-clipboard"></i>';
+                }, 2000);
+            });
+        });
+    });
+});
+</script>
