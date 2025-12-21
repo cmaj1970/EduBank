@@ -313,44 +313,61 @@ class UsersController extends AppController
     }
 
     /**
-     * Impersonate a user (for school admins only)
-     * Allows viewing the app as a specific Übungsfirma
+     * Impersonate a user (for superadmin and school admins)
+     * Superadmin can impersonate anyone, school admins only their own Übungsfirmen
      *
      * @param int $id User ID to impersonate
      * @return \Cake\Http\Response
      */
     public function impersonate($id = null)
     {
-        // Only school admins can impersonate
-        if (!$this->school) {
-            $this->Flash->error(__('Nur Schuladmins können diese Funktion nutzen.'));
+        $currentUser = $this->Auth->user();
+        $isSuperadmin = ($currentUser['username'] === 'admin');
+
+        // Only superadmin or school admins can impersonate
+        if (!$isSuperadmin && !$this->school) {
+            $this->Flash->error(__('Keine Berechtigung für diese Funktion.'));
             return $this->redirect(['action' => 'index']);
         }
 
-        $targetUser = $this->Users->get($id);
+        $targetUser = $this->Users->get($id, ['contain' => ['Schools']]);
 
-        // Can only impersonate users from own school
-        if ($targetUser->school_id != $this->school['id']) {
-            $this->Flash->error(__('Sie können nur Übungsfirmen Ihrer eigenen Schule anzeigen.'));
+        // Cannot impersonate the superadmin
+        if ($targetUser->username === 'admin') {
+            $this->Flash->error(__('Der Superadmin kann nicht angemeldet werden.'));
             return $this->redirect(['action' => 'index']);
         }
 
-        // Can only impersonate regular users, not admins
-        if ($targetUser->role !== 'user') {
-            $this->Flash->error(__('Diese Funktion ist nur für Übungsfirmen verfügbar.'));
-            return $this->redirect(['action' => 'index']);
+        // School admin restrictions
+        if (!$isSuperadmin) {
+            // Can only impersonate users from own school
+            if ($targetUser->school_id != $this->school['id']) {
+                $this->Flash->error(__('Sie können nur Übungsfirmen Ihrer eigenen Schule anzeigen.'));
+                return $this->redirect(['action' => 'index']);
+            }
+
+            // Can only impersonate regular users, not admins
+            if ($targetUser->role !== 'user') {
+                $this->Flash->error(__('Diese Funktion ist nur für Übungsfirmen verfügbar.'));
+                return $this->redirect(['action' => 'index']);
+            }
         }
 
         // Store original admin in session
         $session = $this->request->getSession();
-        $currentUser = $this->Auth->user();
         $session->write('Auth.OriginalAdmin', $currentUser);
 
         // Switch to target user
         $this->Auth->setUser($targetUser->toArray());
 
-        $this->Flash->success(__('Sie sehen die Anwendung jetzt als "{0}".', $targetUser->name));
-        return $this->redirect(['controller' => 'Accounts', 'action' => 'index']);
+        // Redirect based on target user role
+        if ($targetUser->role === 'admin' && strpos($targetUser->username, 'admin-') === 0) {
+            $this->Flash->success(__('Sie sehen die Anwendung jetzt als Schuladmin "{0}".', $targetUser->name));
+            return $this->redirect(['controller' => 'Users', 'action' => 'index']);
+        } else {
+            $this->Flash->success(__('Sie sehen die Anwendung jetzt als "{0}".', $targetUser->name));
+            return $this->redirect(['controller' => 'Accounts', 'action' => 'index']);
+        }
     }
 
     /**

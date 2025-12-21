@@ -68,7 +68,27 @@ class SchoolsController extends AppController
 
         $schools = $this->paginate($query);
 
-        $this->set(compact('schools'));
+        // For superadmin: Get school admins for impersonation
+        $schoolAdmins = [];
+        $currentUser = $this->Auth->user();
+        if ($currentUser['username'] === 'admin') {
+            $this->loadModel('Users');
+            foreach ($schools as $school) {
+                $admin = $this->Users->find()
+                    ->where([
+                        'school_id' => $school->id,
+                        'role' => 'admin',
+                        'username LIKE' => 'admin-%'
+                    ])
+                    ->first();
+                if ($admin) {
+                    $schoolAdmins[$school->id] = $admin;
+                }
+            }
+        }
+
+        $isSuperadmin = ($currentUser['username'] === 'admin');
+        $this->set(compact('schools', 'schoolAdmins', 'isSuperadmin'));
     }
 
     /**
@@ -666,6 +686,399 @@ class SchoolsController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+
+    /**
+     * Demo school management page (superadmin only)
+     * Create, regenerate or delete demo data
+     *
+     * @return \Cake\Http\Response|null
+     */
+    public function demoSchool()
+    {
+        // Check if demo schools exist
+        $demoSchools = $this->Schools->find()
+            ->where(['kurzname LIKE' => '%demo%'])
+            ->order(['kurzname' => 'ASC'])
+            ->toArray();
+
+        $demoStats = [];
+        if (!empty($demoSchools)) {
+            $this->loadModel('Users');
+            $this->loadModel('Accounts');
+            $this->loadModel('Transactions');
+
+            $totalUsers = 0;
+            $totalAccounts = 0;
+            $totalTransactions = 0;
+
+            foreach ($demoSchools as $school) {
+                $userCount = $this->Users->find()
+                    ->where(['school_id' => $school->id, 'role' => 'user'])
+                    ->count();
+
+                $accountCount = $this->Accounts->find()
+                    ->matching('Users', function ($q) use ($school) {
+                        return $q->where(['Users.school_id' => $school->id]);
+                    })
+                    ->count();
+
+                $transactionCount = $this->Transactions->find()
+                    ->matching('Accounts.Users', function ($q) use ($school) {
+                        return $q->where(['Users.school_id' => $school->id]);
+                    })
+                    ->count();
+
+                $totalUsers += $userCount;
+                $totalAccounts += $accountCount;
+                $totalTransactions += $transactionCount;
+            }
+
+            $demoStats = [
+                'schools' => $demoSchools,
+                'totalUsers' => $totalUsers,
+                'totalAccounts' => $totalAccounts,
+                'totalTransactions' => $totalTransactions
+            ];
+        }
+
+        $this->set(compact('demoSchools', 'demoStats'));
+    }
+
+    /**
+     * Create demo schools with sample data
+     * Creates 3 schools with 5 companies each and cross-school transactions
+     *
+     * @return \Cake\Http\Response
+     */
+    public function createDemoSchool()
+    {
+        $this->request->allowMethod(['post']);
+
+        // Check if any demo school already exists
+        $existingDemo = $this->Schools->find()
+            ->where(['kurzname LIKE' => '%demo%'])
+            ->first();
+
+        if ($existingDemo) {
+            $this->Flash->error(__('Demoschulen existieren bereits. Bitte zuerst löschen.'));
+            return $this->redirect(['action' => 'demoSchool']);
+        }
+
+        $this->loadModel('Users');
+        $this->loadModel('Accounts');
+        $this->loadModel('Transactions');
+
+        // Define 3 demo schools
+        $schoolsData = [
+            [
+                'name' => 'PTS Demo',
+                'kurzname' => 'ptsdemo',
+                'bic' => 'PTSDAT01',
+                'ibanprefix' => 'PT01',
+                'companies' => [
+                    'Sonnenschein GmbH',
+                    'Alpenblick Handels OG',
+                    'Donauwind Services KG',
+                    'Bergquell Getränke GmbH',
+                    'Wienerwald IT Solutions'
+                ]
+            ],
+            [
+                'name' => 'HAK Demo',
+                'kurzname' => 'hakdemo',
+                'bic' => 'HAKDAT01',
+                'ibanprefix' => 'HK01',
+                'companies' => [
+                    'Goldener Stern KG',
+                    'Silbermond Trading GmbH',
+                    'Kupferberg Logistics',
+                    'Eisenhart Consulting OG',
+                    'Diamant Solutions GmbH'
+                ]
+            ],
+            [
+                'name' => 'HTL Demo',
+                'kurzname' => 'htldemo',
+                'bic' => 'HTLDAT01',
+                'ibanprefix' => 'HT01',
+                'companies' => [
+                    'TechNova Systems GmbH',
+                    'CloudPeak Services KG',
+                    'DataStream Analytics OG',
+                    'CyberShield Security',
+                    'GreenCode Software GmbH'
+                ]
+            ]
+        ];
+
+        $allAccounts = [];
+        $totalCompanies = 0;
+        $defaultPassword = env('DEFAULT_USER_PASSWORD', 'Schueler2024');
+        $adminPassword = env('DEFAULT_ADMIN_PASSWORD', 'SchulAdmin2024');
+
+        foreach ($schoolsData as $schoolIndex => $schoolData) {
+            // Create school
+            $school = $this->Schools->newEntity([
+                'name' => $schoolData['name'],
+                'kurzname' => $schoolData['kurzname'],
+                'bic' => $schoolData['bic'],
+                'ibanprefix' => $schoolData['ibanprefix'],
+                'status' => 'approved',
+                'contact_email' => $schoolData['kurzname'] . '@edubank.at'
+            ]);
+
+            if (!$this->Schools->save($school)) {
+                continue;
+            }
+
+            // Create school admin
+            $adminUser = $this->Users->newEntity([
+                'username' => 'admin-' . $schoolData['kurzname'],
+                'password' => $adminPassword,
+                'name' => $schoolData['name'] . ' Admin',
+                'role' => 'admin',
+                'school_id' => $school->id,
+                'active' => 1
+            ]);
+            $this->Users->save($adminUser);
+
+            // Create companies for this school
+            foreach ($schoolData['companies'] as $companyIndex => $companyName) {
+                $username = $schoolData['kurzname'] . '-' . strtolower(preg_replace('/[^a-zA-Z]/', '', explode(' ', $companyName)[0]));
+
+                $user = $this->Users->newEntity([
+                    'username' => $username,
+                    'password' => $defaultPassword,
+                    'name' => $companyName,
+                    'role' => 'user',
+                    'school_id' => $school->id,
+                    'active' => 1
+                ]);
+
+                if ($this->Users->save($user)) {
+                    // Create account with unique IBAN
+                    $ibanSuffix = str_pad(($schoolIndex * 10 + $companyIndex + 1) * 1111, 16, '0', STR_PAD_LEFT);
+                    $account = $this->Accounts->newEntity([
+                        'name' => $companyName . ' Geschäftskonto',
+                        'user_id' => $user->id,
+                        'iban' => $schoolData['ibanprefix'] . $ibanSuffix,
+                        'bic' => $schoolData['bic'],
+                        'balance' => 10000.00,
+                        'maxlimit' => 2000.00
+                    ]);
+
+                    if ($this->Accounts->save($account)) {
+                        $allAccounts[] = $account;
+                        $totalCompanies++;
+                    }
+                }
+            }
+        }
+
+        // Generate transactions (including cross-school)
+        $transactionCount = $this->_generateDemoTransactions($allAccounts);
+
+        $this->Flash->success(__('3 Demoschulen erstellt mit {0} Übungsfirmen und {1} Transaktionen (inkl. schulübergreifend).',
+            $totalCompanies, $transactionCount));
+
+        return $this->redirect(['action' => 'demoSchool']);
+    }
+
+    /**
+     * Delete all demo schools and their data
+     *
+     * @return \Cake\Http\Response
+     */
+    public function deleteDemoSchool()
+    {
+        $this->request->allowMethod(['post']);
+
+        $demoSchools = $this->Schools->find()
+            ->where(['kurzname LIKE' => '%demo%'])
+            ->toArray();
+
+        if (empty($demoSchools)) {
+            $this->Flash->error(__('Keine Demoschulen vorhanden.'));
+            return $this->redirect(['action' => 'demoSchool']);
+        }
+
+        $this->loadModel('Users');
+        $this->loadModel('Accounts');
+        $this->loadModel('Transactions');
+
+        $deletedSchools = 0;
+        $deletedUsers = 0;
+        $deletedAccounts = 0;
+        $deletedTransactions = 0;
+
+        foreach ($demoSchools as $demoSchool) {
+            $users = $this->Users->find()
+                ->where(['school_id' => $demoSchool->id])
+                ->toArray();
+
+            foreach ($users as $user) {
+                $userAccounts = $this->Accounts->find()
+                    ->where(['user_id' => $user->id])
+                    ->toArray();
+
+                foreach ($userAccounts as $account) {
+                    $deletedTransactions += $this->Transactions->deleteAll(['account_id' => $account->id]);
+                    $deletedTransactions += $this->Transactions->deleteAll(['empfaenger_iban' => $account->iban]);
+                    $deletedAccounts++;
+                }
+
+                $this->Accounts->deleteAll(['user_id' => $user->id]);
+                $deletedUsers++;
+            }
+
+            $this->Users->deleteAll(['school_id' => $demoSchool->id]);
+            $this->Schools->delete($demoSchool);
+            $deletedSchools++;
+        }
+
+        $this->Flash->success(__('{0} Demoschulen gelöscht inkl. {1} Benutzer, {2} Konten, {3} Transaktionen.',
+            $deletedSchools, $deletedUsers, $deletedAccounts, $deletedTransactions));
+
+        return $this->redirect(['action' => 'demoSchool']);
+    }
+
+    /**
+     * Regenerate demo schools (delete and recreate)
+     *
+     * @return \Cake\Http\Response
+     */
+    public function regenerateDemoSchool()
+    {
+        $this->request->allowMethod(['post']);
+
+        // First delete all demo schools
+        $demoSchools = $this->Schools->find()
+            ->where(['kurzname LIKE' => '%demo%'])
+            ->toArray();
+
+        if (!empty($demoSchools)) {
+            $this->loadModel('Users');
+            $this->loadModel('Accounts');
+            $this->loadModel('Transactions');
+
+            foreach ($demoSchools as $demoSchool) {
+                $users = $this->Users->find()
+                    ->where(['school_id' => $demoSchool->id])
+                    ->toArray();
+
+                foreach ($users as $user) {
+                    $userAccounts = $this->Accounts->find()
+                        ->where(['user_id' => $user->id])
+                        ->toArray();
+
+                    foreach ($userAccounts as $account) {
+                        $this->Transactions->deleteAll(['account_id' => $account->id]);
+                        $this->Transactions->deleteAll(['empfaenger_iban' => $account->iban]);
+                    }
+                    $this->Accounts->deleteAll(['user_id' => $user->id]);
+                }
+
+                $this->Users->deleteAll(['school_id' => $demoSchool->id]);
+                $this->Schools->delete($demoSchool);
+            }
+        }
+
+        // Now create fresh
+        return $this->createDemoSchool();
+    }
+
+    /**
+     * Generate demo transactions between accounts
+     *
+     * @param array $accounts List of account entities
+     * @return int Number of transactions created
+     */
+    private function _generateDemoTransactions($accounts)
+    {
+        if (count($accounts) < 2) {
+            return 0;
+        }
+
+        // Transaction purposes
+        $purposes = [
+            'Warenlieferung',
+            'Dienstleistung',
+            'Beratungshonorar',
+            'Materialkosten',
+            'Bürobedarf',
+            'IT-Services',
+            'Marketingkosten',
+            'Logistikkosten',
+            'Reparaturkosten',
+            'Schulung',
+            'Wartungsvertrag',
+            'Projektabrechnung',
+            'Anzahlung',
+            'Restzahlung',
+            'Monatsrechnung',
+            'Quartalsabrechnung'
+        ];
+
+        $references = [
+            'RE-2024-',
+            'RG-',
+            'AB-',
+            'GS-',
+            'PR-'
+        ];
+
+        $transactionCount = 0;
+        $twoMonthsAgo = new FrozenTime('-2 months');
+        $now = new FrozenTime();
+
+        // Generate 25 transactions
+        for ($i = 0; $i < 25; $i++) {
+            // Random sender and receiver (must be different)
+            $senderIndex = rand(0, count($accounts) - 1);
+            do {
+                $receiverIndex = rand(0, count($accounts) - 1);
+            } while ($receiverIndex === $senderIndex);
+
+            $sender = $accounts[$senderIndex];
+            $receiver = $accounts[$receiverIndex];
+
+            // Random date within last 2 months
+            $daysAgo = rand(0, 60);
+            $transactionDate = new FrozenTime("-{$daysAgo} days");
+
+            // Random amount between 50 and 2000
+            $amount = rand(50, 2000) + (rand(0, 99) / 100);
+
+            // Random purpose
+            $purpose = $purposes[array_rand($purposes)];
+            $reference = $references[array_rand($references)] . rand(1000, 9999);
+
+            $transaction = $this->Transactions->newEntity([
+                'account_id' => $sender->id,
+                'empfaenger_name' => str_replace(' Geschäftskonto', '', $receiver->name),
+                'empfaenger_iban' => $receiver->iban,
+                'empfaenger_bic' => $receiver->bic,
+                'betrag' => $amount,
+                'verwendungszweck' => $purpose . ' - ' . $reference,
+                'datum' => $transactionDate,
+                'created' => $transactionDate
+            ]);
+
+            if ($this->Transactions->save($transaction)) {
+                // Update sender balance
+                $sender->balance -= $amount;
+                $this->Accounts->save($sender);
+
+                // Update receiver balance
+                $receiver->balance += $amount;
+                $this->Accounts->save($receiver);
+
+                $transactionCount++;
+            }
+        }
+
+        return $transactionCount;
     }
 
     /**
