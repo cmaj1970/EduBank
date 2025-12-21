@@ -26,7 +26,7 @@
                     <?= $this->Form->text('name', [
                         'class' => 'form-control form-control-lg',
                         'id' => 'name',
-                        'placeholder' => 'z.B. Handelsakademie Wien',
+                        'placeholder' => 'z.B. Testschule Musterstadt',
                         'required' => true
                     ]) ?>
                 </div>
@@ -36,7 +36,7 @@
                     <?= $this->Form->email('email', [
                         'class' => 'form-control form-control-lg',
                         'id' => 'email',
-                        'placeholder' => 'z.B. lehrer@schule.at',
+                        'placeholder' => 'z.B. admin@schule.at',
                         'required' => true
                     ]) ?>
                     <div class="form-text">
@@ -49,7 +49,7 @@
                     <input type="text" id="kurzname-display" class="form-control bg-light" readonly placeholder="Wird automatisch generiert">
                     <?= $this->Form->hidden('kurzname', ['id' => 'kurzname']) ?>
                     <div class="form-text">
-                        Wird für Benutzernamen verwendet (z.B. admin-hakwien)
+                        Wird für Benutzernamen verwendet (z.B. admin-testschule)
                     </div>
                 </div>
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * Registration confirmation page
- * Shows credentials and allows email resend
+ * Shows credentials and explains verification process
  *
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\School $school
@@ -24,6 +24,15 @@ $resent = $this->request->getQuery('resent') === '1';
             <p class="text-muted">Ihre Schule <strong><?= h($school->name) ?></strong> wurde erstellt.</p>
         </div>
 
+        <!-- Verification Notice -->
+        <div class="alert alert-warning d-flex align-items-start mb-4">
+            <i class="bi bi-envelope-exclamation fs-4 me-3 mt-1"></i>
+            <div>
+                <strong>Nächster Schritt: E-Mail bestätigen</strong><br>
+                <span class="small">Klicken Sie auf den grünen Button in der E-Mail, um Ihre Registrierung abzuschließen.</span>
+            </div>
+        </div>
+
         <!-- Email Status -->
         <?php if ($emailSent): ?>
         <div class="alert alert-success d-flex align-items-center mb-4">
@@ -34,15 +43,15 @@ $resent = $this->request->getQuery('resent') === '1';
                 <?php else: ?>
                     <strong>E-Mail gesendet!</strong><br>
                 <?php endif; ?>
-                <span class="small">Zugangsdaten wurden an <strong><?= h($email) ?></strong> geschickt.</span>
+                <span class="small">Bestätigungslink wurde an <strong><?= h($email) ?></strong> geschickt.</span>
             </div>
         </div>
         <?php else: ?>
-        <div class="alert alert-warning d-flex align-items-center mb-4">
+        <div class="alert alert-danger d-flex align-items-center mb-4">
             <i class="bi bi-exclamation-triangle fs-4 me-3"></i>
             <div>
                 <strong>E-Mail konnte nicht gesendet werden</strong><br>
-                <span class="small">Bitte notieren Sie sich die Zugangsdaten unten.</span>
+                <span class="small">Bitte notieren Sie sich die Zugangsdaten unten und versuchen Sie es erneut.</span>
             </div>
         </div>
         <?php endif; ?>
@@ -53,6 +62,10 @@ $resent = $this->request->getQuery('resent') === '1';
                 <h5 class="mb-0"><i class="bi bi-key me-2"></i>Ihre Zugangsdaten</h5>
             </div>
             <div class="card-body">
+                <p class="small text-muted mb-3">
+                    Nach der E-Mail-Bestätigung können Sie sich mit diesen Daten anmelden:
+                </p>
+
                 <div class="row mb-3">
                     <div class="col-4 text-muted">Benutzername:</div>
                     <div class="col-8">
@@ -75,15 +88,19 @@ $resent = $this->request->getQuery('resent') === '1';
             </div>
         </div>
 
-        <!-- Actions -->
-        <div class="d-grid gap-2 mb-4">
-            <a href="/users/login" class="btn btn-primary btn-lg">
-                <i class="bi bi-box-arrow-in-right me-2"></i>Jetzt anmelden
-            </a>
+        <!-- Steps -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-3">
+                <h6 class="mb-3"><i class="bi bi-list-ol text-primary me-2"></i>So geht es weiter:</h6>
+                <ol class="mb-0 ps-3 small">
+                    <li class="mb-2">Öffnen Sie Ihr E-Mail-Postfach (<strong><?= h($email) ?></strong>)</li>
+                    <li class="mb-2">Klicken Sie auf den grünen Button "E-Mail bestätigen"</li>
+                    <li>Melden Sie sich mit Ihren Zugangsdaten an</li>
+                </ol>
+            </div>
         </div>
 
         <!-- Resend Email -->
-        <?php if ($emailSent): ?>
         <div class="card border-0 shadow-sm bg-light">
             <div class="card-body p-3">
                 <p class="small text-muted mb-2">
@@ -92,22 +109,12 @@ $resent = $this->request->getQuery('resent') === '1';
                 </p>
                 <?= $this->Form->create(null, ['url' => ['action' => 'resendEmail']]) ?>
                 <?= $this->Form->hidden('school_id', ['value' => $school->id]) ?>
+                <?php if ($emailSent): ?>
                 <?= $this->Form->hidden('email', ['value' => $email]) ?>
                 <button type="submit" class="btn btn-outline-secondary btn-sm">
                     <i class="bi bi-arrow-repeat me-1"></i>E-Mail erneut senden
                 </button>
-                <?= $this->Form->end() ?>
-            </div>
-        </div>
-        <?php else: ?>
-        <div class="card border-0 shadow-sm">
-            <div class="card-body p-3">
-                <p class="small text-muted mb-2">
-                    <i class="bi bi-envelope me-1"></i>
-                    E-Mail erneut versuchen:
-                </p>
-                <?= $this->Form->create(null, ['url' => ['action' => 'resendEmail']]) ?>
-                <?= $this->Form->hidden('school_id', ['value' => $school->id]) ?>
+                <?php else: ?>
                 <div class="input-group input-group-sm">
                     <?= $this->Form->email('email', [
                         'class' => 'form-control',
@@ -118,10 +125,10 @@ $resent = $this->request->getQuery('resent') === '1';
                         <i class="bi bi-send me-1"></i>Senden
                     </button>
                 </div>
+                <?php endif; ?>
                 <?= $this->Form->end() ?>
             </div>
         </div>
-        <?php endif; ?>
 
         <div class="text-center mt-4">
             <a href="/" class="text-muted small"><i class="bi bi-arrow-left me-1"></i>Zurück zur Startseite</a>
