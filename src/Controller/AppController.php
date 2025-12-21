@@ -51,7 +51,7 @@ class AppController extends Controller
         $this->loadComponent('Auth', [
         	'authorize' => ['Controller'],
             'loginRedirect' => [
-                'controller' => 'Accounts',
+                'controller' => 'Users',
                 'action' => 'index'
             ],
             'logoutRedirect' => [
@@ -83,14 +83,28 @@ class AppController extends Controller
             $schoolshortname = str_replace('admin-', '', $this->request->getSession()->read('Auth')['User']['username']);
             $this->school = $this->Schools->find('all', array('conditions' => array('kurzname' => $schoolshortname)))->first();
             $this->set('loggedinschool', $this->school);
-        } else {
 
+            // Check if school is pending verification
+            if ($this->school && $this->school->status === 'pending') {
+                $this->set('schoolPendingVerification', true);
+            }
         }
     }
     public function beforeFilter(Event $event)
-        {
-            #$this->Auth->allow(['index', 'view', 'display']);
+    {
+        // Redirect pending schools to verification page
+        if (isset($this->school) && $this->school && $this->school->status === 'pending') {
+            // Allow access to logout and the pending page itself
+            $allowedActions = ['logout', 'pendingVerification', 'resendVerification'];
+            $controller = $this->request->getParam('controller');
+            $action = $this->request->getParam('action');
+
+            if (!($controller === 'Schools' && in_array($action, $allowedActions)) &&
+                !($controller === 'Users' && $action === 'logout')) {
+                return $this->redirect(['controller' => 'Schools', 'action' => 'pendingVerification']);
+            }
         }
+    }
    public function isAuthorized($user)
    {
        // Admin can access every action
