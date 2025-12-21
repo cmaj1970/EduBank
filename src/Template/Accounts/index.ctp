@@ -24,23 +24,12 @@
         <h4 class="mb-3">Noch keine Konten vorhanden</h4>
         <p class="text-muted mb-4" style="max-width: 500px; margin: 0 auto;">
             Jede Übungsfirma benötigt ein Bankkonto, um Überweisungen tätigen zu können.
-            Konten werden automatisch beim Erstellen einer Übungsfirma angelegt.
+            Erstellen Sie ein neues Konto, um loszulegen.
         </p>
 
-        <div class="card bg-light border-0 mb-4 mx-auto" style="max-width: 450px;">
-            <div class="card-body text-start">
-                <h6 class="card-title"><i class="bi bi-info-circle me-2"></i>So erhalten Übungsfirmen Konten:</h6>
-                <ol class="mb-0 text-muted small">
-                    <li>Erstellen Sie zunächst eine Übungsfirma</li>
-                    <li>Ein Konto wird automatisch mit angelegt</li>
-                    <li>Das Konto erhält eine eigene IBAN und BIC</li>
-                </ol>
-            </div>
-        </div>
-
         <?php if($authuser['role'] == 'admin'): ?>
-        <a href="/users/add" class="btn btn-primary btn-lg">
-            <i class="bi bi-people me-2"></i>Übungsfirma erstellen
+        <a href="/accounts/add" class="btn btn-primary btn-lg">
+            <i class="bi bi-plus-lg me-2"></i>Neues Konto erstellen
         </a>
         <?php endif; ?>
     </div>
