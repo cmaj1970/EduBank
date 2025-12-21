@@ -225,21 +225,24 @@
         <div class="col-lg-5 col-md-6 mb-4">
             <div class="card border-0 shadow-sm bg-primary text-white h-100">
                 <div class="card-body p-4">
-                    <h5 class="card-title mb-3"><i class="bi bi-question-circle me-2"></i>Noch Fragen?</h5>
-                    <p class="card-text opacity-90 mb-3">
-                        EduBank ist kostenlos und Open Source. Ideal für den Einsatz im Wirtschaftsunterricht.
+                    <h5 class="card-title mb-3"><i class="bi bi-info-circle me-2"></i>Über EduBank</h5>
+                    <p class="card-text opacity-90 mb-2">
+                        EduBank ist eine kostenlose Banking-Simulation für den Schulunterricht – entwickelt aus Überzeugung,
+                        nicht aus Profit. Dieses Projekt entsteht ehrenamtlich in meiner Freizeit, um Schülerinnen und
+                        Schülern praktische Erfahrungen mit digitalem Zahlungsverkehr zu ermöglichen.
+                    </p>
+                    <p class="card-text opacity-90 small mb-3">
+                        <i class="bi bi-heart-fill me-1"></i> 100% kostenlos · Open Source · Made with ❤️ for Education
                     </p>
                     <hr class="opacity-25">
-                    <p class="small mb-2">
-                        <a href="https://github.com/cmaj1970/EduBank" target="_blank" class="text-white text-decoration-none">
+                    <div class="d-flex gap-3">
+                        <a href="https://github.com/cmaj1970/EduBank" target="_blank" class="text-white text-decoration-none small">
                             <i class="bi bi-github me-1"></i> GitHub
                         </a>
-                    </p>
-                    <p class="small mb-0">
-                        <a href="https://www.paypal.com/paypalme/carlmajneri" target="_blank" class="text-white text-decoration-none">
-                            <i class="bi bi-heart me-1"></i> Projekt unterstützen
+                        <a href="https://www.paypal.com/paypalme/carlmajneri" target="_blank" class="text-white text-decoration-none small">
+                            <i class="bi bi-piggy-bank me-1"></i> Unterstützen
                         </a>
-                    </p>
+                    </div>
                 </div>
             </div>
         </div>
