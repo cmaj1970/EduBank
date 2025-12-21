@@ -20,8 +20,8 @@ class SchoolsController extends AppController
     public function beforeFilter(\Cake\Event\Event $event)
     {
         parent::beforeFilter($event);
-        // Allow public registration
-        $this->Auth->allow(['register']);
+        // Allow public registration, confirmation page, and email verification
+        $this->Auth->allow(['register', 'registered', 'resendEmail', 'verify']);
     }
 
     /**
@@ -34,6 +34,11 @@ class SchoolsController extends AppController
     {
         // Superadmin (username='admin') can do everything
         if (isset($user['username']) && $user['username'] === 'admin') {
+            return true;
+        }
+
+        // Pending verification pages are always accessible for logged-in school admins
+        if (in_array($this->request->getParam('action'), ['pendingVerification', 'resendVerification'])) {
             return true;
         }
 
@@ -194,6 +199,230 @@ class SchoolsController extends AppController
     }
 
     /**
+     * Pending verification page
+     * Shown to logged-in admins whose school is not yet verified
+     *
+     * @return \Cake\Http\Response|null
+     */
+    public function pendingVerification()
+    {
+        // Get school from session (set by AppController)
+        $school = $this->school;
+
+        if (!$school) {
+            return $this->redirect(['controller' => 'Users', 'action' => 'logout']);
+        }
+
+        // If already verified, redirect to home
+        if ($school->status === 'approved') {
+            return $this->redirect(['controller' => 'Pages', 'action' => 'display', 'home']);
+        }
+
+        $this->set(compact('school'));
+    }
+
+    /**
+     * Resend verification email for logged-in admins
+     *
+     * @return \Cake\Http\Response|null
+     */
+    public function resendVerification()
+    {
+        $this->request->allowMethod(['post']);
+
+        $school = $this->school;
+
+        if (!$school || $school->status !== 'pending') {
+            return $this->redirect(['controller' => 'Pages', 'action' => 'display', 'home']);
+        }
+
+        // Generate new token
+        $school->verification_token = bin2hex(random_bytes(32));
+        $this->Schools->save($school);
+
+        // Get admin user
+        $this->loadModel('Users');
+        $adminUser = $this->Users->find()
+            ->where([
+                'school_id' => $school->id,
+                'role' => 'admin',
+                'username LIKE' => 'admin-%'
+            ])
+            ->first();
+
+        if ($adminUser) {
+            $username = $adminUser->username;
+            $password = env('DEFAULT_ADMIN_PASSWORD', 'ChangeMe123');
+
+            // Use contact_email from school if available
+            $email = $school->contact_email;
+
+            if ($email) {
+                $emailSent = $this->_sendWelcomeEmail($email, $school->name, $username, $password, $school->verification_token);
+
+                if ($emailSent) {
+                    $this->Flash->success(__('Die Bestätigungs-E-Mail wurde erneut an {0} gesendet.', $email));
+                } else {
+                    $this->Flash->error(__('Die E-Mail konnte nicht gesendet werden. Bitte versuchen Sie es später erneut.'));
+                }
+            } else {
+                $this->Flash->error(__('Keine E-Mail-Adresse hinterlegt.'));
+            }
+        }
+
+        return $this->redirect(['action' => 'pendingVerification']);
+    }
+
+    /**
+     * Registration confirmation page
+     * Shows credentials and allows email resend
+     *
+     * @return \Cake\Http\Response|null
+     */
+    public function registered()
+    {
+        $schoolId = $this->request->getQuery('school');
+        $email = $this->request->getQuery('email');
+        $emailSent = $this->request->getQuery('sent') === '1';
+
+        if (!$schoolId) {
+            return $this->redirect(['action' => 'register']);
+        }
+
+        try {
+            $school = $this->Schools->get($schoolId);
+        } catch (\Exception $e) {
+            return $this->redirect(['action' => 'register']);
+        }
+
+        // Get admin user for this school
+        $this->loadModel('Users');
+        $adminUser = $this->Users->find()
+            ->where([
+                'school_id' => $school->id,
+                'role' => 'admin',
+                'username LIKE' => 'admin-%'
+            ])
+            ->first();
+
+        if (!$adminUser) {
+            $this->Flash->error(__('Admin-Benutzer konnte nicht gefunden werden.'));
+            return $this->redirect(['action' => 'register']);
+        }
+
+        $username = $adminUser->username;
+        $password = env('DEFAULT_ADMIN_PASSWORD', 'ChangeMe123');
+
+        $this->set(compact('school', 'email', 'emailSent', 'username', 'password'));
+    }
+
+    /**
+     * Resend welcome email
+     *
+     * @return \Cake\Http\Response|null
+     */
+    public function resendEmail()
+    {
+        $this->request->allowMethod(['post']);
+
+        $schoolId = $this->request->getData('school_id');
+        $email = $this->request->getData('email');
+
+        if (!$schoolId || !$email) {
+            $this->Flash->error(__('Ungültige Anfrage.'));
+            return $this->redirect(['action' => 'register']);
+        }
+
+        try {
+            $school = $this->Schools->get($schoolId);
+        } catch (\Exception $e) {
+            $this->Flash->error(__('Schule nicht gefunden.'));
+            return $this->redirect(['action' => 'register']);
+        }
+
+        // Get admin user
+        $this->loadModel('Users');
+        $adminUser = $this->Users->find()
+            ->where([
+                'school_id' => $school->id,
+                'role' => 'admin',
+                'username LIKE' => 'admin-%'
+            ])
+            ->first();
+
+        if (!$adminUser) {
+            $this->Flash->error(__('Admin-Benutzer nicht gefunden.'));
+            return $this->redirect(['action' => 'register']);
+        }
+
+        // Generate new token if school is still pending
+        if ($school->status === 'pending') {
+            $school->verification_token = bin2hex(random_bytes(32));
+            $this->Schools->save($school);
+        }
+
+        $username = $adminUser->username;
+        $password = env('DEFAULT_ADMIN_PASSWORD', 'ChangeMe123');
+
+        $emailSent = $this->_sendWelcomeEmail($email, $school->name, $username, $password, $school->verification_token);
+
+        return $this->redirect([
+            'action' => 'registered',
+            '?' => [
+                'school' => $school->id,
+                'email' => $email,
+                'sent' => $emailSent ? '1' : '0',
+                'resent' => '1'
+            ]
+        ]);
+    }
+
+    /**
+     * Verify school email address
+     * Called when user clicks the verification link in the email
+     *
+     * @return \Cake\Http\Response|null
+     */
+    public function verify()
+    {
+        $token = $this->request->getQuery('token');
+
+        if (!$token) {
+            $this->Flash->error(__('Ungültiger Bestätigungslink.'));
+            return $this->redirect(['controller' => 'Pages', 'action' => 'display', 'home']);
+        }
+
+        // Find school by token
+        $school = $this->Schools->find()
+            ->where(['verification_token' => $token])
+            ->first();
+
+        if (!$school) {
+            $this->Flash->error(__('Dieser Bestätigungslink ist ungültig oder wurde bereits verwendet.'));
+            return $this->redirect(['controller' => 'Pages', 'action' => 'display', 'home']);
+        }
+
+        // Check if already verified
+        if ($school->status === 'approved') {
+            $this->Flash->info(__('Ihre Schule wurde bereits bestätigt. Sie können sich jetzt anmelden.'));
+            return $this->redirect(['controller' => 'Users', 'action' => 'login']);
+        }
+
+        // Verify the school
+        $school->status = 'approved';
+        $school->verified_at = new \DateTime();
+        $school->verification_token = null; // Clear token after use
+
+        if ($this->Schools->save($school)) {
+            $this->Flash->success(__('Ihre E-Mail-Adresse wurde bestätigt! Die Schule "{0}" ist jetzt freigeschaltet.', $school->name));
+        } else {
+            $this->Flash->error(__('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.'));
+        }
+
+        return $this->redirect(['controller' => 'Users', 'action' => 'login']);
+    }
+
+    /**
      * Public registration for new schools
      * No login required - separate template for public access
      *
@@ -233,8 +462,15 @@ class SchoolsController extends AppController
             // Auto-generate IBAN prefix
             $school->ibanprefix = $this->_generateIbanPrefix();
 
+            // Generate verification token
+            $school->verification_token = bin2hex(random_bytes(32));
+            $school->status = 'pending';
+
+            // Store contact email for later resend
+            $email = $this->request->getData('email');
+            $school->contact_email = $email;
+
             if ($this->Schools->save($school)) {
-                $email = $this->request->getData('email');
 
                 # Admin-User für die Schule erstellen
                 $password = $this->_createSchoolAdminOnRegister($school);
@@ -242,18 +478,22 @@ class SchoolsController extends AppController
                 if ($password) {
                     $username = 'admin-' . $school->kurzname;
 
-                    # E-Mail mit Zugangsdaten versenden
-                    $emailSent = $this->_sendWelcomeEmail($email, $school->name, $username, $password);
+                    # E-Mail mit Zugangsdaten und Verification-Link versenden
+                    $emailSent = $this->_sendWelcomeEmail($email, $school->name, $username, $password, $school->verification_token);
 
-                    if ($emailSent) {
-                        $this->Flash->success(__('Ihre Schule wurde erfolgreich registriert! Die Zugangsdaten wurden an {0} gesendet.', $email));
-                    } else {
-                        $this->Flash->success(__('Schule erstellt! Ihre Zugangsdaten: Benutzername: {0}, Passwort: {1}', $username, $password));
-                    }
+                    # Zur Bestätigungsseite weiterleiten (zeigt Credentials + Resend-Option)
+                    return $this->redirect([
+                        'action' => 'registered',
+                        '?' => [
+                            'school' => $school->id,
+                            'email' => $email,
+                            'sent' => $emailSent ? '1' : '0'
+                        ]
+                    ]);
                 } else {
                     $this->Flash->warning(__('Schule wurde erstellt, aber es gab ein Problem beim Erstellen des Admins. Bitte kontaktieren Sie den Support.'));
+                    return $this->redirect(['controller' => 'Users', 'action' => 'login']);
                 }
-                return $this->redirect(['controller' => 'Users', 'action' => 'login']);
             }
 
             // Show validation errors
@@ -630,7 +870,7 @@ class SchoolsController extends AppController
      * @param string $password Admin password
      * @return bool True if email was sent successfully
      */
-    private function _sendWelcomeEmail($toEmail, $schoolName, $username, $password)
+    private function _sendWelcomeEmail($toEmail, $schoolName, $username, $password, $verificationToken = null)
     {
         if (empty($toEmail)) {
             $this->log('WelcomeEmail: Keine E-Mail-Adresse angegeben', 'warning');
@@ -641,17 +881,28 @@ class SchoolsController extends AppController
             // Login-URL dynamisch generieren
             $loginUrl = Router::url(['controller' => 'Users', 'action' => 'login'], true);
 
+            // Verification-URL generieren
+            $verifyUrl = null;
+            if ($verificationToken) {
+                $verifyUrl = Router::url([
+                    'controller' => 'Schools',
+                    'action' => 'verify',
+                    '?' => ['token' => $verificationToken]
+                ], true);
+            }
+
             // Email mit Default-Profil (nutzt Konfiguration aus app.php/.env)
             $email = new Email('default');
             $email
                 ->setEmailFormat('html')
                 ->setTo($toEmail)
-                ->setSubject('Willkommen bei EduBank - Ihre Zugangsdaten')
+                ->setSubject('Willkommen bei EduBank - Bitte bestätigen Sie Ihre E-Mail')
                 ->setViewVars([
                     'schoolName' => $schoolName,
                     'username' => $username,
                     'password' => $password,
-                    'loginUrl' => $loginUrl
+                    'loginUrl' => $loginUrl,
+                    'verifyUrl' => $verifyUrl
                 ])
                 ->setTemplate('welcome_school')
                 ->setLayout('welcome');
