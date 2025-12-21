@@ -102,6 +102,11 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
                                 <i class="bi bi-database me-1"></i>Demodaten
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/schools/email-test">
+                                <i class="bi bi-envelope-check me-1"></i>E-Mail
+                            </a>
+                        </li>
                         <?php endif; ?>
 
                         <!-- Admins: Übungsfirmen verwalten -->
