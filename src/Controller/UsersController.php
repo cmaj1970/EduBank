@@ -53,7 +53,7 @@ class UsersController extends AppController
 
         # Schuladmin darf nur User seiner Schule sehen
         if ($this->school && $user->school_id != $this->school['id']) {
-            $this->Flash->error(__('Sie können nur Benutzer Ihrer eigenen Schule einsehen.'));
+            $this->Flash->error(__('Sie können nur Übungsfirmen Ihrer eigenen Schule einsehen.'));
             return $this->redirect(['action' => 'index']);
         }
 
@@ -71,11 +71,11 @@ class UsersController extends AppController
         if ($this->request->is('post')) {
             $user = $this->Users->patchEntity($user, $this->request->getData());
             if ($this->Users->save($user)) {
-                $this->Flash->success(__('Benutzer wurde erstellt.'));
+                $this->Flash->success(__('Übungsfirma wurde erstellt.'));
 
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('Der Benutzer konnte nicht erstellt werden.'));
+            $this->Flash->error(__('Die Übungsfirma konnte nicht erstellt werden.'));
         }
 
         # Standard-Passwörter aus .env
@@ -120,7 +120,7 @@ class UsersController extends AppController
 
         # Schuladmin darf nur User seiner Schule bearbeiten
         if ($this->school && $user->school_id != $this->school['id']) {
-            $this->Flash->error(__('Sie können nur Benutzer Ihrer eigenen Schule bearbeiten.'));
+            $this->Flash->error(__('Sie können nur Übungsfirmen Ihrer eigenen Schule bearbeiten.'));
             return $this->redirect(['action' => 'index']);
         }
 
@@ -139,10 +139,10 @@ class UsersController extends AppController
             # Update-Validierung verwenden (Passwort optional)
             $user = $this->Users->patchEntity($user, $data, ['validate' => 'update']);
             if ($this->Users->save($user)) {
-                $this->Flash->success(__('Benutzer wurde gespeichert.'));
+                $this->Flash->success(__('Übungsfirma wurde gespeichert.'));
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('Der Benutzer konnte nicht gespeichert werden.'));
+            $this->Flash->error(__('Die Übungsfirma konnte nicht gespeichert werden.'));
         }
 
         $conditions = [];
@@ -167,7 +167,7 @@ class UsersController extends AppController
 
         # Schuladmin darf nur User seiner Schule löschen
         if ($this->school && $user->school_id != $this->school['id']) {
-            $this->Flash->error(__('Sie können nur Benutzer Ihrer eigenen Schule löschen.'));
+            $this->Flash->error(__('Sie können nur Übungsfirmen Ihrer eigenen Schule löschen.'));
             return $this->redirect(['action' => 'index']);
         }
 
@@ -197,10 +197,10 @@ class UsersController extends AppController
         $this->Accounts->deleteAll(['user_id' => $user->id]);
 
         if ($this->Users->delete($user)) {
-            $this->Flash->success(__('Benutzer "{0}" gelöscht inkl. {1} Konten, {2} Transaktionen.',
+            $this->Flash->success(__('Übungsfirma "{0}" gelöscht inkl. {1} Konten, {2} Transaktionen.',
                 $user->name, $deletedAccounts, $deletedTransactions));
         } else {
-            $this->Flash->error(__('Der Benutzer konnte nicht gelöscht werden.'));
+            $this->Flash->error(__('Die Übungsfirma konnte nicht gelöscht werden.'));
         }
 
         return $this->redirect(['action' => 'index']);
