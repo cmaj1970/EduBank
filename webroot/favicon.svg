@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="#0d6efd"/>
+
+  <!-- Bank Building -->
+  <g fill="#ffffff">
+    <!-- Roof/Giebel -->
+    <path d="M 4 11 L 16 4 L 28 11 L 26 11 L 16 5.5 L 6 11 Z" />
+
+    <!-- Columns -->
+    <rect x="6" y="12" width="3" height="10" />
+    <rect x="11" y="12" width="3" height="10" />
+    <rect x="18" y="12" width="3" height="10" />
+    <rect x="23" y="12" width="3" height="10" />
+
+    <!-- Base -->
+    <rect x="4" y="22" width="24" height="2" />
+
+    <!-- Book Symbol -->
+    <path d="M 16 25 L 10 26.5 L 10 29.5 L 16 28 L 22 29.5 L 22 26.5 Z" fill="none" stroke="#ffffff" stroke-width="1" />
+    <path d="M 16 25 L 16 28" stroke="#ffffff" stroke-width="0.75" />
+  </g>
+</svg>
