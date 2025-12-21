@@ -132,9 +132,9 @@
     border-color: var(--bs-success);
 }
 
-/* Footer */
+/* Footer - gleiches Dunkelblau wie Header */
 .footer-edubank {
-    background-color: var(--bs-dark);
+    background: linear-gradient(135deg, #1a365d 0%, #2d4a7c 100%);
     color: rgba(255, 255, 255, 0.7);
     padding: 1rem 0;
     font-size: 0.875rem;
