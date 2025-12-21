@@ -114,7 +114,7 @@
                             <?= $this->Html->link(
                                 '<i class="bi bi-person-badge"></i>',
                                 ['controller' => 'Users', 'action' => 'impersonate', $schoolAdmins[$school->id]->id],
-                                ['class' => 'btn btn-outline-warning', 'escape' => false, 'title' => 'Anmelden als']
+                                ['class' => 'btn btn-outline-success', 'escape' => false, 'title' => 'Anmelden als']
                             ) ?>
                             <?php endif; ?>
                             <?= $this->Html->link(

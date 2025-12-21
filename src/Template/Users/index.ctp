@@ -100,7 +100,7 @@
                             <?= $this->Html->link(
                                 'Anmelden als',
                                 ['action' => 'impersonate', $user->id],
-                                ['class' => 'btn btn-sm btn-outline-warning']
+                                ['class' => 'btn btn-sm btn-outline-success']
                             ) ?>
                             <?php endif; ?>
                             <?= $this->Html->link(
