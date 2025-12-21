@@ -128,121 +128,112 @@
 <?php $this->start('script'); ?>
 <script>
 $(document).ready(function() {
+    // Form Validation initialisieren
     $("form#addtransaction").validate({
         lang: 'de'
     });
-});
 
-$('#requesttan').click(function () {
-    var $form = $("form");
-    // IBAN ohne Leerzeichen für Server-Validierung
-    var $iban = $form.find('#empfaenger-iban').val().replace(/\s/g, '');
-    var $checkiban = true;
+    // TAN-Request Button (für iOS: touchend + click)
+    $('#requesttan').on('click touchend', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
 
-    $.ajax({
-        url: '/transactions/checkiban',
-        data: $iban,
-        success: function (response) {
-            console.log(response);
-            if(response != "true") {
-                alert("Bitte die IBAN überprüfen.");
+        var $form = $("form");
+        // IBAN ohne Leerzeichen für Server-Validierung
+        var $iban = $form.find('#empfaenger-iban').val().replace(/\s/g, '');
+
+        $.ajax({
+            url: '/transactions/checkiban',
+            data: $iban,
+            success: function (response) {
+                console.log(response);
+                if(response != "true") {
+                    alert("Bitte die IBAN überprüfen.");
+                }
+            },
+            error: function() {
+                alert('ajax error');
             }
-        },
-        error: function() {
-            alert('ajax error');
-        }
-    });
+        });
 
-    var validator = $("#addtransaction").validate({
-        lang: 'de'
-    });
-    validator.form();
+        var validator = $("#addtransaction").validate({
+            lang: 'de'
+        });
 
-    if($checkiban == true) {
         if(validator.form()) {
-            $('#addtransaction').validate();
             $('#taninput').show();
             $('#requesttan').hide();
             $('#transactionform').find(':input').prop('readonly', true);
         }
-    } else {
-        alert('Bitte IBAN überprüfen.');
-    }
-});
+    });
 
-$('#cancel').click(function () {
-    $('#taninput').hide();
-    $('#requesttan').show();
-    $('#tan').val('');
-    $('#transactionform').find(':input').prop('readonly', false);
-});
+    // Abbrechen Button
+    $('#cancel').on('click touchend', function(e) {
+        e.preventDefault();
+        $('#taninput').hide();
+        $('#requesttan').show();
+        $('#tan').val('');
+        $('#transactionform').find(':input').prop('readonly', false);
+    });
 
-$('#tansubmit').click(function () {
-    var tanval = $('#tan').val();
-    var modulo = $('#tan').val() % 7;
-    if(tanval == 0 || modulo > 0 || tanval < 10000 || tanval > 99999) {
-        alert('Ungültige TAN');
-    } else {
-        // IBAN ohne Leerzeichen speichern
-        var $iban = $('#empfaenger-iban');
-        $iban.val($iban.val().replace(/\s/g, ''));
-        this.form.submit();
-    }
-});
+    // TAN Submit Button
+    $('#tansubmit').on('click touchend', function(e) {
+        e.preventDefault();
+        var tanval = $('#tan').val();
+        var modulo = tanval % 7;
+        if(tanval == 0 || modulo > 0 || tanval < 10000 || tanval > 99999) {
+            alert('Ungültige TAN');
+        } else {
+            // IBAN ohne Leerzeichen speichern
+            var $iban = $('#empfaenger-iban');
+            $iban.val($iban.val().replace(/\s/g, ''));
+            $('#addtransaction').submit();
+        }
+    });
 
-// Betrag-Formatierung
-(function($, undefined) {
-    "use strict";
-    $(function() {
-        var $form = $("form");
-        var $input = $form.find("#betrag");
-        $input.on("focusout", function(event) {
-            var $this = $(this);
-            if($this.val() == '') {
-                $this.val = '0.00';
-            }
-            var input = $this.val();
-            input = input.replace('.', '');
-            input = input.replace(',', '.');
-            input = parseFloat(input).toFixed(2);
-            input = input.replace('.', ',');
-            input = input.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
-            $this.val(function() {
-                return input;
-            });
-        });
+    // Betrag-Formatierung
+    $("#betrag").on("blur", function() {
+        var $this = $(this);
+        if($this.val() == '') {
+            $this.val('0,00');
+            return;
+        }
+        var input = $this.val();
+        input = input.replace('.', '');
+        input = input.replace(',', '.');
+        input = parseFloat(input).toFixed(2);
+        input = input.replace('.', ',');
+        input = input.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+        $this.val(input);
     });
 
     // IBAN-Formatierung (Vierergruppen mit Leerzeichen)
-    $(function() {
-        var $ibanInput = $("#empfaenger-iban");
+    function formatIBAN(value) {
+        // Alle Leerzeichen und Nicht-Alphanumerischen Zeichen entfernen
+        var cleaned = value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+        // In Vierergruppen aufteilen
+        var formatted = cleaned.match(/.{1,4}/g);
+        return formatted ? formatted.join(' ') : '';
+    }
 
-        function formatIBAN(value) {
-            // Alle Leerzeichen und Nicht-Alphanumerischen Zeichen entfernen
-            var cleaned = value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-            // In Vierergruppen aufteilen
-            var formatted = cleaned.match(/.{1,4}/g);
-            return formatted ? formatted.join(' ') : '';
+    // Nur bei Verlassen des Feldes formatieren (stabiler)
+    $("#empfaenger-iban").on("blur", function() {
+        // Nicht formatieren wenn readonly (nach TAN-Request)
+        if (!$(this).prop('readonly')) {
+            $(this).val(formatIBAN($(this).val()));
         }
-
-        // Nur bei Verlassen des Feldes formatieren (stabiler)
-        $ibanInput.on("blur", function() {
-            // Nicht formatieren wenn readonly (nach TAN-Request)
-            if (!$(this).prop('readonly')) {
-                $(this).val(formatIBAN($(this).val()));
-            }
-        });
-
-        // Bei Paste auch formatieren
-        $ibanInput.on("paste", function() {
-            var $this = $(this);
-            setTimeout(function() {
-                if (!$this.prop('readonly')) {
-                    $this.val(formatIBAN($this.val()));
-                }
-            }, 10);
-        });
     });
-})(jQuery);
+
+    // Bei Paste auch formatieren
+    $("#empfaenger-iban").on("paste", function() {
+        var $this = $(this);
+        setTimeout(function() {
+            if (!$this.prop('readonly')) {
+                $this.val(formatIBAN($this.val()));
+            }
+        }, 10);
+    });
+
+}); // Ende document.ready
 </script>
 <?php $this->end(); ?>
