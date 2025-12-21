@@ -190,7 +190,7 @@ class SchoolsController extends AppController
 
         # Schule löschen
         if ($this->Schools->delete($school)) {
-            $this->Flash->success(__('Schule "{0}" gelöscht inkl. {1} Benutzer, {2} Konten, {3} Transaktionen.',
+            $this->Flash->success(__('Schule "{0}" gelöscht inkl. {1} Übungsfirmen, {2} Konten, {3} Transaktionen.',
                 $school->name, $deletedUsers, $deletedAccounts, $deletedTransactions));
         } else {
             $this->Flash->error(__('Die Schule konnte nicht gelöscht werden.'));
