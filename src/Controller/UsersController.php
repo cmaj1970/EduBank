@@ -21,6 +21,26 @@ class UsersController extends AppController
     }
 
     /**
+     * Authorization - allow stopImpersonating for impersonating users
+     *
+     * @param array $user The logged in user
+     * @return bool
+     */
+    public function isAuthorized($user)
+    {
+        // Allow stopImpersonating for users who are impersonating
+        if ($this->request->getParam('action') === 'stopImpersonating') {
+            $originalAdmin = $this->request->getSession()->read('Auth.OriginalAdmin');
+            if ($originalAdmin) {
+                return true;
+            }
+        }
+
+        // Fall back to parent authorization
+        return parent::isAuthorized($user);
+    }
+
+    /**
      * Index method - list all users
      *
      * @return void
@@ -287,7 +307,73 @@ class UsersController extends AppController
      */
     public function logout()
     {
+        // Clear impersonation session on logout
+        $this->request->getSession()->delete('Auth.OriginalAdmin');
         return $this->redirect($this->Auth->logout());
+    }
+
+    /**
+     * Impersonate a user (for school admins only)
+     * Allows viewing the app as a specific Übungsfirma
+     *
+     * @param int $id User ID to impersonate
+     * @return \Cake\Http\Response
+     */
+    public function impersonate($id = null)
+    {
+        // Only school admins can impersonate
+        if (!$this->school) {
+            $this->Flash->error(__('Nur Schuladmins können diese Funktion nutzen.'));
+            return $this->redirect(['action' => 'index']);
+        }
+
+        $targetUser = $this->Users->get($id);
+
+        // Can only impersonate users from own school
+        if ($targetUser->school_id != $this->school['id']) {
+            $this->Flash->error(__('Sie können nur Übungsfirmen Ihrer eigenen Schule anzeigen.'));
+            return $this->redirect(['action' => 'index']);
+        }
+
+        // Can only impersonate regular users, not admins
+        if ($targetUser->role !== 'user') {
+            $this->Flash->error(__('Diese Funktion ist nur für Übungsfirmen verfügbar.'));
+            return $this->redirect(['action' => 'index']);
+        }
+
+        // Store original admin in session
+        $session = $this->request->getSession();
+        $currentUser = $this->Auth->user();
+        $session->write('Auth.OriginalAdmin', $currentUser);
+
+        // Switch to target user
+        $this->Auth->setUser($targetUser->toArray());
+
+        $this->Flash->success(__('Sie sehen die Anwendung jetzt als "{0}".', $targetUser->name));
+        return $this->redirect(['controller' => 'Accounts', 'action' => 'index']);
+    }
+
+    /**
+     * Stop impersonating and return to admin session
+     *
+     * @return \Cake\Http\Response
+     */
+    public function stopImpersonating()
+    {
+        $session = $this->request->getSession();
+        $originalAdmin = $session->read('Auth.OriginalAdmin');
+
+        if (!$originalAdmin) {
+            $this->Flash->error(__('Keine aktive Ansicht als Übungsfirma.'));
+            return $this->redirect(['action' => 'index']);
+        }
+
+        // Restore original admin session
+        $this->Auth->setUser($originalAdmin);
+        $session->delete('Auth.OriginalAdmin');
+
+        $this->Flash->success(__('Zurück zur Admin-Ansicht.'));
+        return $this->redirect(['action' => 'index']);
     }
 
     /**

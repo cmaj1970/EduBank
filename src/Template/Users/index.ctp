@@ -96,6 +96,13 @@
                     </td>
                     <td class="text-end">
                         <div class="btn-group btn-group-sm">
+                            <?php if ($isSchoolAdmin): ?>
+                            <?= $this->Html->link(
+                                '<i class="bi bi-box-arrow-in-right"></i>',
+                                ['action' => 'impersonate', $user->id],
+                                ['class' => 'btn btn-outline-warning', 'escape' => false, 'title' => 'Als Übungsfirma anzeigen']
+                            ) ?>
+                            <?php endif; ?>
                             <?= $this->Html->link(
                                 '<i class="bi bi-eye"></i>',
                                 ['action' => 'view', $user->id],

@@ -130,6 +130,26 @@ if ($authuser && $authuser['role'] == 'user') {
         </div>
     </nav>
 
+    <?php
+    // Check if impersonating
+    $originalAdmin = $this->request->getSession()->read('Auth.OriginalAdmin');
+    if ($originalAdmin && $authuser):
+    ?>
+    <!-- Impersonation Banner -->
+    <div class="bg-warning text-dark py-2 d-print-none">
+        <div class="container-fluid d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <i class="bi bi-eye-fill me-2"></i>
+                <strong>Ansicht als:</strong> <?= h($authuser['name']) ?>
+                <span class="text-muted ms-2">(<?= h($authuser['username']) ?>)</span>
+            </div>
+            <a href="/users/stop-impersonating" class="btn btn-sm btn-dark">
+                <i class="bi bi-arrow-return-left me-1"></i>Zurück zur Admin-Ansicht
+            </a>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Flash Messages -->
     <?php $flash = $this->Flash->render(); ?>
     <?php if($flash): ?>
