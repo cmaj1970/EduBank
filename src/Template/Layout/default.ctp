@@ -93,6 +93,11 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
                                 <i class="bi bi-building me-1"></i>Schulen
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/schools/demo-school">
+                                <i class="bi bi-database me-1"></i>Demodaten
+                            </a>
+                        </li>
                         <?php endif; ?>
 
                         <!-- Admins: Übungsfirmen verwalten -->
