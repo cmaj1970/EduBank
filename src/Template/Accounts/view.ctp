@@ -2,68 +2,178 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Account $account
+ *
+ * ELBA-Style Layout: Dashboard mit Willkommensbereich, Schnellaktionen,
+ * Kontoübersicht und Transaktionsliste
  */
+
+// Berechne Einnahmen und Ausgaben für Statistik
+$einnahmen = 0;
+$ausgaben = 0;
+if (!empty($account->transactions)) {
+    foreach ($account->transactions as $t) {
+        if ($t->account_id != $account->id) {
+            $einnahmen += $t->betrag;
+        } else {
+            $ausgaben += $t->betrag;
+        }
+    }
+}
 ?>
 
 <?php if ($authuser['role'] != 'admin'): ?>
-<!-- Übungsfirma-Ansicht -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="mb-0"><i class="bi bi-wallet2 me-2"></i><?= h($account->name) ?> - Umsätze</h3>
-    <a href="/transactions/add" class="btn btn-primary">
-        <i class="bi bi-arrow-right-circle me-1"></i><?= __('Neue Überweisung') ?>
-    </a>
+<!-- Übungsfirma-Ansicht: ELBA-Style Dashboard -->
+
+<!-- Welcome Section -->
+<div class="welcome-section">
+    <h1 class="welcome-title">
+        Willkommen, <?= h($account->user->name ?? $account->name) ?>!
+    </h1>
+    <p class="welcome-date">
+        <i class="bi bi-calendar3 me-1"></i>
+        <?= date('l, d. F Y') ?>
+    </p>
 </div>
 
-<div class="row">
-    <!-- Kontodaten Card -->
-    <div class="col-lg-4 mb-4">
-        <?= $this->element('account_sidebar', ['account' => $account, 'authuser' => $authuser, 'currentPage' => 'view']) ?>
+<div class="row g-4">
+    <!-- Linke Spalte: Konto + Schnellaktionen + Statistik -->
+    <div class="col-lg-4">
+        <!-- Kontokarte -->
+        <div class="card account-card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-wallet2 me-2"></i>Mein Konto</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                    <div>
+                        <div class="text-muted small">Kontobezeichnung</div>
+                        <div class="fw-bold"><?= h($account->name) ?></div>
+                        <div class="font-monospace small mt-2"><?= h($account->iban) ?></div>
+                    </div>
+                    <div class="account-balance-display">
+                        <div class="balance-label">Verfügbar</div>
+                        <div class="balance-amount <?= $account->balance >= 0 ? 'positive' : 'negative' ?>">
+                            <?= $this->Number->currency($account->balance, 'EUR') ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schnellaktionen -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Schnellaktionen</h5>
+            </div>
+            <div class="card-body">
+                <div class="quick-actions">
+                    <a href="/transactions/add" class="quick-action-btn">
+                        <i class="bi bi-send"></i>
+                        <span>Überweisen</span>
+                    </a>
+                    <a href="/accounts/history/<?= $account->id ?>" class="quick-action-btn">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Aufträge</span>
+                    </a>
+                    <a href="/accounts/directory" class="quick-action-btn">
+                        <i class="bi bi-people"></i>
+                        <span>Firmen</span>
+                    </a>
+                    <a href="#" class="quick-action-btn" onclick="window.print();return false;">
+                        <i class="bi bi-printer"></i>
+                        <span>Drucken</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistik -->
+        <div class="row g-3">
+            <div class="col-6">
+                <div class="card">
+                    <div class="stat-card">
+                        <div class="stat-icon positive">
+                            <i class="bi bi-arrow-down-left"></i>
+                        </div>
+                        <div class="stat-value text-success">
+                            +<?= $this->Number->currency($einnahmen, 'EUR') ?>
+                        </div>
+                        <div class="stat-label">Einnahmen</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card">
+                    <div class="stat-card">
+                        <div class="stat-icon negative">
+                            <i class="bi bi-arrow-up-right"></i>
+                        </div>
+                        <div class="stat-value text-danger">
+                            -<?= $this->Number->currency($ausgaben, 'EUR') ?>
+                        </div>
+                        <div class="stat-label">Ausgaben</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Umsätze Card -->
+    <!-- Rechte Spalte: Umsätze -->
     <div class="col-lg-8">
         <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i>Umsätze</h5>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i>Letzte Umsätze</h5>
+                <a href="/accounts/history/<?= $account->id ?>" class="btn btn-sm btn-outline-primary">
+                    Alle Aufträge <i class="bi bi-chevron-right"></i>
+                </a>
             </div>
             <div class="card-body p-0">
                 <?php if (!empty($account->transactions) && $account->transactions->count() > 0): ?>
-                    <?php foreach ($account->transactions as $transaction): ?>
-                        <?php
-                        # Eingehende Überweisung (von anderem Konto an dieses)
+                    <?php
+                    $count = 0;
+                    foreach ($account->transactions as $transaction):
+                        if ($count >= 8) break;
+                        $count++;
                         $isIncoming = ($transaction->account_id != $account->id);
-                        ?>
-                        <div class="border-bottom p-3">
-                            <div class="row align-items-center">
-                                <div class="col-md-8">
-                                    <?php if ($isIncoming): ?>
-                                        <strong class="text-success"><i class="bi bi-arrow-down-circle me-1"></i><?= h($transaction->account->user->name) ?></strong>
-                                        <br>
-                                        <small class="text-muted font-monospace"><?= h($transaction->account->iban) ?></small><br>
-                                    <?php else: ?>
-                                        <strong class="text-danger"><i class="bi bi-arrow-up-circle me-1"></i><?= h($transaction->empfaenger_name) ?></strong>
-                                        <br>
-                                        <small class="text-muted font-monospace"><?= h($transaction->empfaenger_iban) ?></small><br>
-                                    <?php endif; ?>
-                                    <small><?= h($transaction->zahlungszweck) ?></small><br>
-                                    <small class="text-muted"><?= h($transaction->datum->format('d.m.Y')) ?></small>
+                    ?>
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon <?= $isIncoming ? 'credit' : 'debit' ?>">
+                                    <i class="bi bi-arrow-<?= $isIncoming ? 'down-left' : 'up-right' ?>"></i>
                                 </div>
-                                <div class="col-md-4 text-end">
-                                    <?php if ($isIncoming): ?>
-                                        <span class="text-success fw-bold" style="font-size: 1.25rem;">+<?= $this->Number->currency($transaction->betrag, 'EUR') ?></span>
-                                    <?php else: ?>
-                                        <span class="text-danger fw-bold" style="font-size: 1.25rem;">-<?= $this->Number->currency($transaction->betrag, 'EUR') ?></span>
-                                    <?php endif; ?>
+                                <div class="transaction-details">
+                                    <div class="transaction-name">
+                                        <?php if ($isIncoming): ?>
+                                            <?= h($transaction->account->user->name ?? 'Unbekannt') ?>
+                                        <?php else: ?>
+                                            <?= h($transaction->empfaenger_name) ?>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="transaction-meta">
+                                        <?= h($transaction->datum->format('d.m.Y')) ?>
+                                        <?php if ($transaction->zahlungszweck): ?>
+                                            · <?= h(\Cake\Utility\Text::truncate($transaction->zahlungszweck, 30)) ?>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
+                            </div>
+                            <div class="transaction-amount <?= $isIncoming ? 'text-success' : 'text-danger' ?>">
+                                <?= $isIncoming ? '+' : '-' ?><?= $this->Number->currency($transaction->betrag, 'EUR') ?>
                             </div>
                         </div>
                     <?php endforeach; ?>
+
+                    <?php if ($account->transactions->count() > 8): ?>
+                    <a href="/accounts/history/<?= $account->id ?>" class="view-all-link">
+                        <i class="bi bi-arrow-right me-1"></i>Alle <?= $account->transactions->count() ?> Umsätze anzeigen
+                    </a>
+                    <?php endif; ?>
                 <?php else: ?>
                     <div class="text-center py-5 text-muted">
                         <i class="bi bi-inbox display-4"></i>
-                        <p class="mt-3">Es sind noch keine Umsätze vorhanden</p>
-                        <a href="/transactions/add" class="btn btn-primary">
-                            <i class="bi bi-arrow-right-circle me-1"></i>Erste Überweisung tätigen
+                        <p class="mt-3 mb-0">Noch keine Umsätze vorhanden</p>
+                        <a href="/transactions/add" class="btn btn-primary mt-3">
+                            <i class="bi bi-send me-1"></i>Erste Überweisung tätigen
                         </a>
                     </div>
                 <?php endif; ?>
@@ -77,8 +187,8 @@
 <div class="row">
     <!-- Kontoinformationen -->
     <div class="col-lg-4 mb-4">
-        <div class="card">
-            <div class="card-header">
+        <div class="card account-card">
+            <div class="card-header bg-primary text-white">
                 <h5 class="mb-0"><i class="bi bi-wallet2 me-2"></i><?= h($account->name) ?></h5>
             </div>
             <div class="card-body">
