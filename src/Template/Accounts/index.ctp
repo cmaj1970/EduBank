@@ -90,27 +90,27 @@
                     </td>
                     <?php endif; ?>
                     <td class="text-end">
-                        <div class="btn-group btn-group-sm">
+                        <div class="d-flex flex-column gap-1">
                             <?= $this->Html->link(
-                                '<i class="bi bi-eye"></i>',
+                                'Ansehen',
                                 ['action' => 'view', $account->id],
-                                ['class' => 'btn btn-outline-primary', 'escape' => false, 'title' => 'Anzeigen']
+                                ['class' => 'btn btn-sm btn-outline-primary']
                             ) ?>
                             <?php if($authuser['role'] == 'admin'): ?>
                             <?= $this->Html->link(
-                                '<i class="bi bi-pencil"></i>',
+                                'Bearbeiten',
                                 ['action' => 'edit', $account->id],
-                                ['class' => 'btn btn-outline-secondary', 'escape' => false, 'title' => 'Bearbeiten']
+                                ['class' => 'btn btn-sm btn-outline-secondary']
                             ) ?>
                             <?= $this->Form->postLink(
-                                '<i class="bi bi-arrow-counterclockwise"></i>',
+                                'Zurücksetzen',
                                 ['action' => 'reset', $account->id],
-                                ['class' => 'btn btn-outline-warning', 'escape' => false, 'title' => 'Zurücksetzen', 'confirm' => __('Konto "{0}" auf Standardwerte zurücksetzen und alle Transaktionen löschen?', $account->name)]
+                                ['class' => 'btn btn-sm btn-outline-warning', 'confirm' => __('Konto "{0}" auf Standardwerte zurücksetzen und alle Transaktionen löschen?', $account->name)]
                             ) ?>
                             <?= $this->Form->postLink(
-                                '<i class="bi bi-trash"></i>',
+                                'Löschen',
                                 ['action' => 'delete', $account->id],
-                                ['class' => 'btn btn-outline-danger', 'escape' => false, 'title' => 'Löschen', 'confirm' => __('Konto "{0}" wirklich löschen?', $account->name)]
+                                ['class' => 'btn btn-sm btn-outline-danger', 'confirm' => __('Konto "{0}" wirklich löschen?', $account->name)]
                             ) ?>
                             <?php endif; ?>
                         </div>
