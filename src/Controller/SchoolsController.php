@@ -20,8 +20,8 @@ class SchoolsController extends AppController
     public function beforeFilter(\Cake\Event\Event $event)
     {
         parent::beforeFilter($event);
-        // Allow public registration
-        $this->Auth->allow(['register']);
+        // Allow public registration and confirmation page
+        $this->Auth->allow(['register', 'registered', 'resendEmail']);
     }
 
     /**
@@ -194,6 +194,104 @@ class SchoolsController extends AppController
     }
 
     /**
+     * Registration confirmation page
+     * Shows credentials and allows email resend
+     *
+     * @return \Cake\Http\Response|null
+     */
+    public function registered()
+    {
+        $schoolId = $this->request->getQuery('school');
+        $email = $this->request->getQuery('email');
+        $emailSent = $this->request->getQuery('sent') === '1';
+
+        if (!$schoolId) {
+            return $this->redirect(['action' => 'register']);
+        }
+
+        try {
+            $school = $this->Schools->get($schoolId);
+        } catch (\Exception $e) {
+            return $this->redirect(['action' => 'register']);
+        }
+
+        // Get admin user for this school
+        $this->loadModel('Users');
+        $adminUser = $this->Users->find()
+            ->where([
+                'school_id' => $school->id,
+                'role' => 'admin',
+                'username LIKE' => 'admin-%'
+            ])
+            ->first();
+
+        if (!$adminUser) {
+            $this->Flash->error(__('Admin-Benutzer konnte nicht gefunden werden.'));
+            return $this->redirect(['action' => 'register']);
+        }
+
+        $username = $adminUser->username;
+        $password = env('DEFAULT_ADMIN_PASSWORD', 'ChangeMe123');
+
+        $this->set(compact('school', 'email', 'emailSent', 'username', 'password'));
+    }
+
+    /**
+     * Resend welcome email
+     *
+     * @return \Cake\Http\Response|null
+     */
+    public function resendEmail()
+    {
+        $this->request->allowMethod(['post']);
+
+        $schoolId = $this->request->getData('school_id');
+        $email = $this->request->getData('email');
+
+        if (!$schoolId || !$email) {
+            $this->Flash->error(__('Ungültige Anfrage.'));
+            return $this->redirect(['action' => 'register']);
+        }
+
+        try {
+            $school = $this->Schools->get($schoolId);
+        } catch (\Exception $e) {
+            $this->Flash->error(__('Schule nicht gefunden.'));
+            return $this->redirect(['action' => 'register']);
+        }
+
+        // Get admin user
+        $this->loadModel('Users');
+        $adminUser = $this->Users->find()
+            ->where([
+                'school_id' => $school->id,
+                'role' => 'admin',
+                'username LIKE' => 'admin-%'
+            ])
+            ->first();
+
+        if (!$adminUser) {
+            $this->Flash->error(__('Admin-Benutzer nicht gefunden.'));
+            return $this->redirect(['action' => 'register']);
+        }
+
+        $username = $adminUser->username;
+        $password = env('DEFAULT_ADMIN_PASSWORD', 'ChangeMe123');
+
+        $emailSent = $this->_sendWelcomeEmail($email, $school->name, $username, $password);
+
+        return $this->redirect([
+            'action' => 'registered',
+            '?' => [
+                'school' => $school->id,
+                'email' => $email,
+                'sent' => $emailSent ? '1' : '0',
+                'resent' => '1'
+            ]
+        ]);
+    }
+
+    /**
      * Public registration for new schools
      * No login required - separate template for public access
      *
@@ -245,15 +343,19 @@ class SchoolsController extends AppController
                     # E-Mail mit Zugangsdaten versenden
                     $emailSent = $this->_sendWelcomeEmail($email, $school->name, $username, $password);
 
-                    if ($emailSent) {
-                        $this->Flash->success(__('Ihre Schule wurde erfolgreich registriert! Die Zugangsdaten wurden an {0} gesendet.', $email));
-                    } else {
-                        $this->Flash->success(__('Schule erstellt! Ihre Zugangsdaten: Benutzername: {0}, Passwort: {1}', $username, $password));
-                    }
+                    # Zur Bestätigungsseite weiterleiten (zeigt Credentials + Resend-Option)
+                    return $this->redirect([
+                        'action' => 'registered',
+                        '?' => [
+                            'school' => $school->id,
+                            'email' => $email,
+                            'sent' => $emailSent ? '1' : '0'
+                        ]
+                    ]);
                 } else {
                     $this->Flash->warning(__('Schule wurde erstellt, aber es gab ein Problem beim Erstellen des Admins. Bitte kontaktieren Sie den Support.'));
+                    return $this->redirect(['controller' => 'Users', 'action' => 'login']);
                 }
-                return $this->redirect(['controller' => 'Users', 'action' => 'login']);
             }
 
             // Show validation errors
