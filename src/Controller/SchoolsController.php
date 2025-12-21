@@ -61,19 +61,43 @@ class SchoolsController extends AppController
     {
         $query = $this->Schools->query();
 
+        # Filter nach Schule (Dropdown)
+        $selectedSchool = $this->request->getQuery('school_id');
+        if ($selectedSchool) {
+            $query->where(['Schools.id' => $selectedSchool]);
+        }
+
+        # Textsuche (Name/Kurzname)
+        $search = $this->request->getQuery('search');
+        if ($search) {
+            $query->where([
+                'OR' => [
+                    'Schools.name LIKE' => '%' . $search . '%',
+                    'Schools.kurzname LIKE' => '%' . $search . '%'
+                ]
+            ]);
+        }
+
         # Schuladmin sieht nur eigene Schule
         if ($this->school) {
-            $query->where(['id' => $this->school['id']]);
+            $query->where(['Schools.id' => $this->school['id']]);
         }
 
         $schools = $this->paginate($query);
 
-        // For superadmin: Get school admins for impersonation
+        # Stats pro Schule laden
+        $this->loadModel('Users');
+        $this->loadModel('Accounts');
+        $this->loadModel('Transactions');
+
         $schoolAdmins = [];
+        $schoolStats = [];
         $currentUser = $this->Auth->user();
-        if ($currentUser['username'] === 'admin') {
-            $this->loadModel('Users');
-            foreach ($schools as $school) {
+        $isSuperadmin = ($currentUser['username'] === 'admin');
+
+        foreach ($schools as $school) {
+            # Schuladmin für Impersonation
+            if ($isSuperadmin) {
                 $admin = $this->Users->find()
                     ->where([
                         'school_id' => $school->id,
@@ -85,10 +109,59 @@ class SchoolsController extends AppController
                     $schoolAdmins[$school->id] = $admin;
                 }
             }
+
+            # Übungsfirmen (Users mit role=user)
+            $userCount = $this->Users->find()
+                ->where(['school_id' => $school->id, 'role' => 'user'])
+                ->count();
+            $lastUser = $this->Users->find()
+                ->where(['school_id' => $school->id, 'role' => 'user'])
+                ->order(['created' => 'DESC'])
+                ->first();
+
+            # Konten
+            $accountCount = $this->Accounts->find()
+                ->matching('Users', function ($q) use ($school) {
+                    return $q->where(['Users.school_id' => $school->id]);
+                })
+                ->count();
+            $lastAccount = $this->Accounts->find()
+                ->matching('Users', function ($q) use ($school) {
+                    return $q->where(['Users.school_id' => $school->id]);
+                })
+                ->order(['Accounts.created' => 'DESC'])
+                ->first();
+
+            # Transaktionen
+            $transactionCount = $this->Transactions->find()
+                ->matching('Accounts.Users', function ($q) use ($school) {
+                    return $q->where(['Users.school_id' => $school->id]);
+                })
+                ->count();
+            $lastTransaction = $this->Transactions->find()
+                ->matching('Accounts.Users', function ($q) use ($school) {
+                    return $q->where(['Users.school_id' => $school->id]);
+                })
+                ->order(['Transactions.created' => 'DESC'])
+                ->first();
+
+            $schoolStats[$school->id] = [
+                'users' => $userCount,
+                'lastUser' => $lastUser ? $lastUser->created : null,
+                'accounts' => $accountCount,
+                'lastAccount' => $lastAccount ? $lastAccount->created : null,
+                'transactions' => $transactionCount,
+                'lastTransaction' => $lastTransaction ? $lastTransaction->created : null,
+            ];
         }
 
-        $isSuperadmin = ($currentUser['username'] === 'admin');
-        $this->set(compact('schools', 'schoolAdmins', 'isSuperadmin'));
+        # Alle Schulen für Dropdown (nur Superadmin)
+        $schoolList = [];
+        if (!$this->school) {
+            $schoolList = $this->Schools->find('list')->order('name')->toArray();
+        }
+
+        $this->set(compact('schools', 'schoolAdmins', 'isSuperadmin', 'schoolStats', 'schoolList', 'selectedSchool', 'search'));
     }
 
     /**

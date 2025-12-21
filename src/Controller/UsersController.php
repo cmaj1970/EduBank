@@ -255,20 +255,52 @@ class UsersController extends AppController
 
     /**
      * Login method - authenticate user
+     * - Superadmin (username="admin"): gehashtes Passwort aus DB
+     * - Schuladmins (admin-*): DEFAULT_ADMIN_PASSWORD aus .env
+     * - Übungsfirmen: DEFAULT_USER_PASSWORD aus .env
      *
      * @return \Cake\Http\Response|null Redirects on successful login
      */
     public function login()
     {
         if ($this->request->is('post')) {
-            $user = $this->Auth->identify();
-            if ($user) {
-                $this->Auth->setUser($user);
+            $username = $this->request->getData('username');
+            $password = $this->request->getData('password');
 
-                // Role-based redirect after login
-                $redirectUrl = $this->_getLoginRedirect($user);
-                return $this->redirect($redirectUrl);
+            # User aus DB laden
+            $user = $this->Users->find()
+                ->where(['username' => $username])
+                ->contain(['Schools'])
+                ->first();
+
+            if ($user) {
+                $authenticated = false;
+
+                # Superadmin: gehashtes Passwort aus DB prüfen
+                if ($username === 'admin') {
+                    $hasher = new \Cake\Auth\DefaultPasswordHasher();
+                    $authenticated = $hasher->check($password, $user->password);
+                }
+                # Schuladmins (admin-*): Passwort aus .env
+                elseif (strpos($username, 'admin-') === 0) {
+                    $envPassword = env('DEFAULT_ADMIN_PASSWORD', 'SchulAdmin2024');
+                    $authenticated = ($password === $envPassword);
+                }
+                # Übungsfirmen: Passwort aus .env
+                else {
+                    $envPassword = env('DEFAULT_USER_PASSWORD', 'Schueler2024');
+                    $authenticated = ($password === $envPassword);
+                }
+
+                if ($authenticated) {
+                    $this->Auth->setUser($user->toArray());
+
+                    # Role-based redirect after login
+                    $redirectUrl = $this->_getLoginRedirect($user->toArray());
+                    return $this->redirect($redirectUrl);
+                }
             }
+
             $this->Flash->error(__('Bitte überprüfen Sie den Benutzernamen und das Passwort'));
         }
     }
