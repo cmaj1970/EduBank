@@ -83,8 +83,10 @@ class SchoolsController extends AppController
             $query->where(['Schools.id' => $this->school['id']]);
         }
 
-        # Neueste zuerst
-        $query->order(['Schools.created' => 'DESC']);
+        # Neueste zuerst (als Default, kann durch Paginator überschrieben werden)
+        $this->paginate = [
+            'order' => ['Schools.created' => 'DESC']
+        ];
 
         $schools = $this->paginate($query);
 

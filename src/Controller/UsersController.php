@@ -48,14 +48,14 @@ class UsersController extends AppController
      public function index()
      {
          $query = $this->Users->query();
-         $this->paginate['contain'] = [
-             'Accounts', 'Schools'
+         # Neueste zuerst (als Default, kann durch Paginator überschrieben werden)
+         $this->paginate = [
+             'contain' => ['Accounts', 'Schools'],
+             'order' => ['Users.created' => 'DESC']
          ];
          if($this->school) {
              $query->where(['school_id' => $this->school['id'], 'role' => 'user']);
          }
-         # Neueste zuerst
-         $query->order(['Users.created' => 'DESC']);
          $users = $this->paginate($query);
 
          // Pass default password for school admin display
