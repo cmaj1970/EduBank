@@ -1366,8 +1366,10 @@ class SchoolsController extends AppController
             'SMTP_TLS' => env('SMTP_TLS', true),
         ];
 
-        $transport = \Cake\Core\Configure::read('EmailTransport.default');
+        # Email::getConfigTransport statt Configure::read, weil bootstrap.php consume() verwendet
+        $transport = \Cake\Mailer\Email::getConfigTransport('default');
         $transportType = 'unbekannt';
+
         if (isset($transport['className'])) {
             if (strpos($transport['className'], 'Smtp') !== false) {
                 $transportType = 'SMTP (' . ($transport['host'] ?? '') . ':' . ($transport['port'] ?? '') . ')';
