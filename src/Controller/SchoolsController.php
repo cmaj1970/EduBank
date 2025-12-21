@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use App\Controller\AppController;
 use Cake\Mailer\Email;
+use Cake\Routing\Router;
 
 /**
  * Schools Controller
@@ -14,13 +15,13 @@ use Cake\Mailer\Email;
 class SchoolsController extends AppController
 {
     /**
-     * No public actions - all require login
-     * Self-service registration will be added later
+     * Public actions that don't require login
      */
     public function beforeFilter(\Cake\Event\Event $event)
     {
         parent::beforeFilter($event);
-        // No public actions
+        // Allow public registration
+        $this->Auth->allow(['register']);
     }
 
     /**
@@ -193,8 +194,89 @@ class SchoolsController extends AppController
     }
 
     /**
-     * Self-service registration for new schools
-     * Publicly accessible (no login required)
+     * Public registration for new schools
+     * No login required - separate template for public access
+     *
+     * @return \Cake\Http\Response|null
+     */
+    public function register()
+    {
+        $school = $this->Schools->newEntity();
+
+        if ($this->request->is('post')) {
+            $data = $this->request->getData();
+
+            # Kurzname generieren falls leer (aus dem Schulnamen)
+            if (empty($data['kurzname']) && !empty($data['name'])) {
+                $data['kurzname'] = $this->_normalizeKurzname($data['name']);
+            } elseif (!empty($data['kurzname'])) {
+                $data['kurzname'] = $this->_normalizeKurzname($data['kurzname']);
+            }
+
+            // Make school name AND short name unique
+            if (!empty($data['name']) && !empty($data['kurzname'])) {
+                $result = $this->_makeSchoolnameAndKurznameUnique($data['name'], $data['kurzname']);
+                $data['name'] = $result['name'];
+                $data['kurzname'] = $result['kurzname'];
+            }
+
+            $school = $this->Schools->patchEntity(
+                $school,
+                $data,
+                ['validate' => 'register']
+            );
+
+            // Auto-generate BIC
+            $permitted_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $school->bic = substr(str_shuffle($permitted_chars), 0, 4) . "AT" . substr(str_shuffle($permitted_chars), 0, 2);
+
+            // Auto-generate IBAN prefix
+            $school->ibanprefix = $this->_generateIbanPrefix();
+
+            if ($this->Schools->save($school)) {
+                $email = $this->request->getData('email');
+
+                # Admin-User für die Schule erstellen
+                $password = $this->_createSchoolAdminOnRegister($school);
+
+                if ($password) {
+                    $username = 'admin-' . $school->kurzname;
+
+                    # E-Mail mit Zugangsdaten versenden
+                    $emailSent = $this->_sendWelcomeEmail($email, $school->name, $username, $password);
+
+                    if ($emailSent) {
+                        $this->Flash->success(__('Ihre Schule wurde erfolgreich registriert! Die Zugangsdaten wurden an {0} gesendet.', $email));
+                    } else {
+                        $this->Flash->success(__('Schule erstellt! Ihre Zugangsdaten: Benutzername: {0}, Passwort: {1}', $username, $password));
+                    }
+                } else {
+                    $this->Flash->warning(__('Schule wurde erstellt, aber es gab ein Problem beim Erstellen des Admins. Bitte kontaktieren Sie den Support.'));
+                }
+                return $this->redirect(['controller' => 'Users', 'action' => 'login']);
+            }
+
+            // Show validation errors
+            $errors = $school->getErrors();
+            if (!empty($errors)) {
+                $errorMessages = [];
+                foreach ($errors as $field => $fieldErrors) {
+                    foreach ($fieldErrors as $error) {
+                        $errorMessages[] = "$field: $error";
+                    }
+                }
+                $this->Flash->error(__('Fehler: {0}', implode(', ', $errorMessages)));
+            } else {
+                $this->Flash->error(__('Die Registrierung konnte nicht abgeschlossen werden. Bitte überprüfen Sie Ihre Eingaben.'));
+            }
+        }
+
+        $this->set(compact('school'));
+    }
+
+    /**
+     * Self-service registration for new schools (admin view)
+     * Requires login - for admins adding schools
      *
      * @return \Cake\Http\Response|null
      */
@@ -556,14 +638,13 @@ class SchoolsController extends AppController
         }
 
         try {
-            // Login-URL generieren
-            $loginUrl = 'https://edubank.solidcode.at/users/login';
+            // Login-URL dynamisch generieren
+            $loginUrl = Router::url(['controller' => 'Users', 'action' => 'login'], true);
 
-            $email = new Email();
+            // Email mit Default-Profil (nutzt Konfiguration aus app.php/.env)
+            $email = new Email('default');
             $email
-                ->setTransport('default')
                 ->setEmailFormat('html')
-                ->setFrom(['noreply@edubank.solidcode.at' => 'EduBank'])
                 ->setTo($toEmail)
                 ->setSubject('Willkommen bei EduBank - Ihre Zugangsdaten')
                 ->setViewVars([
