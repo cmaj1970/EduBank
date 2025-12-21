@@ -153,6 +153,7 @@ if ($authuser && $authuser['role'] == 'user') {
                     <span>&copy; <?= date('Y') ?> EduBank - Banking Simulation für Schulen</span>
                 </div>
                 <div class="col-md-6 text-center text-md-end mt-2 mt-md-0">
+                    <a href="/pages/impressum" class="text-white text-decoration-none me-3">Impressum</a>
                     <?php
                     $versionFile = ROOT . DS . 'Version.txt';
                     $version = file_exists($versionFile) ? trim(file_get_contents($versionFile)) : 'unknown';
