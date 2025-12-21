@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\I18n\FrozenTime;
 use Cake\Mailer\Email;
 use Cake\Routing\Router;
 
@@ -410,7 +411,7 @@ class SchoolsController extends AppController
 
         // Verify the school
         $school->status = 'approved';
-        $school->verified_at = new \DateTime();
+        $school->verified_at = FrozenTime::now();
         $school->verification_token = null; // Clear token after use
 
         if ($this->Schools->save($school)) {
