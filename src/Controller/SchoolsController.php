@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use App\Controller\AppController;
 use Cake\Mailer\Email;
+use Cake\Routing\Router;
 
 /**
  * Schools Controller
@@ -556,14 +557,13 @@ class SchoolsController extends AppController
         }
 
         try {
-            // Login-URL generieren
-            $loginUrl = 'https://edubank.solidcode.at/users/login';
+            // Login-URL dynamisch generieren
+            $loginUrl = Router::url(['controller' => 'Users', 'action' => 'login'], true);
 
-            $email = new Email();
+            // Email mit Default-Profil (nutzt Konfiguration aus app.php/.env)
+            $email = new Email('default');
             $email
-                ->setTransport('default')
                 ->setEmailFormat('html')
-                ->setFrom(['noreply@edubank.solidcode.at' => 'EduBank'])
                 ->setTo($toEmail)
                 ->setSubject('Willkommen bei EduBank - Ihre Zugangsdaten')
                 ->setViewVars([
