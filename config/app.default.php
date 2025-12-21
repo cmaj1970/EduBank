@@ -225,7 +225,7 @@ return [
     'Email' => [
         'default' => [
             'transport' => 'default',
-            'from' => [env('EMAIL_FROM', 'noreply@edubank.at') => 'EduBank'],
+            'from' => [env('EMAIL_FROM', 'no-reply@solidcode.at') => 'EduBank'],
             'charset' => 'utf-8',
             'headerCharset' => 'utf-8',
         ],
