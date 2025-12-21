@@ -82,7 +82,12 @@
                                 <td>
                                     <?= $this->Html->link(h($account->name), ['controller' => 'Accounts', 'action' => 'view', $account->id]) ?>
                                 </td>
-                                <td><code><?= h($account->iban) ?></code></td>
+                                <td>
+                                    <code><?= h($account->iban) ?></code>
+                                    <button type="button" class="btn btn-sm btn-link p-0 ms-1 copy-iban" data-iban="<?= h($account->iban) ?>" title="IBAN kopieren">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </td>
                                 <td class="text-end">
                                     <?php $balanceClass = $account->balance >= 0 ? 'text-success' : 'text-danger'; ?>
                                     <span class="<?= $balanceClass ?>"><?= $this->Number->currency($account->balance, 'EUR') ?></span>
@@ -104,3 +109,19 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.copy-iban').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var iban = this.getAttribute('data-iban');
+            navigator.clipboard.writeText(iban).then(function() {
+                btn.innerHTML = '<i class="bi bi-check text-success"></i>';
+                setTimeout(function() {
+                    btn.innerHTML = '<i class="bi bi-clipboard"></i>';
+                }, 2000);
+            });
+        });
+    });
+});
+</script>
