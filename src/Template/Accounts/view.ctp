@@ -22,7 +22,12 @@
             </tr>
             <tr>
                 <td class="text-warning fw-bold">IBAN</td>
-                <td class="text-end font-monospace"><?= h($account->iban) ?></td>
+                <td class="text-end font-monospace">
+                    <?= h($account->iban) ?>
+                    <button type="button" class="btn btn-sm btn-link p-0 ms-1 copy-iban" data-iban="<?= h($account->iban) ?>" title="IBAN kopieren">
+                        <i class="bi bi-clipboard"></i>
+                    </button>
+                </td>
             </tr>
             <tr>
                 <td class="text-warning fw-bold">BIC</td>
@@ -111,7 +116,12 @@
 
                 <div class="mb-3">
                     <label class="form-label text-muted small"><?= __('IBAN') ?></label>
-                    <div class="font-monospace"><?= h($account->iban) ?></div>
+                    <div class="font-monospace">
+                        <?= h($account->iban) ?>
+                        <button type="button" class="btn btn-sm btn-link p-0 ms-1 copy-iban" data-iban="<?= h($account->iban) ?>" title="IBAN kopieren">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="mb-3">
@@ -226,3 +236,19 @@
     </div>
 </div>
 <?php endif; ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.copy-iban').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var iban = this.getAttribute('data-iban');
+            navigator.clipboard.writeText(iban).then(function() {
+                btn.innerHTML = '<i class="bi bi-check text-success"></i>';
+                setTimeout(function() {
+                    btn.innerHTML = '<i class="bi bi-clipboard"></i>';
+                }, 2000);
+            });
+        });
+    });
+});
+</script>

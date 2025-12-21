@@ -12,6 +12,38 @@
     </a>
 </div>
 
+<?php if ($users->isEmpty()): ?>
+<!-- Empty State -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body text-center py-5">
+        <div class="rounded-circle bg-info bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-4" style="width: 100px; height: 100px;">
+            <i class="bi bi-people text-info" style="font-size: 3rem;"></i>
+        </div>
+        <h4 class="mb-3">Noch keine Übungsfirmen vorhanden</h4>
+        <p class="text-muted mb-4" style="max-width: 500px; margin: 0 auto;">
+            Übungsfirmen sind die Schülergruppen oder Teams, die jeweils ein eigenes Bankkonto erhalten.
+            Jede Übungsfirma kann Überweisungen an andere Übungsfirmen tätigen.
+        </p>
+
+        <div class="card bg-light border-0 mb-4 mx-auto" style="max-width: 400px;">
+            <div class="card-body text-start">
+                <h6 class="card-title"><i class="bi bi-lightbulb me-2"></i>Zum Erstellen benötigen Sie:</h6>
+                <ul class="mb-0 text-muted small">
+                    <li>Einen Namen für die Übungsfirma</li>
+                    <li>Einen eindeutigen Benutzernamen</li>
+                    <li>Ein Passwort für die Anmeldung</li>
+                </ul>
+            </div>
+        </div>
+
+        <a href="/users/add" class="btn btn-primary btn-lg">
+            <i class="bi bi-plus-lg me-2"></i>Erste Übungsfirma erstellen
+        </a>
+    </div>
+</div>
+
+<?php else: ?>
+<!-- Users Table -->
 <div class="card">
     <div class="table-responsive">
         <table class="table table-hover mb-0">
@@ -86,3 +118,4 @@
     </div>
     <?php endif; ?>
 </div>
+<?php endif; ?>
