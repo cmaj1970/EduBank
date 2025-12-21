@@ -95,28 +95,28 @@
                         <small><?= h($user->created->format('d.m.Y')) ?></small>
                     </td>
                     <td class="text-end">
-                        <div class="btn-group btn-group-sm">
+                        <div class="d-flex flex-column gap-1">
                             <?php if ($isSchoolAdmin): ?>
                             <?= $this->Html->link(
-                                '<i class="bi bi-box-arrow-in-right"></i>',
+                                'Anmelden als',
                                 ['action' => 'impersonate', $user->id],
-                                ['class' => 'btn btn-outline-warning', 'escape' => false, 'title' => 'Als Übungsfirma anzeigen']
+                                ['class' => 'btn btn-sm btn-outline-warning']
                             ) ?>
                             <?php endif; ?>
                             <?= $this->Html->link(
-                                '<i class="bi bi-eye"></i>',
+                                'Ansehen',
                                 ['action' => 'view', $user->id],
-                                ['class' => 'btn btn-outline-primary', 'escape' => false, 'title' => 'Anzeigen']
+                                ['class' => 'btn btn-sm btn-outline-primary']
                             ) ?>
                             <?= $this->Html->link(
-                                '<i class="bi bi-pencil"></i>',
+                                'Bearbeiten',
                                 ['action' => 'edit', $user->id],
-                                ['class' => 'btn btn-outline-secondary', 'escape' => false, 'title' => 'Bearbeiten']
+                                ['class' => 'btn btn-sm btn-outline-secondary']
                             ) ?>
                             <?= $this->Form->postLink(
-                                '<i class="bi bi-trash"></i>',
+                                'Löschen',
                                 ['action' => 'delete', $user->id],
-                                ['class' => 'btn btn-outline-danger', 'escape' => false, 'title' => 'Löschen', 'confirm' => __('Übungsfirma "{0}" wirklich löschen?', $user->name)]
+                                ['class' => 'btn btn-sm btn-outline-danger', 'confirm' => __('Übungsfirma "{0}" wirklich löschen?', $user->name)]
                             ) ?>
                         </div>
                     </td>
