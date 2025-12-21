@@ -8,7 +8,7 @@
 <?php if ($authuser['role'] != 'admin'): ?>
 <!-- Übungsfirma-Ansicht -->
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="mb-0"><i class="bi bi-wallet2 me-2"></i><?= h($account->name) ?></h3>
+    <h3 class="mb-0"><i class="bi bi-wallet2 me-2"></i><?= h($account->name) ?> - Umsätze</h3>
     <a href="/transactions/add" class="btn btn-primary">
         <i class="bi bi-arrow-right-circle me-1"></i><?= __('Neue Überweisung') ?>
     </a>
@@ -17,46 +17,7 @@
 <div class="row">
     <!-- Kontodaten Card -->
     <div class="col-lg-4 mb-4">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Kontodaten</h5>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label text-muted small">Kontobezeichnung</label>
-                    <div class="fw-bold"><?= h($account->name) ?></div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label text-muted small">IBAN</label>
-                    <div class="font-monospace">
-                        <?= h($account->iban) ?>
-                        <button type="button" class="btn btn-sm btn-link p-0 ms-1 copy-iban" data-iban="<?= h($account->iban) ?>" title="IBAN kopieren">
-                            <i class="bi bi-clipboard"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label text-muted small">BIC</label>
-                    <div class="font-monospace"><?= h($account->bic) ?></div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label text-muted small">Überziehungsrahmen</label>
-                    <div><?= $this->Number->currency($account->maxlimit, 'EUR') ?></div>
-                </div>
-                <hr>
-                <div>
-                    <label class="form-label text-muted small">Aktueller Kontostand</label>
-                    <div class="h3 <?= $account->balance >= 0 ? 'text-success' : 'text-danger' ?> mb-0">
-                        <?= $this->Number->currency($account->balance, 'EUR') ?>
-                    </div>
-                </div>
-            </div>
-            <div class="card-footer bg-transparent d-print-none">
-                <button class="btn btn-outline-secondary w-100" onclick="window.print();return false;">
-                    <i class="bi bi-printer me-1"></i>Kontoauszug drucken
-                </button>
-            </div>
-        </div>
+        <?= $this->element('account_sidebar', ['account' => $account, 'authuser' => $authuser, 'currentPage' => 'view']) ?>
     </div>
 
     <!-- Umsätze Card -->
