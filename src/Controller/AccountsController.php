@@ -65,6 +65,26 @@ class AccountsController extends AppController
                 # Superadmin: Alle Konten anzeigen
                 $query = $this->Accounts->find('all')
                     ->contain(['Transactions', 'Users']);
+
+                # Filter nach Übungsfirma (Dropdown)
+                $selectedUser = $this->request->getQuery('user_id');
+                if ($selectedUser) {
+                    $query->where(['Accounts.user_id' => $selectedUser]);
+                }
+            }
+
+            # Textsuche (Übungsfirma, Kontoname, IBAN)
+            $search = $this->request->getQuery('search');
+            if ($search) {
+                $query->matching('Users', function ($q) use ($search) {
+                    return $q;
+                })->where([
+                    'OR' => [
+                        'Users.name LIKE' => '%' . $search . '%',
+                        'Accounts.name LIKE' => '%' . $search . '%',
+                        'Accounts.iban LIKE' => '%' . $search . '%'
+                    ]
+                ]);
             }
         }
         $query->formatResults(function (\Cake\Collection\CollectionInterface $results) {
@@ -80,13 +100,23 @@ class AccountsController extends AppController
                 return $row;
             });
         });
-        // Find transfers to this account
-        // foreach($result as $k => $account) {
-        //     debug($k);
-        // }
 
         $accounts = $this->paginate($query);
-        $this->set(compact('accounts'));
+
+        # Übungsfirmen für Dropdown (nur für Superadmin)
+        $userList = [];
+        $isSuperadmin = !$this->school;
+        if ($isSuperadmin) {
+            $userList = $this->Accounts->Users->find('list')
+                ->where(['role' => 'user'])
+                ->order('name')
+                ->toArray();
+        }
+
+        $selectedUser = $this->request->getQuery('user_id');
+        $search = $this->request->getQuery('search');
+
+        $this->set(compact('accounts', 'isSuperadmin', 'userList', 'selectedUser', 'search'));
     }
 
     /**
@@ -325,11 +355,19 @@ class AccountsController extends AppController
         $this->loadModel('Users');
         $this->loadModel('Schools');
 
-        // Get all approved schools
+        // Get all approved schools for dropdown
         $schools = $this->Schools->find('all')
             ->where(['status' => 'approved'])
             ->order(['name' => 'ASC'])
             ->toArray();
+        $schoolList = $this->Schools->find('list')
+            ->where(['status' => 'approved'])
+            ->order('name')
+            ->toArray();
+
+        // Get filter values
+        $selectedSchool = $this->request->getQuery('school_id');
+        $search = $this->request->getQuery('search');
 
         // Get all practice companies (users with role 'user') with their accounts
         $query = $this->Users->find('all')
@@ -341,6 +379,25 @@ class AccountsController extends AppController
         $query->matching('Schools', function ($q) {
             return $q->where(['Schools.status' => 'approved']);
         });
+
+        # Filter nach Schule (Dropdown)
+        if ($selectedSchool) {
+            $query->where(['Users.school_id' => $selectedSchool]);
+        }
+
+        # Textsuche (Schulname, Firmenname, IBAN)
+        if ($search) {
+            # Suche in: Schulname, Firmenname (User), Kontoname, IBAN
+            $query->leftJoinWith('Accounts');
+            $query->where([
+                'OR' => [
+                    'Users.name LIKE' => '%' . $search . '%',
+                    'Schools.name LIKE' => '%' . $search . '%',
+                    'Accounts.iban LIKE' => '%' . $search . '%',
+                    'Accounts.name LIKE' => '%' . $search . '%'
+                ]
+            ]);
+        }
 
         $companies = $query->toArray();
 
@@ -357,6 +414,41 @@ class AccountsController extends AppController
             $companiesBySchool[$schoolId]['companies'][] = $company;
         }
 
-        $this->set(compact('companiesBySchool'));
+        // AJAX Request: JSON zurückgeben
+        if ($this->request->is('ajax')) {
+            $this->autoRender = false;
+            $this->response = $this->response->withType('application/json');
+
+            $results = [];
+            foreach ($companiesBySchool as $schoolId => $schoolData) {
+                $schoolResult = [
+                    'school_id' => $schoolId,
+                    'school_name' => $schoolData['school']->name,
+                    'companies' => []
+                ];
+                foreach ($schoolData['companies'] as $company) {
+                    $companyData = [
+                        'name' => $company->name,
+                        'accounts' => []
+                    ];
+                    if (!empty($company->accounts)) {
+                        foreach ($company->accounts as $account) {
+                            $companyData['accounts'][] = [
+                                'name' => $account->name,
+                                'iban' => $account->iban,
+                                'bic' => $account->bic
+                            ];
+                        }
+                    }
+                    $schoolResult['companies'][] = $companyData;
+                }
+                $results[] = $schoolResult;
+            }
+
+            $this->response = $this->response->withStringBody(json_encode(['results' => $results]));
+            return $this->response;
+        }
+
+        $this->set(compact('companiesBySchool', 'schoolList', 'selectedSchool', 'search'));
     }
 }

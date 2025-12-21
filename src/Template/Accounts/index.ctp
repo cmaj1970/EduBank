@@ -8,8 +8,8 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="mb-0"><i class="bi bi-wallet2 me-2"></i><?= __('Konten') ?></h3>
     <div class="d-flex gap-2">
-        <a href="/accounts/directory" class="btn btn-outline-info">
-            <i class="bi bi-building me-1"></i><?= __('Alle Übungsfirmen') ?>
+        <a href="/accounts/directory" class="btn btn-outline-primary">
+            <i class="bi bi-building me-1"></i><?= __('Konten aller teilnehmenden Übungsfirmen') ?>
         </a>
         <?php if($authuser['role'] == 'admin'): ?>
         <a href="/accounts/add" class="btn btn-primary">
@@ -18,6 +18,39 @@
         <?php endif; ?>
     </div>
 </div>
+
+<?php if (isset($isSuperadmin) && $isSuperadmin && !empty($userList)): ?>
+<!-- Filter für Superadmin -->
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-center" id="filterForm">
+            <div class="col-md-4">
+                <select name="user_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value=""><?= __('Alle Übungsfirmen') ?></option>
+                    <?php foreach ($userList as $id => $name): ?>
+                    <option value="<?= $id ?>" <?= ($selectedUser ?? '') == $id ? 'selected' : '' ?>>
+                        <?= h($name) ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <input type="text" name="search" class="form-control form-control-sm"
+                       placeholder="<?= __('Suche nach Übungsfirma, Kontoname oder IBAN...') ?>"
+                       value="<?= h($search ?? '') ?>"
+                       id="accountSearch">
+            </div>
+            <div class="col-md-2">
+                <?php if (!empty($selectedUser) || !empty($search)): ?>
+                <a href="/accounts" class="btn btn-sm btn-outline-secondary w-100">
+                    <i class="bi bi-x-lg"></i> <?= __('Reset') ?>
+                </a>
+                <?php endif; ?>
+            </div>
+        </form>
+    </div>
+</div>
+<?php endif; ?>
 
 <?php if ($accounts->isEmpty()): ?>
 <!-- Empty State -->
@@ -154,6 +187,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // IBAN kopieren
     document.querySelectorAll('.copy-iban').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var iban = this.getAttribute('data-iban');
@@ -165,6 +199,18 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+
+    // Dynamische Suche mit Debounce
+    var searchInput = document.getElementById('accountSearch');
+    if (searchInput) {
+        var timeout = null;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(function() {
+                document.getElementById('filterForm').submit();
+            }, 400);
+        });
+    }
 });
 </script>
 <?php endif; ?>

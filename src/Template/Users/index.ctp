@@ -12,6 +12,39 @@
     </a>
 </div>
 
+<?php if (isset($isSuperadmin) && $isSuperadmin && !empty($schoolList)): ?>
+<!-- Filter für Superadmin -->
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-center" id="filterForm">
+            <div class="col-md-4">
+                <select name="school_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value=""><?= __('Alle Schulen') ?></option>
+                    <?php foreach ($schoolList as $id => $name): ?>
+                    <option value="<?= $id ?>" <?= ($selectedSchool ?? '') == $id ? 'selected' : '' ?>>
+                        <?= h($name) ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <input type="text" name="search" class="form-control form-control-sm"
+                       placeholder="<?= __('Suche nach Name, Benutzername oder Schule...') ?>"
+                       value="<?= h($search ?? '') ?>"
+                       id="userSearch">
+            </div>
+            <div class="col-md-2">
+                <?php if (!empty($selectedSchool) || !empty($search)): ?>
+                <a href="/users" class="btn btn-sm btn-outline-secondary w-100">
+                    <i class="bi bi-x-lg"></i> <?= __('Reset') ?>
+                </a>
+                <?php endif; ?>
+            </div>
+        </form>
+    </div>
+</div>
+<?php endif; ?>
+
 <?php if ($isSchoolAdmin): ?>
 <!-- Password Info for School Admin -->
 <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
@@ -157,3 +190,33 @@
     </div>
 </div>
 <?php endif; ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var searchInput = document.getElementById('userSearch');
+    if (searchInput) {
+        var timeout = null;
+
+        // Fokus wiederherstellen nach Reload
+        if (searchInput.value) {
+            searchInput.focus();
+            searchInput.selectionStart = searchInput.selectionEnd = searchInput.value.length;
+        }
+
+        // Suche bei Enter oder nach 800ms Pause
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('filterForm').submit();
+            }
+        });
+
+        searchInput.addEventListener('input', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(function() {
+                document.getElementById('filterForm').submit();
+            }, 800);
+        });
+    }
+});
+</script>
