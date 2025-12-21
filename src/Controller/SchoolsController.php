@@ -231,15 +231,22 @@ class SchoolsController extends AppController
     {
         $this->request->allowMethod(['post']);
 
-        $school = $this->school;
-
-        if (!$school || $school->status !== 'pending') {
+        if (!$this->school || $this->school->status !== 'pending') {
             return $this->redirect(['controller' => 'Pages', 'action' => 'display', 'home']);
         }
 
+        // Reload school fresh from database to ensure proper ORM handling
+        $school = $this->Schools->get($this->school->id);
+
         // Generate new token
         $school->verification_token = bin2hex(random_bytes(32));
-        $this->Schools->save($school);
+
+        if (!$this->Schools->save($school)) {
+            $errors = $school->getErrors();
+            $this->log('ResendVerification: Save failed - ' . json_encode($errors), 'error');
+            $this->Flash->error(__('Token konnte nicht gespeichert werden.'));
+            return $this->redirect(['action' => 'pendingVerification']);
+        }
 
         // Get admin user
         $this->loadModel('Users');
@@ -386,41 +393,51 @@ class SchoolsController extends AppController
      */
     public function verify()
     {
-        $token = $this->request->getQuery('token');
+        try {
+            $token = $this->request->getQuery('token');
 
-        if (!$token) {
-            $this->Flash->error(__('Ungültiger Bestätigungslink.'));
-            return $this->redirect(['controller' => 'Pages', 'action' => 'display', 'home']);
-        }
+            if (!$token) {
+                $this->Flash->error(__('Ungültiger Bestätigungslink.'));
+                return $this->redirect(['controller' => 'Users', 'action' => 'login']);
+            }
 
-        // Find school by token
-        $school = $this->Schools->find()
-            ->where(['verification_token' => $token])
-            ->first();
+            // Find school by token
+            $school = $this->Schools->find()
+                ->where(['verification_token' => $token])
+                ->first();
 
-        if (!$school) {
-            $this->Flash->error(__('Dieser Bestätigungslink ist ungültig oder wurde bereits verwendet.'));
-            return $this->redirect(['controller' => 'Pages', 'action' => 'display', 'home']);
-        }
+            if (!$school) {
+                $this->Flash->error(__('Dieser Bestätigungslink ist ungültig oder wurde bereits verwendet.'));
+                return $this->redirect(['controller' => 'Users', 'action' => 'login']);
+            }
 
-        // Check if already verified
-        if ($school->status === 'approved') {
-            $this->Flash->info(__('Ihre Schule wurde bereits bestätigt. Sie können sich jetzt anmelden.'));
+            // Check if already verified
+            if ($school->status === 'approved') {
+                $this->Flash->info(__('Ihre Schule wurde bereits bestätigt. Sie können sich jetzt anmelden.'));
+                return $this->redirect(['controller' => 'Users', 'action' => 'login']);
+            }
+
+            // Verify the school
+            $school->status = 'approved';
+            $school->verified_at = FrozenTime::now();
+            $school->verification_token = null; // Clear token after use
+
+            if ($this->Schools->save($school)) {
+                $this->Flash->success(__('Ihre E-Mail-Adresse wurde bestätigt! Die Schule "{0}" ist jetzt freigeschaltet.', $school->name));
+            } else {
+                // Log validation errors
+                $errors = $school->getErrors();
+                $this->log('Verify: Save failed - ' . json_encode($errors), 'error');
+                $this->Flash->error(__('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.'));
+            }
+
+            return $this->redirect(['controller' => 'Users', 'action' => 'login']);
+
+        } catch (\Exception $e) {
+            $this->log('Verify Exception: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine(), 'error');
+            $this->Flash->error(__('Es ist ein technischer Fehler aufgetreten.'));
             return $this->redirect(['controller' => 'Users', 'action' => 'login']);
         }
-
-        // Verify the school
-        $school->status = 'approved';
-        $school->verified_at = FrozenTime::now();
-        $school->verification_token = null; // Clear token after use
-
-        if ($this->Schools->save($school)) {
-            $this->Flash->success(__('Ihre E-Mail-Adresse wurde bestätigt! Die Schule "{0}" ist jetzt freigeschaltet.', $school->name));
-        } else {
-            $this->Flash->error(__('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.'));
-        }
-
-        return $this->redirect(['controller' => 'Users', 'action' => 'login']);
     }
 
     /**
