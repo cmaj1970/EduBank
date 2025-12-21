@@ -98,56 +98,215 @@
 </div>
 
 <?php else: ?>
-<!-- Landing Page für nicht eingeloggte Benutzer -->
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8 text-center">
-            <!-- Logo -->
-            <div class="mb-4">
-                <?= $this->Html->image('logo.svg', ['alt' => 'EduBank Logo', 'style' => 'height: 80px; filter: brightness(0);']) ?>
-            </div>
+<!-- ========================================== -->
+<!-- LANDING PAGE - Bank-Style für Besucher    -->
+<!-- ========================================== -->
 
-            <h1 class="display-5 fw-bold text-primary mb-3">Willkommen bei EduBank</h1>
-            <p class="lead text-muted mb-4">
-                Die Banking-Simulation für Schulen. Lernen Sie den Umgang mit Finanzen in einer sicheren Umgebung.
-            </p>
-
-            <!-- Features -->
-            <div class="row g-4 mb-5">
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body">
-                            <i class="bi bi-wallet2 text-primary fs-1 mb-3"></i>
-                            <h5 class="card-title">Konten verwalten</h5>
-                            <p class="card-text text-muted small">Erstellen und verwalten Sie virtuelle Bankkonten für Übungsfirmen.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body">
-                            <i class="bi bi-arrow-left-right text-success fs-1 mb-3"></i>
-                            <h5 class="card-title">Überweisungen</h5>
-                            <p class="card-text text-muted small">Führen Sie sichere Transaktionen zwischen Konten durch.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body">
-                            <i class="bi bi-shield-check text-info fs-1 mb-3"></i>
-                            <h5 class="card-title">TAN-Verfahren</h5>
-                            <p class="card-text text-muted small">Lernen Sie Sicherheitsverfahren wie im echten Online-Banking.</p>
-                        </div>
-                    </div>
+<!-- Hero Section -->
+<div class="bg-gradient-primary text-white py-5 mb-5" style="background: linear-gradient(135deg, #1a365d 0%, #2d4a7c 100%); margin: -1.5rem -0.75rem 2rem -0.75rem; padding-left: 1.5rem; padding-right: 1.5rem;">
+    <div class="container">
+        <div class="row align-items-center py-4">
+            <div class="col-lg-7">
+                <h1 class="display-4 fw-bold mb-3">
+                    Banking lernen.<br>Sicher und einfach.
+                </h1>
+                <p class="lead mb-4 opacity-90">
+                    EduBank ist die kostenlose Banking-Simulation für Schulen.
+                    Schüler lernen den Umgang mit Finanzen in einer realistischen, aber sicheren Umgebung.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="/users/login" class="btn btn-light btn-lg px-4">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Anmelden
+                    </a>
+                    <a href="/schools/register" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-plus-circle me-2"></i>Schule registrieren
+                    </a>
                 </div>
             </div>
+            <div class="col-lg-5 text-center d-none d-lg-block">
+                <i class="bi bi-bank2" style="font-size: 12rem; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+</div>
 
-            <!-- Login Button -->
-            <a href="/users/login" class="btn btn-primary btn-lg px-5">
-                <i class="bi bi-box-arrow-in-right me-2"></i>Anmelden
+<!-- Features -->
+<div class="container mb-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">Warum EduBank?</h2>
+        <p class="text-muted">Die ideale Plattform für praxisnahes Finanzwissen</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                        <i class="bi bi-wallet2 text-primary fs-2"></i>
+                    </div>
+                    <h5 class="card-title">Echte Konten</h5>
+                    <p class="card-text text-muted small">Jede Übungsfirma erhält ein vollwertiges Konto mit IBAN und BIC.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                        <i class="bi bi-arrow-left-right text-success fs-2"></i>
+                    </div>
+                    <h5 class="card-title">Überweisungen</h5>
+                    <p class="card-text text-muted small">Realistische Transaktionen zwischen allen Konten im System.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-info bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                        <i class="bi bi-shield-check text-info fs-2"></i>
+                    </div>
+                    <h5 class="card-title">TAN-Verfahren</h5>
+                    <p class="card-text text-muted small">Sicherheit wie beim echten Banking mit TAN-Bestätigung.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                        <i class="bi bi-people text-warning fs-2"></i>
+                    </div>
+                    <h5 class="card-title">Mehrere Schulen</h5>
+                    <p class="card-text text-muted small">Schulübergreifende Transaktionen für realistische Szenarien.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How it works -->
+<div class="bg-light py-5 mb-5" style="margin-left: -0.75rem; margin-right: -0.75rem; padding-left: 1.5rem; padding-right: 1.5rem;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">So funktioniert's</h2>
+            <p class="text-muted">In drei Schritten zum digitalen Klassenzimmer-Banking</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3 fs-3 fw-bold" style="width: 60px; height: 60px;">1</div>
+                    <h5>Schule registrieren</h5>
+                    <p class="text-muted">Lehrkraft registriert die Schule und erhält Admin-Zugang per E-Mail.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3 fs-3 fw-bold" style="width: 60px; height: 60px;">2</div>
+                    <h5>Übungsfirmen anlegen</h5>
+                    <p class="text-muted">Admin erstellt Übungsfirmen - jede bekommt automatisch ein Konto.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3 fs-3 fw-bold" style="width: 60px; height: 60px;">3</div>
+                    <h5>Banking starten</h5>
+                    <p class="text-muted">Schüler melden sich an und führen Überweisungen durch.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- News / Changelog as Bank Info -->
+<div class="container mb-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <h2 class="fw-bold mb-4"><i class="bi bi-newspaper me-2"></i>Neuigkeiten</h2>
+
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title mb-0">Version 2.0 - Bootstrap 5 Redesign</h5>
+                        <span class="badge bg-primary">Dezember 2025</span>
+                    </div>
+                    <p class="card-text text-muted mb-0">
+                        Komplett überarbeitetes Design mit Bootstrap 5, optimiert für mobile Geräte.
+                        Neue Navigation für Übungsfirmen, verbesserte IBAN-Formatierung und iOS-Kompatibilität.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title mb-0">E-Mail-Benachrichtigungen</h5>
+                        <span class="badge bg-success">Neu</span>
+                    </div>
+                    <p class="card-text text-muted mb-0">
+                        Schuladmins erhalten nach der Registrierung automatisch ihre Zugangsdaten per E-Mail.
+                        SMTP-Unterstützung für zuverlässige Zustellung.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title mb-0">Verbesserte Sicherheit</h5>
+                        <span class="badge bg-secondary">Update</span>
+                    </div>
+                    <p class="card-text text-muted mb-0">
+                        Schuladmins können nur noch Daten ihrer eigenen Schule einsehen.
+                        Vollständige Trennung zwischen verschiedenen Schulen.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <div class="card border-0 shadow-sm bg-primary text-white">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-3"><i class="bi bi-question-circle me-2"></i>Noch Fragen?</h5>
+                    <p class="card-text opacity-90 mb-3">
+                        EduBank ist kostenlos und Open Source. Ideal für den Einsatz im Wirtschaftsunterricht.
+                    </p>
+                    <hr class="opacity-25">
+                    <p class="small mb-0 opacity-75">
+                        <i class="bi bi-envelope me-1"></i> Kontakt über GitHub
+                    </p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mt-3">
+                <div class="card-body p-4 text-center">
+                    <i class="bi bi-building text-primary fs-1 mb-2"></i>
+                    <h5>Für Schulen</h5>
+                    <p class="text-muted small mb-3">Registrieren Sie Ihre Schule kostenlos</p>
+                    <a href="/schools/register" class="btn btn-primary w-100">
+                        Jetzt starten
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA -->
+<div class="text-center py-5 mb-3" style="background: linear-gradient(135deg, #1a365d 0%, #2d4a7c 100%); margin-left: -0.75rem; margin-right: -0.75rem; padding-left: 1.5rem; padding-right: 1.5rem;">
+    <div class="container">
+        <h2 class="text-white fw-bold mb-3">Bereit für digitales Banking im Unterricht?</h2>
+        <p class="text-white opacity-75 mb-4">Starten Sie noch heute mit EduBank - kostenlos und ohne Installation.</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="/schools/register" class="btn btn-light btn-lg px-4">
+                <i class="bi bi-rocket-takeoff me-2"></i>Schule registrieren
+            </a>
+            <a href="/users/login" class="btn btn-outline-light btn-lg px-4">
+                Anmelden
             </a>
         </div>
     </div>
 </div>
+
 <?php endif; ?>
