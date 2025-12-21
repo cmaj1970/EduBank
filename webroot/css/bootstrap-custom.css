@@ -26,8 +26,19 @@
     --edubank-sidebar-border: #e9ecef;
     --edubank-amount-positive: #38a169;
     --edubank-amount-negative: #e53e3e;
-    --edubank-link: #2563eb;
-    --edubank-link-hover: #1d4ed8;
+    --edubank-link: #1e40af;
+    --edubank-link-hover: #1e3a8a;
+}
+
+/* Links */
+a {
+    color: var(--edubank-link);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--edubank-link-hover);
+    text-decoration: underline;
 }
 
 /* Navbar - Dunkler Banking-Look */
