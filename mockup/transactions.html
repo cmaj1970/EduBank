@@ -1,0 +1,1019 @@
+<!--
+  EduBank - Umsatzliste im ELBA-Stil
+
+  Übernommene ELBA-Elemente:
+  - Tabellarische Umsatzliste mit Datum, Text, Betrag, Saldo
+  - Filter nach Zeitraum, Eingänge/Ausgänge, Textsuche
+  - Händlerlogos und klare Bezeichnungen
+  - Export als PDF oder CSV
+  - Druckfunktion
+  - Grün für Gutschriften, Rot für Abbuchungen
+  - Saldo-Entwicklung nach jeder Buchung
+  - Responsive Darstellung
+  - Raiffeisen-Gelb (#FFE300) für Akzente
+
+  Quellen:
+  - https://www.raiffeisen.at/de/online-banking/apps/mein-elba-app/funktionen.html
+  - https://www.raiffeisen.at/ooe/de/online-banking/mein-elba/funktionen/mein-elba-premium.html
+-->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduBank - Umsätze</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --elba-yellow: #FFE300;
+      --elba-yellow-hover: #E6CC00;
+      --elba-yellow-light: #FFF9CC;
+      --elba-black: #000000;
+      --elba-dark-gray: #333333;
+      --elba-medium-gray: #666666;
+      --elba-light-gray: #F5F5F5;
+      --elba-white: #FFFFFF;
+      --elba-border: #DDDDDD;
+      --elba-success: #28A745;
+      --elba-danger: #DC3545;
+    }
+
+    * {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--elba-light-gray);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .elba-header {
+      background-color: var(--elba-yellow);
+      padding: 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .header-top {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .elba-logo {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--elba-black);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .elba-logo:hover {
+      color: var(--elba-black);
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background-color: var(--elba-black);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--elba-yellow);
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .user-name {
+      font-weight: 500;
+      color: var(--elba-black);
+      font-size: 0.9rem;
+    }
+
+    .btn-logout {
+      background: transparent;
+      border: 2px solid var(--elba-black);
+      color: var(--elba-black);
+      padding: 0.4rem 1rem;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 0.85rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      background-color: var(--elba-black);
+      color: var(--elba-yellow);
+    }
+
+    /* Navigation */
+    .elba-nav {
+      background-color: var(--elba-yellow);
+    }
+
+    .nav-list {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      gap: 0;
+      overflow-x: auto;
+    }
+
+    .nav-list li a {
+      display: block;
+      padding: 0.75rem 1.25rem;
+      color: var(--elba-black);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .nav-list li a:hover {
+      background-color: rgba(0,0,0,0.05);
+    }
+
+    .nav-list li a.active {
+      border-bottom-color: var(--elba-black);
+      background-color: rgba(0,0,0,0.05);
+    }
+
+    /* Main Content */
+    .main-content {
+      padding: 1.5rem 0;
+    }
+
+    /* Page Header */
+    .page-header {
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--elba-black);
+      margin-bottom: 0.25rem;
+    }
+
+    .page-subtitle {
+      color: var(--elba-medium-gray);
+      font-size: 0.9rem;
+    }
+
+    .page-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn-icon {
+      background-color: var(--elba-white);
+      border: 2px solid var(--elba-border);
+      color: var(--elba-dark-gray);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+
+    .btn-icon:hover {
+      border-color: var(--elba-yellow);
+      background-color: var(--elba-yellow-light);
+      color: var(--elba-black);
+    }
+
+    /* Cards */
+    .elba-card {
+      background-color: var(--elba-white);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    .card-header-elba {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--elba-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--elba-white);
+    }
+
+    .card-header-elba h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--elba-dark-gray);
+      margin: 0;
+    }
+
+    .card-body-elba {
+      padding: 1.25rem;
+    }
+
+    /* Account Summary */
+    .account-summary {
+      background-color: var(--elba-yellow-light);
+      border-left: 4px solid var(--elba-yellow);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .account-info h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--elba-black);
+      margin-bottom: 0.25rem;
+    }
+
+    .account-info p {
+      font-size: 0.85rem;
+      color: var(--elba-medium-gray);
+      margin: 0;
+      font-family: 'Courier New', monospace;
+    }
+
+    .current-balance {
+      text-align: right;
+    }
+
+    .current-balance .label {
+      font-size: 0.8rem;
+      color: var(--elba-medium-gray);
+    }
+
+    .current-balance .amount {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--elba-success);
+    }
+
+    /* Filter Section */
+    .filter-section {
+      background-color: var(--elba-light-gray);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .filter-group {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .filter-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--elba-dark-gray);
+      margin-bottom: 0.35rem;
+    }
+
+    .filter-group select,
+    .filter-group input {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 2px solid var(--elba-border);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      background-color: var(--elba-white);
+    }
+
+    .filter-group select:focus,
+    .filter-group input:focus {
+      border-color: var(--elba-yellow);
+      outline: none;
+    }
+
+    .btn-filter {
+      background-color: var(--elba-yellow);
+      border: 2px solid var(--elba-yellow);
+      color: var(--elba-black);
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-filter:hover {
+      background-color: var(--elba-yellow-hover);
+      border-color: var(--elba-yellow-hover);
+    }
+
+    .btn-reset {
+      background-color: transparent;
+      border: 2px solid var(--elba-border);
+      color: var(--elba-dark-gray);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-reset:hover {
+      border-color: var(--elba-dark-gray);
+      color: var(--elba-black);
+    }
+
+    /* Transaction Table */
+    .transaction-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .transaction-table thead th {
+      background-color: var(--elba-light-gray);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--elba-dark-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--elba-border);
+    }
+
+    .transaction-table thead th:last-child,
+    .transaction-table thead th:nth-last-child(2) {
+      text-align: right;
+    }
+
+    .transaction-table tbody tr {
+      border-bottom: 1px solid var(--elba-border);
+      transition: background-color 0.15s;
+    }
+
+    .transaction-table tbody tr:hover {
+      background-color: var(--elba-yellow-light);
+    }
+
+    .transaction-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .transaction-table tbody td {
+      padding: 0.875rem 1rem;
+      font-size: 0.9rem;
+      vertical-align: middle;
+    }
+
+    .transaction-date {
+      color: var(--elba-medium-gray);
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+
+    .transaction-details {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .transaction-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: var(--elba-light-gray);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--elba-medium-gray);
+      flex-shrink: 0;
+    }
+
+    .transaction-icon.credit {
+      background-color: #E8F5E9;
+      color: var(--elba-success);
+    }
+
+    .transaction-icon.debit {
+      background-color: #FFEBEE;
+      color: var(--elba-danger);
+    }
+
+    .transaction-text {
+      min-width: 0;
+    }
+
+    .transaction-name {
+      font-weight: 500;
+      color: var(--elba-black);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 250px;
+    }
+
+    .transaction-category {
+      font-size: 0.8rem;
+      color: var(--elba-medium-gray);
+    }
+
+    .transaction-amount {
+      font-weight: 600;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .transaction-amount.credit {
+      color: var(--elba-success);
+    }
+
+    .transaction-amount.debit {
+      color: var(--elba-danger);
+    }
+
+    .transaction-saldo {
+      text-align: right;
+      font-weight: 500;
+      color: var(--elba-dark-gray);
+      white-space: nowrap;
+    }
+
+    /* Pagination */
+    .pagination-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-top: 1px solid var(--elba-border);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .pagination-info {
+      font-size: 0.85rem;
+      color: var(--elba-medium-gray);
+    }
+
+    .pagination {
+      margin: 0;
+    }
+
+    .pagination .page-link {
+      color: var(--elba-dark-gray);
+      border: 2px solid var(--elba-border);
+      padding: 0.4rem 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .pagination .page-link:hover {
+      background-color: var(--elba-yellow-light);
+      border-color: var(--elba-yellow);
+      color: var(--elba-black);
+    }
+
+    .pagination .page-item.active .page-link {
+      background-color: var(--elba-yellow);
+      border-color: var(--elba-yellow);
+      color: var(--elba-black);
+    }
+
+    /* Summary Row */
+    .summary-row {
+      background-color: var(--elba-light-gray);
+      font-weight: 600;
+    }
+
+    .summary-row td {
+      padding: 1rem !important;
+    }
+
+    /* Footer */
+    .elba-footer {
+      background-color: var(--elba-white);
+      border-top: 1px solid var(--elba-border);
+      padding: 1rem 0;
+      margin-top: 2rem;
+    }
+
+    .elba-footer p {
+      margin: 0;
+      color: #666;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 992px) {
+      .transaction-table thead {
+        display: none;
+      }
+
+      .transaction-table tbody tr {
+        display: block;
+        padding: 1rem;
+        border-bottom: 1px solid var(--elba-border);
+      }
+
+      .transaction-table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.25rem 0;
+        border: none;
+      }
+
+      .transaction-table tbody td:first-child {
+        order: 2;
+      }
+
+      .transaction-table tbody td:nth-child(2) {
+        order: 1;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px dashed var(--elba-border);
+        margin-bottom: 0.5rem;
+      }
+
+      .transaction-table tbody td:nth-child(3) {
+        order: 3;
+      }
+
+      .transaction-table tbody td:nth-child(4) {
+        order: 4;
+      }
+
+      .transaction-table tbody td::before {
+        content: attr(data-label);
+        font-weight: 500;
+        font-size: 0.8rem;
+        color: var(--elba-medium-gray);
+      }
+
+      .transaction-details {
+        width: 100%;
+      }
+
+      .transaction-name {
+        max-width: none;
+      }
+
+      .summary-row {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .user-name {
+        display: none;
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .page-actions {
+        width: 100%;
+        flex-wrap: wrap;
+      }
+
+      .btn-icon {
+        flex: 1;
+        justify-content: center;
+      }
+
+      .filter-group {
+        min-width: 100%;
+      }
+
+      .nav-list li a {
+        padding: 0.65rem 1rem;
+        font-size: 0.85rem;
+      }
+
+      .account-summary {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .current-balance {
+        text-align: center;
+      }
+    }
+
+    /* Print styles */
+    @media print {
+      .elba-header,
+      .elba-nav,
+      .filter-section,
+      .page-actions,
+      .pagination-wrapper,
+      .elba-footer {
+        display: none !important;
+      }
+
+      .elba-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+      }
+
+      .transaction-table tbody tr:hover {
+        background-color: transparent;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="elba-header">
+    <div class="header-top">
+      <div class="container d-flex justify-content-between align-items-center">
+        <a href="dashboard.html" class="elba-logo">
+          <span class="logo-icon">EB</span>
+          <span>EduBank</span>
+        </a>
+        <div class="user-info">
+          <span class="user-name">
+            <i class="bi bi-person-circle me-1"></i>
+            Max Mustermann
+          </span>
+          <a href="login.html" class="btn-logout">
+            <i class="bi bi-box-arrow-right me-1"></i>Abmelden
+          </a>
+        </div>
+      </div>
+    </div>
+    <nav class="elba-nav">
+      <div class="container">
+        <ul class="nav-list">
+          <li><a href="dashboard.html"><i class="bi bi-house-door me-1"></i>Übersicht</a></li>
+          <li><a href="transactions.html" class="active"><i class="bi bi-list-ul me-1"></i>Umsätze</a></li>
+          <li><a href="transfer.html"><i class="bi bi-arrow-left-right me-1"></i>Überweisen</a></li>
+          <li><a href="#"><i class="bi bi-clock-history me-1"></i>Daueraufträge</a></li>
+          <li><a href="#"><i class="bi bi-file-earmark-text me-1"></i>Dokumente</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <h1 class="page-title"><i class="bi bi-list-ul me-2"></i>Kontoumsätze</h1>
+          <p class="page-subtitle">Alle Buchungen im Überblick</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn-icon" onclick="window.print()">
+            <i class="bi bi-printer"></i>
+            <span>Drucken</span>
+          </button>
+          <button class="btn-icon" onclick="exportPDF()">
+            <i class="bi bi-file-pdf"></i>
+            <span>PDF</span>
+          </button>
+          <button class="btn-icon" onclick="exportCSV()">
+            <i class="bi bi-file-spreadsheet"></i>
+            <span>CSV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Account Summary -->
+      <div class="account-summary">
+        <div class="account-info">
+          <h3>Schülerkonto - Max Mustermann</h3>
+          <p>IBAN: AT12 3456 7890 1234 5678</p>
+        </div>
+        <div class="current-balance">
+          <div class="label">Aktueller Saldo</div>
+          <div class="amount">+1.234,56 EUR</div>
+        </div>
+      </div>
+
+      <!-- Filter Section -->
+      <div class="filter-section">
+        <form id="filterForm">
+          <div class="filter-row">
+            <div class="filter-group">
+              <label for="dateFrom">Von</label>
+              <input type="date" id="dateFrom" value="2024-12-01">
+            </div>
+            <div class="filter-group">
+              <label for="dateTo">Bis</label>
+              <input type="date" id="dateTo" value="2024-12-21">
+            </div>
+            <div class="filter-group">
+              <label for="transactionType">Art</label>
+              <select id="transactionType">
+                <option value="all">Alle Umsätze</option>
+                <option value="credit">Nur Eingänge</option>
+                <option value="debit">Nur Ausgänge</option>
+              </select>
+            </div>
+            <div class="filter-group" style="flex: 2;">
+              <label for="searchText">Suche</label>
+              <input type="text" id="searchText" placeholder="Empfänger, Verwendungszweck...">
+            </div>
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn-filter">
+                <i class="bi bi-search me-1"></i>Filtern
+              </button>
+              <button type="reset" class="btn-reset">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Transactions Table -->
+      <div class="elba-card">
+        <div class="card-body-elba" style="padding: 0;">
+          <table class="transaction-table">
+            <thead>
+              <tr>
+                <th style="width: 100px;">Datum</th>
+                <th>Buchungstext</th>
+                <th style="width: 130px;">Betrag</th>
+                <th style="width: 130px;">Saldo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="transaction-date" data-label="Datum">20.12.2024</td>
+                <td data-label="">
+                  <div class="transaction-details">
+                    <div class="transaction-icon debit">
+                      <i class="bi bi-shop"></i>
+                    </div>
+                    <div class="transaction-text">
+                      <div class="transaction-name">REWE Supermarkt</div>
+                      <div class="transaction-category">Kartenzahlung</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="transaction-amount debit" data-label="Betrag">-23,45 EUR</td>
+                <td class="transaction-saldo" data-label="Saldo">1.234,56 EUR</td>
+              </tr>
+
+              <tr>
+                <td class="transaction-date" data-label="Datum">15.12.2024</td>
+                <td data-label="">
+                  <div class="transaction-details">
+                    <div class="transaction-icon credit">
+                      <i class="bi bi-arrow-down-left"></i>
+                    </div>
+                    <div class="transaction-text">
+                      <div class="transaction-name">Taschengeld Dezember</div>
+                      <div class="transaction-category">Überweisung Eingang</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="transaction-amount credit" data-label="Betrag">+50,00 EUR</td>
+                <td class="transaction-saldo" data-label="Saldo">1.258,01 EUR</td>
+              </tr>
+
+              <tr>
+                <td class="transaction-date" data-label="Datum">12.12.2024</td>
+                <td data-label="">
+                  <div class="transaction-details">
+                    <div class="transaction-icon debit">
+                      <i class="bi bi-train-front"></i>
+                    </div>
+                    <div class="transaction-text">
+                      <div class="transaction-name">ÖBB Ticket Wien-Salzburg</div>
+                      <div class="transaction-category">Lastschrift</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="transaction-amount debit" data-label="Betrag">-29,90 EUR</td>
+                <td class="transaction-saldo" data-label="Saldo">1.208,01 EUR</td>
+              </tr>
+
+              <tr>
+                <td class="transaction-date" data-label="Datum">10.12.2024</td>
+                <td data-label="">
+                  <div class="transaction-details">
+                    <div class="transaction-icon debit">
+                      <i class="bi bi-music-note-beamed"></i>
+                    </div>
+                    <div class="transaction-text">
+                      <div class="transaction-name">Spotify Premium</div>
+                      <div class="transaction-category">Lastschrift</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="transaction-amount debit" data-label="Betrag">-9,99 EUR</td>
+                <td class="transaction-saldo" data-label="Saldo">1.237,91 EUR</td>
+              </tr>
+
+              <tr>
+                <td class="transaction-date" data-label="Datum">08.12.2024</td>
+                <td data-label="">
+                  <div class="transaction-details">
+                    <div class="transaction-icon debit">
+                      <i class="bi bi-book"></i>
+                    </div>
+                    <div class="transaction-text">
+                      <div class="transaction-name">Thalia Buchhandlung</div>
+                      <div class="transaction-category">Kartenzahlung</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="transaction-amount debit" data-label="Betrag">-18,99 EUR</td>
+                <td class="transaction-saldo" data-label="Saldo">1.247,90 EUR</td>
+              </tr>
+
+              <tr>
+                <td class="transaction-date" data-label="Datum">05.12.2024</td>
+                <td data-label="">
+                  <div class="transaction-details">
+                    <div class="transaction-icon debit">
+                      <i class="bi bi-phone"></i>
+                    </div>
+                    <div class="transaction-text">
+                      <div class="transaction-name">A1 Telekom</div>
+                      <div class="transaction-category">Lastschrift</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="transaction-amount debit" data-label="Betrag">-14,90 EUR</td>
+                <td class="transaction-saldo" data-label="Saldo">1.266,89 EUR</td>
+              </tr>
+
+              <tr>
+                <td class="transaction-date" data-label="Datum">01.12.2024</td>
+                <td data-label="">
+                  <div class="transaction-details">
+                    <div class="transaction-icon credit">
+                      <i class="bi bi-briefcase"></i>
+                    </div>
+                    <div class="transaction-text">
+                      <div class="transaction-name">Ferialjob Gehalt</div>
+                      <div class="transaction-category">Überweisung Eingang</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="transaction-amount credit" data-label="Betrag">+450,00 EUR</td>
+                <td class="transaction-saldo" data-label="Saldo">1.281,79 EUR</td>
+              </tr>
+
+              <tr>
+                <td class="transaction-date" data-label="Datum">28.11.2024</td>
+                <td data-label="">
+                  <div class="transaction-details">
+                    <div class="transaction-icon debit">
+                      <i class="bi bi-cup-hot"></i>
+                    </div>
+                    <div class="transaction-text">
+                      <div class="transaction-name">Starbucks Mariahilfer Str.</div>
+                      <div class="transaction-category">Kartenzahlung</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="transaction-amount debit" data-label="Betrag">-5,80 EUR</td>
+                <td class="transaction-saldo" data-label="Saldo">831,79 EUR</td>
+              </tr>
+
+              <tr>
+                <td class="transaction-date" data-label="Datum">25.11.2024</td>
+                <td data-label="">
+                  <div class="transaction-details">
+                    <div class="transaction-icon debit">
+                      <i class="bi bi-cart"></i>
+                    </div>
+                    <div class="transaction-text">
+                      <div class="transaction-name">Amazon.de</div>
+                      <div class="transaction-category">Lastschrift</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="transaction-amount debit" data-label="Betrag">-34,99 EUR</td>
+                <td class="transaction-saldo" data-label="Saldo">837,59 EUR</td>
+              </tr>
+
+              <tr>
+                <td class="transaction-date" data-label="Datum">20.11.2024</td>
+                <td data-label="">
+                  <div class="transaction-details">
+                    <div class="transaction-icon credit">
+                      <i class="bi bi-gift"></i>
+                    </div>
+                    <div class="transaction-text">
+                      <div class="transaction-name">Geburtstagsgeld Oma</div>
+                      <div class="transaction-category">Überweisung Eingang</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="transaction-amount credit" data-label="Betrag">+100,00 EUR</td>
+                <td class="transaction-saldo" data-label="Saldo">872,58 EUR</td>
+              </tr>
+
+              <!-- Summary Row -->
+              <tr class="summary-row">
+                <td colspan="2" style="text-align: right;">
+                  <strong>Summe im Zeitraum:</strong>
+                </td>
+                <td style="text-align: right;">
+                  <span style="color: var(--elba-success);">+600,00</span> /
+                  <span style="color: var(--elba-danger);">-138,02</span>
+                </td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Pagination -->
+          <div class="pagination-wrapper">
+            <div class="pagination-info">
+              Zeige 1-10 von 47 Umsätzen
+            </div>
+            <nav>
+              <ul class="pagination">
+                <li class="page-item disabled">
+                  <a class="page-link" href="#" tabindex="-1"><i class="bi bi-chevron-left"></i></a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">4</a></li>
+                <li class="page-item"><a class="page-link" href="#">5</a></li>
+                <li class="page-item">
+                  <a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="elba-footer">
+    <div class="container">
+      <p>
+        EduBank - Banking-Simulation für Schulen |
+        Letzte Anmeldung: <script>document.write(new Date().toLocaleString('de-DE'));</script>
+      </p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Set date inputs
+    document.getElementById('dateTo').valueAsDate = new Date();
+    const fromDate = new Date();
+    fromDate.setMonth(fromDate.getMonth() - 1);
+    document.getElementById('dateFrom').valueAsDate = fromDate;
+
+    // Filter form handling
+    document.getElementById('filterForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('Filter würden jetzt angewendet.\n\n(Dies ist ein Mockup)');
+    });
+
+    // Export functions (demo)
+    function exportPDF() {
+      alert('PDF-Export würde jetzt gestartet.\n\n(Dies ist ein Mockup)');
+    }
+
+    function exportCSV() {
+      alert('CSV-Export würde jetzt gestartet.\n\n(Dies ist ein Mockup)');
+    }
+  </script>
+</body>
+</html>
