@@ -9,8 +9,13 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property string $name
  * @property string $kurzname
+ * @property string|null $contact_person
+ * @property string|null $contact_email
  * @property string $ibanprefix
  * @property string $bic
+ * @property string $status
+ * @property string|null $verification_token
+ * @property \Cake\I18n\FrozenTime|null $verified_at
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
  *
@@ -33,6 +38,11 @@ class School extends Entity
         'kurzname' => true,
         'ibanprefix' => true,
         'bic' => true,
+        'status' => true,
+        'verification_token' => true,
+        'verified_at' => true,
+        'contact_person' => true,
+        'contact_email' => true,
         'created' => true,
         'modified' => true,
         'users' => true
