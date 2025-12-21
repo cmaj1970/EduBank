@@ -12,6 +12,21 @@
     </a>
 </div>
 
+<?php if ($isSchoolAdmin): ?>
+<!-- Password Info for School Admin -->
+<div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+    <i class="bi bi-key-fill fs-4 me-3"></i>
+    <div class="flex-grow-1">
+        <strong>Passwort für alle Übungsfirmen:</strong>
+        <code class="ms-2 fs-5 user-select-all"><?= h($defaultPassword) ?></code>
+        <button type="button" class="btn btn-sm btn-outline-primary ms-2" onclick="navigator.clipboard.writeText('<?= h($defaultPassword) ?>'); this.innerHTML='<i class=\'bi bi-check\'></i> Kopiert'; setTimeout(() => this.innerHTML='<i class=\'bi bi-clipboard\'></i>', 2000);">
+            <i class="bi bi-clipboard"></i>
+        </button>
+    </div>
+    <small class="text-muted ms-3">Dieses Passwort an Schüler weitergeben</small>
+</div>
+<?php endif; ?>
+
 <?php if ($users->isEmpty()): ?>
 <!-- Empty State -->
 <div class="card border-0 shadow-sm">

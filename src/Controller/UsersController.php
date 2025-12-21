@@ -35,7 +35,12 @@ class UsersController extends AppController
              $query->where(['school_id' => $this->school['id'], 'role' => 'user']);
          }
          $users = $this->paginate($query);
-         $this->set(compact('users'));
+
+         // Pass default password for school admin display
+         $defaultPassword = env('DEFAULT_USER_PASSWORD', 'Schueler2024');
+         $isSchoolAdmin = ($this->school !== null);
+
+         $this->set(compact('users', 'defaultPassword', 'isSchoolAdmin'));
     }
 
     /**
