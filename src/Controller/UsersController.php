@@ -71,7 +71,29 @@ class UsersController extends AppController
         if ($this->request->is('post')) {
             $user = $this->Users->patchEntity($user, $this->request->getData());
             if ($this->Users->save($user)) {
-                $this->Flash->success(__('Übungsfirma wurde erstellt.'));
+                // Auto-create account for school admin created users
+                if ($this->school && $user->role === 'user') {
+                    $this->loadModel('Accounts');
+                    $account = $this->Accounts->newEntity();
+
+                    // Account name from form or default to user name
+                    $accountName = $this->request->getData('account_name');
+                    $account->name = !empty($accountName) ? $accountName : $user->name;
+
+                    $account->user_id = $user->id;
+                    $account->iban = $this->school['ibanprefix'] . rand(1000,9999).rand(1000,9999).rand(1000,9999).rand(1000,9999);
+                    $account->bic = $this->school['bic'];
+                    $account->balance = 10000; // Default starting balance
+                    $account->maxlimit = 2000; // Default overdraft limit
+
+                    if ($this->Accounts->save($account)) {
+                        $this->Flash->success(__('Übungsfirma und Konto wurden erstellt.'));
+                    } else {
+                        $this->Flash->success(__('Übungsfirma wurde erstellt, aber Konto konnte nicht angelegt werden.'));
+                    }
+                } else {
+                    $this->Flash->success(__('Übungsfirma wurde erstellt.'));
+                }
 
                 return $this->redirect(['action' => 'index']);
             }
