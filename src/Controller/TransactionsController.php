@@ -24,7 +24,7 @@
 		public function isAuthorized($user)
 		{
 			if (isset($user['role']) && $user['role'] === 'user') {
-				if (in_array($this->request->getParam('action'), ['view', 'add', 'storno', 'checkiban'])) {
+				if (in_array($this->request->getParam('action'), ['view', 'add', 'storno', 'checkiban', 'searchRecipients'])) {
 					return true;
 				} else {
 					return false;
@@ -243,6 +243,66 @@
                 $this->Flash->error(__('The transaction could not be deleted. Please, try again.'));
             }
             return $this->redirect(['controller' => 'Accounts', 'action' => 'history', $transaction->account_id]);
+        }
+
+        /**
+         * Search Recipients - AJAX endpoint for Select2
+         * Returns all practice companies with their IBAN/BIC for autocomplete
+         *
+         * @return \Cake\Http\Response JSON response
+         */
+        public function searchRecipients() {
+            $this->autoRender = false;
+            $this->response = $this->response->withType('application/json');
+
+            $query = $this->request->getQuery('q', '');
+
+            # Alle Übungsfirmen aus freigegebenen Schulen laden
+            $this->loadModel('Users');
+            $this->loadModel('Accounts');
+
+            $accountsQuery = $this->Accounts->find('all')
+                ->contain(['Users.Schools'])
+                ->matching('Users', function ($q) {
+                    return $q->where(['Users.role' => 'user', 'Users.active' => 1]);
+                })
+                ->matching('Users.Schools', function ($q) {
+                    return $q->where(['Schools.status' => 'approved']);
+                });
+
+            # Suchfilter anwenden
+            if (!empty($query)) {
+                $accountsQuery->where([
+                    'OR' => [
+                        'Users.name LIKE' => '%' . $query . '%',
+                        'Accounts.iban LIKE' => '%' . $query . '%',
+                        'Accounts.name LIKE' => '%' . $query . '%',
+                    ]
+                ]);
+            }
+
+            # Eigenes Konto ausschließen
+            $userId = $this->Auth->user('id');
+            $accountsQuery->where(['Users.id !=' => $userId]);
+
+            $accounts = $accountsQuery->order(['Users.name' => 'ASC'])->limit(50)->toArray();
+
+            # Ergebnis formatieren für Select2
+            $results = [];
+            foreach ($accounts as $account) {
+                $schoolName = $account->user->school->name ?? '';
+                $results[] = [
+                    'id' => $account->id,
+                    'text' => $schoolName . ' | ' . $account->user->name . ' – ' . $account->iban,
+                    'name' => $account->user->name,
+                    'iban' => $account->iban,
+                    'bic' => $account->bic,
+                    'school' => $schoolName,
+                ];
+            }
+
+            $this->response = $this->response->withStringBody(json_encode(['results' => $results]));
+            return $this->response;
         }
 
         /**
