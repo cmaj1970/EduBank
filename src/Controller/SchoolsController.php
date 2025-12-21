@@ -1350,4 +1350,67 @@ class SchoolsController extends AppController
         }
     }
 
+    /**
+     * Email test page for superadmin
+     * Shows SMTP configuration and allows sending test emails
+     */
+    public function emailTest()
+    {
+        // Collect configuration info
+        $config = [
+            'EMAIL_FROM' => env('EMAIL_FROM', 'noreply@edubank.at'),
+            'SMTP_HOST' => env('SMTP_HOST', null),
+            'SMTP_PORT' => env('SMTP_PORT', 587),
+            'SMTP_USER' => env('SMTP_USER', null) ? '***gesetzt***' : null,
+            'SMTP_PASS' => env('SMTP_PASS', null) ? '***gesetzt***' : null,
+            'SMTP_TLS' => env('SMTP_TLS', true),
+        ];
+
+        $transport = \Cake\Core\Configure::read('EmailTransport.default');
+        $transportType = 'unbekannt';
+        if (isset($transport['className'])) {
+            if (strpos($transport['className'], 'Smtp') !== false) {
+                $transportType = 'SMTP (' . ($transport['host'] ?? '') . ':' . ($transport['port'] ?? '') . ')';
+            } else {
+                $transportType = 'PHP mail()';
+            }
+        }
+
+        $testResult = null;
+        $testError = null;
+
+        // Handle test email submission
+        if ($this->request->is('post')) {
+            $recipient = $this->request->getData('recipient');
+
+            if (empty($recipient) || !filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
+                $this->Flash->error(__('Bitte gib eine gültige E-Mail-Adresse ein.'));
+            } else {
+                try {
+                    $email = new Email('default');
+                    $email
+                        ->setEmailFormat('text')
+                        ->setTo($recipient)
+                        ->setSubject('EduBank SMTP Test - ' . date('Y-m-d H:i:s'));
+
+                    $body = "Dies ist eine Test-E-Mail von EduBank.\n\n";
+                    $body .= "Zeitpunkt: " . date('Y-m-d H:i:s') . "\n";
+                    $body .= "Server: " . gethostname() . "\n";
+                    $body .= "Transport: " . $transportType . "\n";
+
+                    $email->send($body);
+
+                    $testResult = "E-Mail wurde erfolgreich an $recipient gesendet!";
+                    $this->Flash->success($testResult);
+
+                } catch (\Exception $e) {
+                    $testError = $e->getMessage();
+                    $this->Flash->error(__('Fehler beim Senden: {0}', $testError));
+                }
+            }
+        }
+
+        $this->set(compact('config', 'transportType', 'testResult', 'testError'));
+    }
+
 }
