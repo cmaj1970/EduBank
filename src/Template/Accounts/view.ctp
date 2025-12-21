@@ -7,95 +7,107 @@
 
 <?php if ($authuser['role'] != 'admin'): ?>
 <!-- Übungsfirma-Ansicht -->
-<div class="mb-4">
-    <h3 class="text-success mb-0"><?= h($account->name) ?></h3>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-0"><i class="bi bi-wallet2 me-2"></i><?= h($account->name) ?></h3>
+    <a href="/transactions/add" class="btn btn-primary">
+        <i class="bi bi-arrow-right-circle me-1"></i><?= __('Neue Überweisung') ?>
+    </a>
 </div>
 
 <div class="row">
-    <div class="col-12">
-
-        <!-- Kontodaten -->
-        <table class="table table-sm mb-4" style="max-width: 600px;">
-            <tr>
-                <td class="text-warning fw-bold">Bezeichnung</td>
-                <td class="text-end"><?= h($account->name) ?></td>
-            </tr>
-            <tr>
-                <td class="text-warning fw-bold">IBAN</td>
-                <td class="text-end font-monospace">
-                    <?= h($account->iban) ?>
-                    <button type="button" class="btn btn-sm btn-link p-0 ms-1 copy-iban" data-iban="<?= h($account->iban) ?>" title="IBAN kopieren">
-                        <i class="bi bi-clipboard"></i>
-                    </button>
-                </td>
-            </tr>
-            <tr>
-                <td class="text-warning fw-bold">BIC</td>
-                <td class="text-end font-monospace"><?= h($account->bic) ?></td>
-            </tr>
-            <tr>
-                <td class="text-warning fw-bold">Überziehungsrahmen</td>
-                <td class="text-end"><?= $this->Number->currency($account->maxlimit, 'EUR') ?></td>
-            </tr>
-            <tr>
-                <td class="text-warning fw-bold">Kontostand</td>
-                <td class="text-end fw-bold"><?= $this->Number->currency($account->balance, 'EUR') ?></td>
-            </tr>
-        </table>
-
-        <!-- Umsätze -->
-        <h4 class="mb-3">Umsätze</h4>
-
-        <?php if (!empty($account->transactions) && $account->transactions->count() > 0): ?>
-            <?php foreach ($account->transactions as $transaction): ?>
-                <?php
-                # Eingehende Überweisung (von anderem Konto an dieses)
-                $isIncoming = ($transaction->account_id != $account->id);
-                ?>
-                <div class="border-bottom py-3">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <?php if ($isIncoming): ?>
-                                <strong><?= h($transaction->account->user->name) ?></strong>
-                                <?php if (isset($transaction->account->user->adresse)): ?>
-                                    <?= h($transaction->account->user->adresse) ?>
-                                <?php endif; ?>
-                                <br>
-                                <small><strong>IBAN:</strong> <?= h($transaction->account->iban) ?> | <strong>BIC:</strong> <?= h($transaction->account->bic) ?></small><br>
-                            <?php else: ?>
-                                <strong><?= h($transaction->empfaenger_name) ?></strong>
-                                <?php if ($transaction->empfaenger_adresse): ?>
-                                    <?= h($transaction->empfaenger_adresse) ?>
-                                <?php endif; ?>
-                                <br>
-                                <small><strong>IBAN:</strong> <?= h($transaction->empfaenger_iban) ?>
-                                <?php if ($transaction->empfaenger_bic): ?>
-                                    | <strong>BIC:</strong> <?= h($transaction->empfaenger_bic) ?>
-                                <?php endif; ?>
-                                </small><br>
-                            <?php endif; ?>
-                            <small><strong>Verwendungszweck:</strong> <?= h($transaction->zahlungszweck) ?></small><br>
-                            <small class="text-muted"><?= h($transaction->datum->format('d.m.Y')) ?></small>
-                        </div>
-                        <div class="col-md-4 text-end">
-                            <?php if ($isIncoming): ?>
-                                <span class="text-success" style="font-size: 1.5rem;"><?= $this->Number->format($transaction->betrag, ['places' => 2]) ?></span><small class="text-success"> EUR</small>
-                            <?php else: ?>
-                                <span class="text-danger" style="font-size: 1.5rem;">-<?= $this->Number->format($transaction->betrag, ['places' => 2]) ?></span><small class="text-danger"> EUR</small>
-                            <?php endif; ?>
-                        </div>
+    <!-- Kontodaten Card -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Kontodaten</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Kontobezeichnung</label>
+                    <div class="fw-bold"><?= h($account->name) ?></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted small">IBAN</label>
+                    <div class="font-monospace">
+                        <?= h($account->iban) ?>
+                        <button type="button" class="btn btn-sm btn-link p-0 ms-1 copy-iban" data-iban="<?= h($account->iban) ?>" title="IBAN kopieren">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
                     </div>
                 </div>
-            <?php endforeach; ?>
-
-            <div class="mt-4 d-print-none">
-                <button class="btn btn-primary" onclick="window.print();return false;">
-                    <i class="bi bi-printer me-1"></i>Drucken
+                <div class="mb-3">
+                    <label class="form-label text-muted small">BIC</label>
+                    <div class="font-monospace"><?= h($account->bic) ?></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Überziehungsrahmen</label>
+                    <div><?= $this->Number->currency($account->maxlimit, 'EUR') ?></div>
+                </div>
+                <hr>
+                <div>
+                    <label class="form-label text-muted small">Aktueller Kontostand</label>
+                    <div class="h3 <?= $account->balance >= 0 ? 'text-success' : 'text-danger' ?> mb-0">
+                        <?= $this->Number->currency($account->balance, 'EUR') ?>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent d-print-none">
+                <button class="btn btn-outline-secondary w-100" onclick="window.print();return false;">
+                    <i class="bi bi-printer me-1"></i>Kontoauszug drucken
                 </button>
             </div>
-        <?php else: ?>
-            <p class="text-muted">Es sind noch keine Umsätze vorhanden</p>
-        <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Umsätze Card -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i>Umsätze</h5>
+            </div>
+            <div class="card-body p-0">
+                <?php if (!empty($account->transactions) && $account->transactions->count() > 0): ?>
+                    <?php foreach ($account->transactions as $transaction): ?>
+                        <?php
+                        # Eingehende Überweisung (von anderem Konto an dieses)
+                        $isIncoming = ($transaction->account_id != $account->id);
+                        ?>
+                        <div class="border-bottom p-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <?php if ($isIncoming): ?>
+                                        <strong class="text-success"><i class="bi bi-arrow-down-circle me-1"></i><?= h($transaction->account->user->name) ?></strong>
+                                        <br>
+                                        <small class="text-muted font-monospace"><?= h($transaction->account->iban) ?></small><br>
+                                    <?php else: ?>
+                                        <strong class="text-danger"><i class="bi bi-arrow-up-circle me-1"></i><?= h($transaction->empfaenger_name) ?></strong>
+                                        <br>
+                                        <small class="text-muted font-monospace"><?= h($transaction->empfaenger_iban) ?></small><br>
+                                    <?php endif; ?>
+                                    <small><?= h($transaction->zahlungszweck) ?></small><br>
+                                    <small class="text-muted"><?= h($transaction->datum->format('d.m.Y')) ?></small>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <?php if ($isIncoming): ?>
+                                        <span class="text-success fw-bold" style="font-size: 1.25rem;">+<?= $this->Number->currency($transaction->betrag, 'EUR') ?></span>
+                                    <?php else: ?>
+                                        <span class="text-danger fw-bold" style="font-size: 1.25rem;">-<?= $this->Number->currency($transaction->betrag, 'EUR') ?></span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox display-4"></i>
+                        <p class="mt-3">Es sind noch keine Umsätze vorhanden</p>
+                        <a href="/transactions/add" class="btn btn-primary">
+                            <i class="bi bi-arrow-right-circle me-1"></i>Erste Überweisung tätigen
+                        </a>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
     </div>
 </div>
 

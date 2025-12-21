@@ -121,19 +121,35 @@
         </table>
     </div>
 
-    <?php if ($this->Paginator->total() > 1): ?>
-    <div class="card-footer">
-        <nav aria-label="Seitennavigation">
-            <ul class="pagination pagination-sm justify-content-center mb-0">
-                <?= $this->Paginator->first('<i class="bi bi-chevron-double-left"></i>', ['escape' => false]) ?>
-                <?= $this->Paginator->prev('<i class="bi bi-chevron-left"></i>', ['escape' => false]) ?>
-                <?= $this->Paginator->numbers() ?>
-                <?= $this->Paginator->next('<i class="bi bi-chevron-right"></i>', ['escape' => false]) ?>
-                <?= $this->Paginator->last('<i class="bi bi-chevron-double-right"></i>', ['escape' => false]) ?>
+    <div class="card-footer d-flex justify-content-between align-items-center py-2">
+        <small class="text-muted">
+            <?= $this->Paginator->counter('Zeige {{start}}-{{end}} von {{count}} Konten') ?>
+        </small>
+        <?php if ($this->Paginator->total() > 1): ?>
+        <?php
+        # Bootstrap 5 Pagination Templates
+        $this->Paginator->setTemplates([
+            'number' => '<li class="page-item"><a class="page-link" href="{{url}}">{{text}}</a></li>',
+            'current' => '<li class="page-item active"><span class="page-link">{{text}}</span></li>',
+            'first' => '<li class="page-item"><a class="page-link" href="{{url}}">{{text}}</a></li>',
+            'last' => '<li class="page-item"><a class="page-link" href="{{url}}">{{text}}</a></li>',
+            'prevActive' => '<li class="page-item"><a class="page-link" href="{{url}}">{{text}}</a></li>',
+            'prevDisabled' => '<li class="page-item disabled"><span class="page-link">{{text}}</span></li>',
+            'nextActive' => '<li class="page-item"><a class="page-link" href="{{url}}">{{text}}</a></li>',
+            'nextDisabled' => '<li class="page-item disabled"><span class="page-link">{{text}}</span></li>',
+        ]);
+        ?>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                <?= $this->Paginator->first('«', ['escape' => false]) ?>
+                <?= $this->Paginator->prev('‹', ['escape' => false]) ?>
+                <?= $this->Paginator->numbers(['modulus' => 3]) ?>
+                <?= $this->Paginator->next('›', ['escape' => false]) ?>
+                <?= $this->Paginator->last('»', ['escape' => false]) ?>
             </ul>
         </nav>
+        <?php endif; ?>
     </div>
-    <?php endif; ?>
 </div>
 
 <script>
