@@ -142,11 +142,6 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
                                 <i class="bi bi-clock-history me-1"></i>Auftragshistorie
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/transactions/add/<?= $userAccountId ?>">
-                                <i class="bi bi-send me-1"></i>Neue Überweisung
-                            </a>
-                        </li>
                         <?php else: ?>
                         <li class="nav-item">
                             <a class="nav-link" href="/accounts">
