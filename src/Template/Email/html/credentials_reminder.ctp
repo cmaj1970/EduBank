@@ -1,6 +1,6 @@
 <?php
 /**
- * EduBank - Willkommens-E-Mail für neue Schulen
+ * EduBank - Credentials Reminder Email
  * HTML-Template im Design der Webseite (Dunkelblau)
  */
 ?>
@@ -9,7 +9,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Willkommen bei EduBank</title>
+    <title>EduBank - Ihre Zugangsdaten</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8f9fa;">
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f8f9fa;">
@@ -33,12 +33,12 @@
                     <tr>
                         <td style="padding: 40px;">
                             <h2 style="color: #1a365d; margin: 0 0 20px 0; font-size: 22px;">
-                                Willkommen bei EduBank!
+                                Ihre Zugangsdaten
                             </h2>
 
                             <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-                                Ihre Schule <strong><?= h($schoolName) ?></strong> wurde erfolgreich registriert.
-                                Nachfolgend finden Sie Ihre Zugangsdaten:
+                                Sie haben die Zugangsdaten für <strong><?= h($schoolName) ?></strong> angefordert.
+                                Nachfolgend finden Sie Ihre Anmeldedaten:
                             </p>
 
                             <!-- Credentials Box -->
@@ -79,11 +79,11 @@
                             </table>
 
                             <!-- Info Box -->
-                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #e8f4fd; border-radius: 6px; margin-top: 25px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #fff3cd; border-radius: 6px; margin-top: 25px;">
                                 <tr>
                                     <td style="padding: 15px 20px;">
-                                        <p style="color: #1a365d; font-size: 14px; margin: 0; line-height: 1.5;">
-                                            <strong>Tipp:</strong> Als Schuladmin können Sie Übungsfirmen anlegen, die dann mit eigenen Konten arbeiten können.
+                                        <p style="color: #856404; font-size: 14px; margin: 0; line-height: 1.5;">
+                                            <strong>Hinweis:</strong> Falls Sie diese E-Mail nicht angefordert haben, können Sie sie ignorieren.
                                         </p>
                                     </td>
                                 </tr>

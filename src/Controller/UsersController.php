@@ -3,6 +3,8 @@ namespace App\Controller;
 
 use App\Controller\AppController;
 use Cake\Event\Event;
+use Cake\Mailer\Email;
+use Cake\Routing\Router;
 
 class UsersController extends AppController
 {
@@ -15,7 +17,7 @@ class UsersController extends AppController
     public function beforeFilter(Event $event)
     {
         parent::beforeFilter($event);
-        $this->Auth->allow(['login', 'logout']);
+        $this->Auth->allow(['login', 'logout', 'requestCredentials']);
     }
 
     /**
@@ -226,9 +228,109 @@ class UsersController extends AppController
      *
      * @return \Cake\Http\Response Redirects to login page
      */
-	    public function logout()
-	    {
-	        return $this->redirect($this->Auth->logout());
-	    }
+    public function logout()
+    {
+        return $this->redirect($this->Auth->logout());
+    }
+
+    /**
+     * Request credentials - send login info to email
+     * User enters email + school name, receives credentials by email
+     *
+     * @return \Cake\Http\Response|null
+     */
+    public function requestCredentials()
+    {
+        if ($this->request->is('post')) {
+            $email = $this->request->getData('email');
+            $schoolName = trim($this->request->getData('school_name'));
+
+            if (empty($email) || empty($schoolName)) {
+                $this->Flash->error(__('Bitte geben Sie E-Mail-Adresse und Schulname ein.'));
+                return null;
+            }
+
+            // Find school by name (case-insensitive)
+            $this->loadModel('Schools');
+            $school = $this->Schools->find()
+                ->where(['LOWER(name) LIKE' => '%' . strtolower($schoolName) . '%'])
+                ->first();
+
+            if (!$school) {
+                // Try kurzname
+                $school = $this->Schools->find()
+                    ->where(['LOWER(kurzname) LIKE' => '%' . strtolower($schoolName) . '%'])
+                    ->first();
+            }
+
+            if (!$school) {
+                // Don't reveal if school exists or not (security)
+                $this->Flash->success(__('Falls Ihre Daten korrekt sind, erhalten Sie in Kürze eine E-Mail mit Ihren Zugangsdaten.'));
+                return $this->redirect(['action' => 'login']);
+            }
+
+            // Find admin user for this school
+            $adminUser = $this->Users->find()
+                ->where([
+                    'school_id' => $school->id,
+                    'role' => 'admin',
+                    'username LIKE' => 'admin-%'
+                ])
+                ->first();
+
+            if ($adminUser) {
+                // Get password from env (can't retrieve hashed password)
+                $password = env('DEFAULT_ADMIN_PASSWORD', 'ChangeMe123');
+
+                // Send email
+                $this->_sendCredentialsEmail($email, $school->name, $adminUser->username, $password);
+            }
+
+            // Always show success (don't reveal if user exists)
+            $this->Flash->success(__('Falls Ihre Daten korrekt sind, erhalten Sie in Kürze eine E-Mail mit Ihren Zugangsdaten.'));
+            return $this->redirect(['action' => 'login']);
+        }
+    }
+
+    /**
+     * Send credentials email
+     *
+     * @param string $toEmail Recipient
+     * @param string $schoolName School name
+     * @param string $username Username
+     * @param string $password Password
+     * @return bool
+     */
+    private function _sendCredentialsEmail($toEmail, $schoolName, $username, $password)
+    {
+        if (empty($toEmail)) {
+            return false;
+        }
+
+        try {
+            $loginUrl = Router::url(['controller' => 'Users', 'action' => 'login'], true);
+
+            $email = new Email('default');
+            $email
+                ->setEmailFormat('html')
+                ->setTo($toEmail)
+                ->setSubject('EduBank - Ihre Zugangsdaten')
+                ->setViewVars([
+                    'schoolName' => $schoolName,
+                    'username' => $username,
+                    'password' => $password,
+                    'loginUrl' => $loginUrl
+                ])
+                ->setTemplate('credentials_reminder')
+                ->setLayout('welcome');
+
+            $email->send();
+            return true;
+
+        } catch (\Exception $e) {
+            $this->log('CredentialsEmail Fehler: ' . $e->getMessage(), 'error');
+            return false;
+        }
+    }
 
 }

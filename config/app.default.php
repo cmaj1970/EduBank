@@ -197,17 +197,18 @@ return [
      */
     'EmailTransport' => [
         'default' => [
-            'className' => 'Cake\Mailer\Transport\MailTransport',
-            /*
-             * The following keys are used in SMTP transports:
-             */
-            'host' => 'localhost',
-            'port' => 25,
+            // Automatische Auswahl: SMTP wenn konfiguriert, sonst PHP mail()
+            'className' => env('SMTP_HOST', null)
+                ? 'Cake\Mailer\Transport\SmtpTransport'
+                : 'Cake\Mailer\Transport\MailTransport',
+            // SMTP-Einstellungen (werden ignoriert wenn MailTransport)
+            'host' => env('SMTP_HOST', 'localhost'),
+            'port' => env('SMTP_PORT', 587),
             'timeout' => 30,
-            'username' => null,
-            'password' => null,
+            'username' => env('SMTP_USER', null),
+            'password' => env('SMTP_PASS', null),
             'client' => null,
-            'tls' => null,
+            'tls' => env('SMTP_TLS', true),
             'url' => env('EMAIL_TRANSPORT_DEFAULT_URL', null),
         ],
     ],
@@ -224,9 +225,9 @@ return [
     'Email' => [
         'default' => [
             'transport' => 'default',
-            'from' => 'you@localhost',
-            //'charset' => 'utf-8',
-            //'headerCharset' => 'utf-8',
+            'from' => [env('EMAIL_FROM', 'noreply@edubank.at') => 'EduBank'],
+            'charset' => 'utf-8',
+            'headerCharset' => 'utf-8',
         ],
     ],
 
