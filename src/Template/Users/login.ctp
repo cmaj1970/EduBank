@@ -46,7 +46,20 @@
                 </div>
 
                 <?= $this->Form->end() ?>
+
+                <hr>
+
+                <div class="text-center">
+                    <a href="/users/request-credentials" class="text-muted small">
+                        <i class="bi bi-envelope me-1"></i>Zugangsdaten vergessen?
+                    </a>
+                </div>
             </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <span class="text-muted small">Noch keine Schule registriert?</span>
+            <a href="/schools/register" class="small ms-1">Jetzt registrieren</a>
         </div>
 
         <p class="text-center text-muted mt-3 small">
