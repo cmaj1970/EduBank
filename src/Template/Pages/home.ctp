@@ -273,8 +273,15 @@
                         EduBank ist kostenlos und Open Source. Ideal für den Einsatz im Wirtschaftsunterricht.
                     </p>
                     <hr class="opacity-25">
-                    <p class="small mb-0 opacity-75">
-                        <i class="bi bi-envelope me-1"></i> Kontakt über GitHub
+                    <p class="small mb-2">
+                        <a href="https://github.com/cmaj1970/EduBank" target="_blank" class="text-white text-decoration-none">
+                            <i class="bi bi-github me-1"></i> GitHub
+                        </a>
+                    </p>
+                    <p class="small mb-0">
+                        <a href="https://www.paypal.com/paypalme/carlmajneri" target="_blank" class="text-white text-decoration-none">
+                            <i class="bi bi-heart me-1"></i> Projekt unterstützen
+                        </a>
                     </p>
                 </div>
             </div>
