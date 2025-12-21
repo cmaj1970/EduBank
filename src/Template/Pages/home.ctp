@@ -219,54 +219,11 @@
     </div>
 </div>
 
-<!-- News / Changelog as Bank Info -->
+<!-- Info Section -->
 <div class="container mb-5">
-    <div class="row">
-        <div class="col-lg-8">
-            <h2 class="fw-bold mb-4"><i class="bi bi-newspaper me-2"></i>Neuigkeiten</h2>
-
-            <div class="card border-0 shadow-sm mb-3">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h5 class="card-title mb-0">Version 2.0 - Bootstrap 5 Redesign</h5>
-                        <span class="badge bg-primary">Dezember 2025</span>
-                    </div>
-                    <p class="card-text text-muted mb-0">
-                        Komplett überarbeitetes Design mit Bootstrap 5, optimiert für mobile Geräte.
-                        Neue Navigation für Übungsfirmen, verbesserte IBAN-Formatierung und iOS-Kompatibilität.
-                    </p>
-                </div>
-            </div>
-
-            <div class="card border-0 shadow-sm mb-3">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h5 class="card-title mb-0">E-Mail-Benachrichtigungen</h5>
-                        <span class="badge bg-success">Neu</span>
-                    </div>
-                    <p class="card-text text-muted mb-0">
-                        Schuladmins erhalten nach der Registrierung automatisch ihre Zugangsdaten per E-Mail.
-                        SMTP-Unterstützung für zuverlässige Zustellung.
-                    </p>
-                </div>
-            </div>
-
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h5 class="card-title mb-0">Verbesserte Sicherheit</h5>
-                        <span class="badge bg-secondary">Update</span>
-                    </div>
-                    <p class="card-text text-muted mb-0">
-                        Schuladmins können nur noch Daten ihrer eigenen Schule einsehen.
-                        Vollständige Trennung zwischen verschiedenen Schulen.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4 mt-4 mt-lg-0">
-            <div class="card border-0 shadow-sm bg-primary text-white">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm bg-primary text-white h-100">
                 <div class="card-body p-4">
                     <h5 class="card-title mb-3"><i class="bi bi-question-circle me-2"></i>Noch Fragen?</h5>
                     <p class="card-text opacity-90 mb-3">
@@ -285,14 +242,16 @@
                     </p>
                 </div>
             </div>
+        </div>
 
-            <div class="card border-0 shadow-sm mt-3">
-                <div class="card-body p-4 text-center">
-                    <i class="bi bi-building text-primary fs-1 mb-2"></i>
+        <div class="col-lg-5 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4 text-center d-flex flex-column justify-content-center">
+                    <i class="bi bi-building text-primary fs-1 mb-3"></i>
                     <h5>Für Schulen</h5>
-                    <p class="text-muted small mb-3">Registrieren Sie Ihre Schule kostenlos</p>
-                    <a href="/schools/register" class="btn btn-primary w-100">
-                        Jetzt starten
+                    <p class="text-muted mb-4">Registrieren Sie Ihre Schule kostenlos und starten Sie mit dem digitalen Banking im Unterricht.</p>
+                    <a href="/schools/register" class="btn btn-primary btn-lg">
+                        <i class="bi bi-rocket-takeoff me-2"></i>Jetzt starten
                     </a>
                 </div>
             </div>
