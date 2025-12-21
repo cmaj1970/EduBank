@@ -53,11 +53,14 @@ CREATE TABLE `schools` (
   `ibanprefix` varchar(4) NOT NULL,
   `bic` varchar(255) NOT NULL,
   `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+  `verification_token` varchar(64) DEFAULT NULL,
+  `verified_at` datetime DEFAULT NULL,
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_status` (`status`),
-  KEY `idx_contact_email` (`contact_email`)
+  KEY `idx_contact_email` (`contact_email`),
+  KEY `idx_verification_token` (`verification_token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

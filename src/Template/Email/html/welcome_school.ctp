@@ -2,6 +2,7 @@
 /**
  * EduBank - Willkommens-E-Mail für neue Schulen
  * HTML-Template im Design der Webseite (Dunkelblau)
+ * Mit E-Mail-Bestätigungslink
  */
 ?>
 <!DOCTYPE html>
@@ -9,7 +10,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Willkommen bei EduBank</title>
+    <title>Willkommen bei EduBank - E-Mail bestätigen</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8f9fa;">
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f8f9fa;">
@@ -38,13 +39,43 @@
 
                             <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
                                 Ihre Schule <strong><?= h($schoolName) ?></strong> wurde erfolgreich registriert.
-                                Nachfolgend finden Sie Ihre Zugangsdaten:
                             </p>
+
+                            <?php if (!empty($verifyUrl)): ?>
+                            <!-- Verification Notice -->
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #fff3cd; border-radius: 6px; border-left: 4px solid #d69e2e; margin: 20px 0;">
+                                <tr>
+                                    <td style="padding: 15px 20px;">
+                                        <p style="color: #92400e; font-size: 14px; margin: 0; line-height: 1.5;">
+                                            <strong>Wichtig:</strong> Bitte bestätigen Sie Ihre E-Mail-Adresse, um die Registrierung abzuschließen.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Verification Button (Primary CTA) -->
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td align="center" style="padding: 25px 0;">
+                                        <a href="<?= h($verifyUrl) ?>" style="display: inline-block; background: linear-gradient(135deg, #38a169 0%, #2f855a 100%); color: #ffffff; text-decoration: none; padding: 16px 50px; border-radius: 6px; font-size: 18px; font-weight: bold;">
+                                            E-Mail bestätigen
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="color: #666; font-size: 14px; text-align: center; margin: 0 0 25px 0;">
+                                Nach der Bestätigung können Sie sich mit den folgenden Daten anmelden:
+                            </p>
+                            <?php endif; ?>
 
                             <!-- Credentials Box -->
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f0f4f8; border-radius: 8px; border-left: 4px solid #1a365d; margin: 25px 0;">
                                 <tr>
                                     <td style="padding: 25px;">
+                                        <p style="color: #1a365d; font-size: 14px; font-weight: bold; margin: 0 0 15px 0;">
+                                            Ihre Zugangsdaten:
+                                        </p>
                                         <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                                             <tr>
                                                 <td style="padding: 8px 0;">
@@ -67,7 +98,8 @@
                                 </tr>
                             </table>
 
-                            <!-- Login Button -->
+                            <?php if (empty($verifyUrl)): ?>
+                            <!-- Login Button (only if no verification needed) -->
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                                 <tr>
                                     <td align="center" style="padding: 20px 0;">
@@ -77,6 +109,7 @@
                                     </td>
                                 </tr>
                             </table>
+                            <?php endif; ?>
 
                             <!-- Info Box -->
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #e8f4fd; border-radius: 6px; margin-top: 25px;">
