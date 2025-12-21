@@ -231,15 +231,22 @@ class SchoolsController extends AppController
     {
         $this->request->allowMethod(['post']);
 
-        $school = $this->school;
-
-        if (!$school || $school->status !== 'pending') {
+        if (!$this->school || $this->school->status !== 'pending') {
             return $this->redirect(['controller' => 'Pages', 'action' => 'display', 'home']);
         }
 
+        // Reload school fresh from database to ensure proper ORM handling
+        $school = $this->Schools->get($this->school->id);
+
         // Generate new token
         $school->verification_token = bin2hex(random_bytes(32));
-        $this->Schools->save($school);
+
+        if (!$this->Schools->save($school)) {
+            $errors = $school->getErrors();
+            $this->log('ResendVerification: Save failed - ' . json_encode($errors), 'error');
+            $this->Flash->error(__('Token konnte nicht gespeichert werden.'));
+            return $this->redirect(['action' => 'pendingVerification']);
+        }
 
         // Get admin user
         $this->loadModel('Users');
