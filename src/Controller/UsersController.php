@@ -54,6 +54,8 @@ class UsersController extends AppController
          if($this->school) {
              $query->where(['school_id' => $this->school['id'], 'role' => 'user']);
          }
+         # Neueste zuerst
+         $query->order(['Users.created' => 'DESC']);
          $users = $this->paginate($query);
 
          // Pass default password for school admin display

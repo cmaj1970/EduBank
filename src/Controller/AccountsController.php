@@ -65,6 +65,8 @@ class AccountsController extends AppController
                     ->contain(['Transactions', 'Users']);
             }
         }
+        # Neueste zuerst
+        $query->order(['Accounts.created' => 'DESC']);
         $query->formatResults(function (\Cake\Collection\CollectionInterface $results) {
             return $results->map(function ($row) {
                 $row->transactions = $this->Accounts->Transactions->find('all')->where(["datum <= '" . date('Y-m-d') . "'", 'or' => ['empfaenger_iban' => $row->iban, 'account_id' => $row->id]])->order(['created desc']);
