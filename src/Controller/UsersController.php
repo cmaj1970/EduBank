@@ -90,24 +90,47 @@ class UsersController extends AppController
              $this->loadModel('Transactions');
              $this->loadModel('Accounts');
 
-             # Alle Account-IDs der Schule sammeln
+             # Alle Account-IDs der Schule sammeln (unabhängig von Pagination)
+             $allSchoolAccounts = $this->Accounts->find()
+                 ->contain(['Users'])
+                 ->where(['Users.school_id' => $this->school['id']])
+                 ->toArray();
+
              $accountIds = [];
-             foreach ($users as $user) {
-                 if (!empty($user->accounts)) {
-                     foreach ($user->accounts as $account) {
-                         $accountIds[] = $account->id;
-                     }
-                 }
+             foreach ($allSchoolAccounts as $account) {
+                 $accountIds[] = $account->id;
              }
 
              if (!empty($accountIds)) {
                  $recentTransactions = $this->Transactions->find()
-                     ->contain(['Accounts.Users'])
+                     ->contain(['Accounts.Users.Schools'])
                      ->where(['Transactions.account_id IN' => $accountIds])
                      ->order(['Transactions.created' => 'DESC'])
-                     ->limit(10)
+                     ->limit(100)
                      ->toArray();
+
+                 # Empfänger-Schulen anhand IBAN ermitteln
+                 $recipientIbans = array_unique(array_map(function($tx) {
+                     return $tx->empfaenger_iban;
+                 }, $recentTransactions));
+
+                 $recipientAccounts = [];
+                 if (!empty($recipientIbans)) {
+                     $recipientData = $this->Accounts->find()
+                         ->contain(['Users.Schools'])
+                         ->where(['Accounts.iban IN' => $recipientIbans])
+                         ->toArray();
+
+                     foreach ($recipientData as $acc) {
+                         $recipientAccounts[$acc->iban] = $acc;
+                     }
+                 }
              }
+         }
+
+         # Empfänger-Konten für Template bereitstellen
+         if (!isset($recipientAccounts)) {
+             $recipientAccounts = [];
          }
 
          # Schulen für Dropdown (nur Superadmin)
@@ -125,7 +148,93 @@ class UsersController extends AppController
          $isSchoolAdmin = ($this->school !== null);
          $selectedSchool = $this->request->getQuery('school_id');
 
-         $this->set(compact('users', 'defaultPassword', 'isSchoolAdmin', 'isSuperadmin', 'schoolList', 'selectedSchool', 'search', 'recentTransactions'));
+         $this->set(compact('users', 'defaultPassword', 'isSchoolAdmin', 'isSuperadmin', 'schoolList', 'selectedSchool', 'search', 'recentTransactions', 'recipientAccounts'));
+    }
+
+    /**
+     * AJAX: Transaktionen für Live-Feed laden
+     * Gibt JSON zurück für Auto-Refresh
+     *
+     * @return \Cake\Http\Response
+     */
+    public function ajaxTransactions()
+    {
+        $this->autoRender = false;
+        $this->response = $this->response->withType('application/json');
+
+        if (!$this->school) {
+            return $this->response->withStringBody(json_encode(['error' => 'Unauthorized']));
+        }
+
+        $this->loadModel('Transactions');
+        $this->loadModel('Accounts');
+
+        # Alle Account-IDs der Schule
+        $allSchoolAccounts = $this->Accounts->find()
+            ->contain(['Users'])
+            ->where(['Users.school_id' => $this->school['id']])
+            ->toArray();
+
+        $accountIds = [];
+        foreach ($allSchoolAccounts as $account) {
+            $accountIds[] = $account->id;
+        }
+
+        $transactions = [];
+        if (!empty($accountIds)) {
+            $recentTransactions = $this->Transactions->find()
+                ->contain(['Accounts.Users.Schools'])
+                ->where(['Transactions.account_id IN' => $accountIds])
+                ->order(['Transactions.created' => 'DESC'])
+                ->limit(100)
+                ->toArray();
+
+            # Empfänger-Schulen ermitteln
+            $recipientIbans = array_unique(array_map(function($tx) {
+                return $tx->empfaenger_iban;
+            }, $recentTransactions));
+
+            $recipientAccounts = [];
+            if (!empty($recipientIbans)) {
+                $recipientData = $this->Accounts->find()
+                    ->contain(['Users.Schools'])
+                    ->where(['Accounts.iban IN' => $recipientIbans])
+                    ->toArray();
+
+                foreach ($recipientData as $acc) {
+                    $recipientAccounts[$acc->iban] = $acc;
+                }
+            }
+
+            # Transaktionen für JSON aufbereiten
+            foreach ($recentTransactions as $tx) {
+                $senderSchoolId = $tx->account->user->school_id ?? 0;
+                $recipientSchool = null;
+
+                if (isset($recipientAccounts[$tx->empfaenger_iban])) {
+                    $recipientAcc = $recipientAccounts[$tx->empfaenger_iban];
+                    if (!empty($recipientAcc->user->school) && $recipientAcc->user->school_id != $senderSchoolId) {
+                        $recipientSchool = $recipientAcc->user->school->name;
+                    }
+                }
+
+                $transactions[] = [
+                    'id' => $tx->id,
+                    'sender_id' => $tx->account->user->id ?? 0,
+                    'sender_name' => $tx->account->user->name ?? 'Unbekannt',
+                    'recipient_name' => $tx->empfaenger_name,
+                    'recipient_school' => $recipientSchool,
+                    'amount' => $tx->betrag,
+                    'purpose' => $tx->zahlungszweck,
+                    'created' => $tx->created->format('d.m.Y H:i')
+                ];
+            }
+        }
+
+        return $this->response->withStringBody(json_encode([
+            'transactions' => $transactions,
+            'count' => count($transactions)
+        ]));
     }
 
     /**
