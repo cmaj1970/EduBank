@@ -91,32 +91,58 @@
 </div>
 
 <?php else: ?>
-<!-- Users Table -->
+<!-- Users Table with Accordion -->
 <div class="card">
     <div class="table-responsive">
         <table class="table table-hover mb-0">
             <thead class="table-primary">
                 <tr>
+                    <th style="width: 40px;"></th>
                     <th><?= $this->Paginator->sort('name', 'Name') ?></th>
                     <th><?= $this->Paginator->sort('username', 'Benutzername') ?></th>
+                    <?php if (!$isSchoolAdmin): ?>
                     <th><?= $this->Paginator->sort('school_id', 'Schule') ?></th>
+                    <?php endif; ?>
                     <th class="text-center"><?= $this->Paginator->sort('active', 'Status') ?></th>
                     <th><?= $this->Paginator->sort('created', 'Erstellt') ?></th>
-                    <th class="text-end"><?= __('Aktionen') ?></th>
+                    <th><?= __('Aktionen') ?></th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($users as $user): ?>
-                <tr>
+                <?php
+                    $hasAccounts = !empty($user->accounts);
+                    $accountCount = $hasAccounts ? count($user->accounts) : 0;
+                    $totalBalance = 0;
+                    if ($hasAccounts) {
+                        foreach ($user->accounts as $acc) {
+                            $totalBalance += $acc->balance;
+                        }
+                    }
+                ?>
+                <tr class="user-row" data-user-id="<?= $user->id ?>" style="cursor: pointer;">
+                    <td class="text-center">
+                        <?php if ($hasAccounts): ?>
+                        <i class="bi bi-chevron-right toggle-icon" style="transition: transform 0.2s;"></i>
+                        <?php endif; ?>
+                    </td>
                     <td>
                         <strong><?= h($user->name) ?></strong>
+                        <?php if ($hasAccounts): ?>
+                        <br><small class="text-muted">
+                            <i class="bi bi-wallet2 me-1"></i><?= $accountCount ?> Konto<?= $accountCount > 1 ? 'n' : '' ?>
+                            · <span class="<?= $totalBalance >= 0 ? 'text-success' : 'text-danger' ?>"><?= $this->Number->currency($totalBalance, 'EUR') ?></span>
+                        </small>
+                        <?php endif; ?>
                     </td>
                     <td>
                         <code><?= h($user->username) ?></code>
                     </td>
+                    <?php if (!$isSchoolAdmin): ?>
                     <td>
                         <?= $user->has('school') ? h($user->school->name) : '<span class="text-muted">-</span>' ?>
                     </td>
+                    <?php endif; ?>
                     <td class="text-center">
                         <?php if ($user->active): ?>
                             <span class="badge bg-success">Aktiv</span>
@@ -127,33 +153,81 @@
                     <td>
                         <small><?= h($user->created->format('d.m.Y')) ?></small>
                     </td>
-                    <td class="text-end">
-                        <div class="d-flex flex-column gap-1">
+                    <td onclick="event.stopPropagation();">
+                        <div class="d-flex flex-wrap gap-1">
                             <?php if ($isSchoolAdmin): ?>
                             <?= $this->Html->link(
-                                'Anmelden als',
+                                '<i class="bi bi-box-arrow-in-right"></i>',
                                 ['action' => 'impersonate', $user->id],
-                                ['class' => 'btn btn-sm btn-outline-success']
+                                ['class' => 'btn btn-sm btn-outline-success', 'escape' => false, 'title' => 'Anmelden als']
                             ) ?>
                             <?php endif; ?>
                             <?= $this->Html->link(
-                                'Ansehen',
+                                '<i class="bi bi-eye"></i>',
                                 ['action' => 'view', $user->id],
-                                ['class' => 'btn btn-sm btn-outline-primary']
+                                ['class' => 'btn btn-sm btn-outline-primary', 'escape' => false, 'title' => 'Ansehen']
                             ) ?>
                             <?= $this->Html->link(
-                                'Bearbeiten',
+                                '<i class="bi bi-pencil"></i>',
                                 ['action' => 'edit', $user->id],
-                                ['class' => 'btn btn-sm btn-outline-secondary']
+                                ['class' => 'btn btn-sm btn-outline-secondary', 'escape' => false, 'title' => 'Bearbeiten']
                             ) ?>
                             <?= $this->Form->postLink(
-                                'Löschen',
+                                '<i class="bi bi-trash"></i>',
                                 ['action' => 'delete', $user->id],
-                                ['class' => 'btn btn-sm btn-outline-danger', 'confirm' => __('Übungsfirma "{0}" wirklich löschen?', $user->name)]
+                                ['class' => 'btn btn-sm btn-outline-danger', 'escape' => false, 'title' => 'Löschen', 'confirm' => __('Übungsfirma "{0}" wirklich löschen?', $user->name)]
                             ) ?>
                         </div>
                     </td>
                 </tr>
+                <?php if ($hasAccounts): ?>
+                <tr class="account-row bg-light" data-parent="<?= $user->id ?>" style="display: none;">
+                    <td></td>
+                    <td colspan="<?= $isSchoolAdmin ? 5 : 6 ?>">
+                        <div class="py-2">
+                            <table class="table table-sm mb-0 bg-white">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th><i class="bi bi-wallet2 me-1"></i>Kontoname</th>
+                                        <th>IBAN</th>
+                                        <th class="text-end">Kontostand</th>
+                                        <th class="text-end">Limit</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($user->accounts as $account): ?>
+                                    <tr>
+                                        <td><?= h($account->name) ?></td>
+                                        <td>
+                                            <code class="small"><?= h($account->iban) ?></code>
+                                            <button type="button" class="btn btn-sm btn-link p-0 ms-1 copy-iban" data-iban="<?= h($account->iban) ?>" title="IBAN kopieren">
+                                                <i class="bi bi-clipboard small"></i>
+                                            </button>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="<?= $account->balance >= 0 ? 'text-success' : 'text-danger' ?> fw-bold">
+                                                <?= $this->Number->currency($account->balance, 'EUR') ?>
+                                            </span>
+                                        </td>
+                                        <td class="text-end text-muted">
+                                            <?= $this->Number->currency($account->maxlimit, 'EUR') ?>
+                                        </td>
+                                        <td class="text-end">
+                                            <?= $this->Html->link(
+                                                '<i class="bi bi-list"></i> Transaktionen',
+                                                ['controller' => 'Accounts', 'action' => 'view', $account->id],
+                                                ['class' => 'btn btn-sm btn-outline-primary', 'escape' => false]
+                                            ) ?>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+                <?php endif; ?>
                 <?php endforeach; ?>
             </tbody>
         </table>
@@ -193,17 +267,49 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Accordion Toggle für User-Rows
+    document.querySelectorAll('.user-row').forEach(function(row) {
+        row.addEventListener('click', function() {
+            var userId = this.getAttribute('data-user-id');
+            var accountRow = document.querySelector('.account-row[data-parent="' + userId + '"]');
+            var toggleIcon = this.querySelector('.toggle-icon');
+
+            if (accountRow) {
+                if (accountRow.style.display === 'none') {
+                    accountRow.style.display = 'table-row';
+                    if (toggleIcon) toggleIcon.style.transform = 'rotate(90deg)';
+                } else {
+                    accountRow.style.display = 'none';
+                    if (toggleIcon) toggleIcon.style.transform = 'rotate(0deg)';
+                }
+            }
+        });
+    });
+
+    // IBAN kopieren
+    document.querySelectorAll('.copy-iban').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var iban = this.getAttribute('data-iban');
+            navigator.clipboard.writeText(iban).then(function() {
+                btn.innerHTML = '<i class="bi bi-check text-success small"></i>';
+                setTimeout(function() {
+                    btn.innerHTML = '<i class="bi bi-clipboard small"></i>';
+                }, 2000);
+            });
+        });
+    });
+
+    // Suche mit Debounce
     var searchInput = document.getElementById('userSearch');
     if (searchInput) {
         var timeout = null;
 
-        // Fokus wiederherstellen nach Reload
         if (searchInput.value) {
             searchInput.focus();
             searchInput.selectionStart = searchInput.selectionEnd = searchInput.value.length;
         }
 
-        // Suche bei Enter oder nach 800ms Pause
         searchInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();

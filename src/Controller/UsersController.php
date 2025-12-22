@@ -302,6 +302,12 @@ class UsersController extends AppController
      */
     public function login()
     {
+        # Bereits eingeloggt? Weiterleiten zur Einstiegsseite
+        $currentUser = $this->Auth->user();
+        if ($currentUser) {
+            return $this->redirect($this->_getLoginRedirect($currentUser));
+        }
+
         if ($this->request->is('post')) {
             $username = $this->request->getData('username');
             $password = $this->request->getData('password');

@@ -43,7 +43,7 @@
                         'required' => true
                     ]) ?>
                     <div class="form-text">
-                        <i class="bi bi-envelope-check me-1"></i>Die Zugangsdaten werden an diese Adresse gesendet.
+                        <i class="bi bi-envelope-check me-1"></i>Die Zugangsdaten werden an diese Adresse gesendet. Die Adresse wird nicht am Server gespeichert.
                     </div>
                 </div>
 
