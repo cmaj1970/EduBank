@@ -22,7 +22,7 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
 </div>
 
 <!-- Progress Steps -->
-<div class="progress-steps mb-4" data-help="Die drei Schritte einer Überweisung: 1) Daten eingeben, 2) Angaben prüfen, 3) Mit TAN bestätigen.">
+<div class="progress-steps mb-4" <?= $this->HelpText->attr('transfer', 'progress_steps') ?>>
     <div class="progress-step active" id="step1-indicator">
         <span class="step-number">1</span>
         <span class="step-label">Erfassen</span>
@@ -50,7 +50,7 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
 
                 <div id="transactionform">
                     <!-- Source Account Box -->
-                    <div class="source-account d-flex justify-content-between align-items-center flex-wrap gap-2" data-help="Das Konto, von dem das Geld abgebucht wird. Der verfügbare Betrag zeigt, wie viel überwiesen werden kann.">
+                    <div class="source-account d-flex justify-content-between align-items-center flex-wrap gap-2" <?= $this->HelpText->attr('transfer', 'source_account') ?>>
                         <div>
                             <div class="source-account-label">Abbuchungskonto</div>
                             <div class="source-account-name"><?= h($account->name) ?></div>
@@ -81,7 +81,7 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                     </div>
 
                     <!-- Empfänger-Suche -->
-                    <div class="mb-4" data-help="Hier nach bekannten Empfängern suchen. Beim Auswählen werden die Felder automatisch ausgefüllt.">
+                    <div class="mb-4" <?= $this->HelpText->attr('transfer', 'recipient_search') ?>>
                         <label for="recipient-search" class="form-label">
                             <i class="bi bi-search me-1"></i><?= __('Empfänger suchen') ?>
                         </label>
@@ -94,7 +94,7 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                     </div>
 
                     <!-- Empfänger-Details -->
-                    <div class="card bg-light border-0 mb-4" data-help="Angaben zur Person oder Firma, die das Geld erhalten soll. Name und IBAN sind Pflichtfelder.">
+                    <div class="card bg-light border-0 mb-4" <?= $this->HelpText->attr('transfer', 'recipient_card') ?>>
                         <div class="card-body">
                             <h6 class="card-title text-muted mb-3">
                                 <i class="bi bi-person me-1"></i>Empfänger
@@ -106,8 +106,7 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                                     'class' => 'form-control',
                                     'id' => 'empfaenger-name',
                                     'required' => true,
-                                    'placeholder' => 'Vorname Nachname oder Firmenname',
-                                    'data-help' => 'Name der Person oder Firma, die das Geld erhalten soll.'
+                                    'placeholder' => 'Vorname Nachname oder Firmenname'
                                 ]) ?>
                             </div>
 
@@ -128,8 +127,7 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                                         'id' => 'empfaenger-iban',
                                         'required' => true,
                                         'placeholder' => 'AT00 0000 0000 0000 0000',
-                                        'style' => 'letter-spacing: 1px;',
-                                        'data-help' => 'Die internationale Kontonummer des Empfängers. Beginnt mit einem Ländercode (z.B. AT für Österreich).'
+                                        'style' => 'letter-spacing: 1px;'
                                     ]) ?>
                                 </div>
                                 <div class="col-md-4 mb-3">
@@ -137,8 +135,7 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                                     <?= $this->Form->text('empfaenger_bic', [
                                         'class' => 'form-control font-monospace',
                                         'id' => 'empfaenger-bic',
-                                        'placeholder' => 'RZBAATWW',
-                                        'data-help' => 'Bankleitzahl des Empfängers. Wird bei SEPA-Überweisungen meist nicht benötigt.'
+                                        'placeholder' => 'RZBAATWW'
                                     ]) ?>
                                 </div>
                             </div>
@@ -150,14 +147,14 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                     </div>
 
                     <!-- Zahlungsdetails -->
-                    <div class="card bg-light border-0 mb-4" data-help="Hier werden Betrag, Datum und Verwendungszweck der Überweisung angegeben.">
+                    <div class="card bg-light border-0 mb-4" <?= $this->HelpText->attr('transfer', 'payment_details') ?>>
                         <div class="card-body">
                             <h6 class="card-title text-muted mb-3">
                                 <i class="bi bi-cash-stack me-1"></i>Zahlungsdetails
                             </h6>
 
                             <div class="row">
-                                <div class="col-md-6 mb-3" data-help="Der zu überweisende Geldbetrag in Euro. Das Maximum ist durch das Überweisungslimit begrenzt.">
+                                <div class="col-md-6 mb-3">
                                     <label for="betrag" class="form-label"><?= __('Betrag') ?> <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <?= $this->Form->text('betrag', [
@@ -170,14 +167,14 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                                     </div>
                                     <div class="form-text">Maximal <?= $this->Number->currency($max_betrag, 'EUR') ?></div>
                                 </div>
-                                <div class="col-md-6 mb-3" data-help="Das Datum, an dem die Überweisung ausgeführt werden soll. Für spätere Ausführung ein Datum in der Zukunft wählen.">
+                                <div class="col-md-6 mb-3">
                                     <label for="datum" class="form-label"><?= __('Ausführungsdatum') ?></label>
                                     <input type="date" name="datum" id="datum" class="form-control" value="<?= date('Y-m-d') ?>">
                                     <div class="form-text">Leer lassen für sofortige Ausführung</div>
                                 </div>
                             </div>
 
-                            <div class="mb-3" data-help="Ein kurzer Text, der dem Empfänger mitteilt, wofür die Zahlung ist (z.B. Rechnungsnummer).">
+                            <div class="mb-3">
                                 <label for="zahlungszweck" class="form-label"><?= __('Verwendungszweck') ?> <span class="text-danger">*</span></label>
                                 <?= $this->Form->text('zahlungszweck', [
                                     'class' => 'form-control',
@@ -206,7 +203,7 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                 </div>
 
                 <!-- TAN-Eingabe (wird nach Validierung angezeigt) -->
-                <div id="taninput" style="display:none;" class="alert alert-info" data-help="Die TAN (Transaktionsnummer) ist ein Sicherheitscode, der jede Überweisung absichert. Die TAN-Liste wird von der Schul-Admin ausgegeben.">
+                <div id="taninput" style="display:none;" class="alert alert-info" <?= $this->HelpText->attr('transfer', 'tan') ?>>
                     <h6><i class="bi bi-shield-lock me-2"></i>TAN-Bestätigung</h6>
                     <p class="small mb-3">
                         Bitte eine gültige TAN eingeben, um die Überweisung zu bestätigen.

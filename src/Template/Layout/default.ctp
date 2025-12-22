@@ -278,14 +278,6 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
                     el.classList.add('help-highlight');
                 });
 
-                // Eingabefelder deaktivieren
-                document.querySelectorAll('input, textarea, select, button[type="submit"], button[type="button"]:not(#helpButton)').forEach(function(el) {
-                    if (!el.disabled) {
-                        el.dataset.helpDisabled = 'true';
-                        el.disabled = true;
-                    }
-                });
-
             } else {
                 closeHelpMode();
             }
@@ -309,12 +301,6 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
             // Highlights entfernen
             document.querySelectorAll('.help-highlight').forEach(function(el) {
                 el.classList.remove('help-highlight');
-            });
-
-            // Eingabefelder wieder aktivieren
-            document.querySelectorAll('[data-help-disabled="true"]').forEach(function(el) {
-                el.disabled = false;
-                delete el.dataset.helpDisabled;
             });
         }
 
