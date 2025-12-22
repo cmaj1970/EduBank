@@ -61,7 +61,7 @@ if (!empty($account->transactions)) {
         </div>
 
         <!-- Schnellaktionen -->
-        <div class="card mb-4">
+        <div class="card mb-4 d-print-none">
             <div class="card-header">
                 <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Schnellaktionen</h5>
             </div>
@@ -75,13 +75,9 @@ if (!empty($account->transactions)) {
                         <i class="bi bi-clock-history"></i>
                         <span>Aufträge</span>
                     </a>
-                    <a href="/accounts/directory" class="quick-action-btn">
-                        <i class="bi bi-people"></i>
-                        <span>Firmen</span>
-                    </a>
-                    <a href="#" class="quick-action-btn" onclick="window.print();return false;">
-                        <i class="bi bi-printer"></i>
-                        <span>Drucken</span>
+                    <a href="#" class="quick-action-btn" data-bs-toggle="modal" data-bs-target="#kontoauszugModal">
+                        <i class="bi bi-file-text"></i>
+                        <span>Kontoauszug</span>
                     </a>
                 </div>
             </div>
@@ -121,11 +117,8 @@ if (!empty($account->transactions)) {
     <!-- Rechte Spalte: Umsätze -->
     <div class="col-lg-8">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i>Letzte Umsätze</h5>
-                <a href="/accounts/history/<?= $account->id ?>" class="btn btn-sm btn-outline-primary">
-                    Alle Aufträge <i class="bi bi-chevron-right"></i>
-                </a>
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i>Umsätze</h5>
             </div>
             <div class="card-body p-0">
                 <?php if (!empty($account->transactions) && $account->transactions->count() > 0): ?>
@@ -171,6 +164,123 @@ if (!empty($account->transactions)) {
         </div>
     </div>
 </div>
+
+<!-- Kontoauszug Modal -->
+<div class="modal fade" id="kontoauszugModal" tabindex="-1" aria-labelledby="kontoauszugModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="kontoauszugModalLabel">
+                    <i class="bi bi-file-text me-2"></i>Kontoauszug
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <div class="modal-body p-0" id="kontoauszug-print-area">
+                <!-- Kontoauszug im Bankstil -->
+                <div class="p-4">
+                    <!-- Kopfbereich -->
+                    <div class="d-flex justify-content-between align-items-start mb-4 pb-3 border-bottom">
+                        <div>
+                            <h4 class="mb-1 text-primary fw-bold">EduBank</h4>
+                            <small class="text-muted">Banking Simulation für Schulen</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold">Kontoauszug</div>
+                            <div class="text-muted small">Erstellt am <?= date('d.m.Y') ?></div>
+                        </div>
+                    </div>
+
+                    <!-- Kontodaten -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <span class="text-muted small">Kontoinhaber</span><br>
+                                <strong><?= h($account->user->name ?? $account->name) ?></strong>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-muted small">IBAN</span><br>
+                                <span class="font-monospace"><?= h($account->iban) ?></span>
+                            </div>
+                            <div>
+                                <span class="text-muted small">BIC</span><br>
+                                <span class="font-monospace"><?= h($account->bic) ?></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <div class="mb-2">
+                                <span class="text-muted small">Kontostand</span><br>
+                                <span class="fs-4 fw-bold <?= $account->balance >= 0 ? 'text-success' : 'text-danger' ?>">
+                                    <?= $this->Number->currency($account->balance, 'EUR') ?>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Umsatzliste -->
+                    <h6 class="border-bottom pb-2 mb-0">Umsätze</h6>
+                    <?php if (!empty($account->transactions) && $account->transactions->count() > 0): ?>
+                    <table class="table table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 90px;">Datum</th>
+                                <th>Auftraggeber/Empfänger</th>
+                                <th>Verwendungszweck</th>
+                                <th class="text-end" style="width: 120px;">Betrag</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($account->transactions as $transaction):
+                                $isIncoming = ($transaction->account_id != $account->id);
+                            ?>
+                            <tr>
+                                <td class="text-nowrap small"><?= h($transaction->datum->format('d.m.Y')) ?></td>
+                                <td class="small">
+                                    <?php if ($isIncoming): ?>
+                                        <?= h($transaction->account->user->name ?? 'Unbekannt') ?>
+                                    <?php else: ?>
+                                        <?= h($transaction->empfaenger_name) ?>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="small text-muted"><?= h($transaction->zahlungszweck) ?></td>
+                                <td class="text-end text-nowrap small <?= $isIncoming ? 'text-success' : 'text-danger' ?>">
+                                    <?= $isIncoming ? '+' : '-' ?><?= $this->Number->currency($transaction->betrag, 'EUR') ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    <?php else: ?>
+                    <div class="text-center py-4 text-muted">
+                        <p class="mb-0">Keine Umsätze vorhanden</p>
+                    </div>
+                    <?php endif; ?>
+
+                    <!-- Fußbereich -->
+                    <div class="mt-4 pt-3 border-top text-muted small text-center">
+                        Dies ist ein Übungsdokument der EduBank-Simulation und kein offizieller Kontoauszug.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer d-print-none">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                <button type="button" class="btn btn-primary" onclick="printKontoauszug()">
+                    <i class="bi bi-printer me-1"></i>Kontoauszug drucken
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function printKontoauszug() {
+    var printContents = document.getElementById('kontoauszug-print-area').innerHTML;
+    var originalContents = document.body.innerHTML;
+    document.body.innerHTML = '<div class="container py-4">' + printContents + '</div>';
+    window.print();
+    document.body.innerHTML = originalContents;
+    location.reload();
+}
+</script>
 
 <?php else: ?>
 <!-- Admin-Ansicht: Detaillierte Ansicht mit Aktionen -->

@@ -34,6 +34,7 @@
                     <a href="#ueberweisung" class="btn btn-sm btn-outline-primary">Überweisung</a>
                     <a href="#auftrag" class="btn btn-sm btn-outline-primary">Auftrag</a>
                     <a href="#umsaetze" class="btn btn-sm btn-outline-primary">Umsätze</a>
+                    <a href="#kontoauszug" class="btn btn-sm btn-outline-primary">Kontoauszug</a>
                     <a href="#tan" class="btn btn-sm btn-outline-primary">TAN</a>
                     <a href="#verwendungszweck" class="btn btn-sm btn-outline-primary">Verwendungszweck</a>
                     <a href="#limit" class="btn btn-sm btn-outline-primary">Überweisungslimit</a>
@@ -233,6 +234,40 @@
                             <span class="text-danger"><i class="bi bi-arrow-up-right me-1"></i>Ausgehende Umsätze</span>
                             (Abbuchungen) verringern deinen Kontostand – zum Beispiel wenn du eine
                             Überweisung tätigst.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kontoauszug -->
+            <div class="accordion-item" id="kontoauszug">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-kontoauszug">
+                        <i class="bi bi-file-text me-2 text-primary"></i>
+                        <strong>Was ist ein Kontoauszug?</strong>
+                    </button>
+                </h2>
+                <div id="collapse-kontoauszug" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        <p>
+                            Ein <strong>Kontoauszug</strong> ist eine Übersicht über alle Geldbewegungen auf
+                            deinem Konto in einem bestimmten Zeitraum. Er ist wie ein Protokoll, das zeigt,
+                            was auf deinem Konto passiert ist.
+                        </p>
+                        <p>
+                            Auf einem Kontoauszug findest du:
+                        </p>
+                        <ul>
+                            <li>Deine <strong>Kontodaten</strong> (Name, IBAN, BIC)</li>
+                            <li>Den <strong>Zeitraum</strong>, für den der Auszug gilt</li>
+                            <li>Alle <strong>Umsätze</strong> (Einnahmen und Ausgaben)</li>
+                            <li>Den <strong>Kontostand</strong> am Ende des Zeitraums</li>
+                        </ul>
+                        <p class="mb-0">
+                            Im echten Banking bekommst du Kontoauszüge regelmäßig von deiner Bank –
+                            entweder digital im Online-Banking oder auf Papier am Kontoauszugsdrucker.
+                            Bei EduBank kannst du deinen Kontoauszug jederzeit über die Schaltfläche
+                            "Kontoauszug" erstellen und ausdrucken.
                         </p>
                     </div>
                 </div>
