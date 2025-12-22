@@ -1,73 +1,30 @@
 <?php
 /**
+ * Übungsfirmen-Übersicht für Schuladmins
+ * Kompakte Card-Liste + Aktivitäts-Feed
+ *
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\User[]|\Cake\Collection\CollectionInterface $users
+ * @var array $recentTransactions
  */
 ?>
 
-<!-- Welcome Section -->
-<div class="welcome-section">
-    <h1 class="welcome-title">Übungsfirmen-Verwaltung</h1>
-    <p class="welcome-date">
-        <i class="bi bi-calendar3 me-1"></i>
-        <?= date('l, d. F Y') ?>
-    </p>
-</div>
-
-<!-- Statistik-Cards -->
-<div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="bi bi-building"></i>
-                </div>
-                <div class="stat-value"><?= count($users) ?></div>
-                <div class="stat-label">Übungsfirmen</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="stat-card">
-                <div class="stat-icon positive">
-                    <i class="bi bi-wallet2"></i>
-                </div>
-                <div class="stat-value"><?= $totalAccounts ?? 0 ?></div>
-                <div class="stat-label">Konten gesamt</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="bi bi-currency-euro"></i>
-                </div>
-                <div class="stat-value text-success">
-                    <?= $this->Number->currency($totalBalance ?? 0, 'EUR') ?>
-                </div>
-                <div class="stat-label">Gesamtguthaben</div>
-            </div>
-        </div>
-    </div>
-</div>
-
+<!-- Header -->
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="mb-0"><i class="bi bi-people me-2"></i><?= __('Übungsfirmen') ?></h3>
+    <h4 class="mb-0"><i class="bi bi-building me-2"></i>Übungsfirmen</h4>
     <a href="/users/add" class="btn btn-primary">
-        <i class="bi bi-plus-lg me-1"></i><?= __('Neue Übungsfirma') ?>
+        <i class="bi bi-plus-lg me-1"></i>Neue Übungsfirma
     </a>
 </div>
 
 <?php if (isset($isSuperadmin) && $isSuperadmin && !empty($schoolList)): ?>
 <!-- Filter für Superadmin -->
-<div class="card mb-3">
+<div class="card mb-4">
     <div class="card-body py-2">
-        <form method="get" class="row g-2 align-items-center" id="filterForm">
+        <form method="get" class="row g-2 align-items-center">
             <div class="col-md-4">
                 <select name="school_id" class="form-select form-select-sm" onchange="this.form.submit()">
-                    <option value=""><?= __('Alle Schulen') ?></option>
+                    <option value="">Alle Schulen</option>
                     <?php foreach ($schoolList as $id => $name): ?>
                     <option value="<?= $id ?>" <?= ($selectedSchool ?? '') == $id ? 'selected' : '' ?>>
                         <?= h($name) ?>
@@ -77,15 +34,11 @@
             </div>
             <div class="col-md-6">
                 <input type="text" name="search" class="form-control form-control-sm"
-                       placeholder="<?= __('Suche nach Name, Benutzername oder Schule...') ?>"
-                       value="<?= h($search ?? '') ?>"
-                       id="userSearch">
+                       placeholder="Suche..." value="<?= h($search ?? '') ?>">
             </div>
             <div class="col-md-2">
                 <?php if (!empty($selectedSchool) || !empty($search)): ?>
-                <a href="/users" class="btn btn-sm btn-outline-secondary w-100">
-                    <i class="bi bi-x-lg"></i> <?= __('Reset') ?>
-                </a>
+                <a href="/users" class="btn btn-sm btn-outline-secondary w-100">Reset</a>
                 <?php endif; ?>
             </div>
         </form>
@@ -94,283 +47,198 @@
 <?php endif; ?>
 
 <?php if ($isSchoolAdmin): ?>
-<!-- Password Info for School Admin -->
-<div class="alert alert-info d-flex align-items-center mb-4" role="alert">
-    <i class="bi bi-key-fill fs-4 me-3"></i>
-    <div class="flex-grow-1">
-        <strong>Passwort für alle Übungsfirmen:</strong>
-        <code class="ms-2 fs-5 user-select-all"><?= h($defaultPassword) ?></code>
-        <button type="button" class="btn btn-sm btn-outline-primary ms-2" onclick="navigator.clipboard.writeText('<?= h($defaultPassword) ?>'); this.innerHTML='<i class=\'bi bi-check\'></i> Kopiert'; setTimeout(() => this.innerHTML='<i class=\'bi bi-clipboard\'></i>', 2000);">
-            <i class="bi bi-clipboard"></i>
-        </button>
-    </div>
-    <small class="text-muted ms-3">Dieses Passwort an Schüler:innen weitergeben</small>
+<!-- Passwort-Info -->
+<div class="alert alert-info d-flex align-items-center mb-4 py-2">
+    <i class="bi bi-key-fill me-2"></i>
+    <span>Passwort für Schüler: <code class="user-select-all"><?= h($defaultPassword) ?></code></span>
+    <button type="button" class="btn btn-sm btn-link ms-2 p-0" onclick="navigator.clipboard.writeText('<?= h($defaultPassword) ?>'); this.innerHTML='<i class=\'bi bi-check\'></i>';">
+        <i class="bi bi-clipboard"></i>
+    </button>
 </div>
 <?php endif; ?>
 
 <?php if ($users->isEmpty()): ?>
-<!-- Empty State -->
-<div class="card border-0 shadow-sm">
-    <div class="card-body text-center py-5">
-        <div class="rounded-circle bg-info bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-4" style="width: 100px; height: 100px;">
-            <i class="bi bi-people text-info" style="font-size: 3rem;"></i>
-        </div>
-        <h4 class="mb-3">Noch keine Übungsfirmen vorhanden</h4>
-        <p class="text-muted mb-4" style="max-width: 500px; margin: 0 auto;">
-            Übungsfirmen sind die Schülergruppen oder Teams, die jeweils ein eigenes Bankkonto erhalten.
-            Jede Übungsfirma kann Überweisungen an andere Übungsfirmen tätigen.
-        </p>
-
-        <div class="card bg-light border-0 mb-4 mx-auto" style="max-width: 400px;">
-            <div class="card-body text-start">
-                <h6 class="card-title"><i class="bi bi-lightbulb me-2"></i>Zum Erstellen benötigen Sie:</h6>
-                <ul class="mb-0 text-muted small">
-                    <li>Einen Namen für die Übungsfirma</li>
-                    <li>Einen eindeutigen Benutzernamen</li>
-                    <li>Ein Passwort für die Anmeldung</li>
-                </ul>
-            </div>
-        </div>
-
-        <a href="/users/add" class="btn btn-primary btn-lg">
-            <i class="bi bi-plus-lg me-2"></i>Erste Übungsfirma erstellen
-        </a>
-    </div>
+<!-- Keine Übungsfirmen -->
+<div class="text-center py-5">
+    <i class="bi bi-building text-muted" style="font-size: 4rem;"></i>
+    <h5 class="mt-3">Noch keine Übungsfirmen</h5>
+    <p class="text-muted">Erstellen Sie die erste Übungsfirma für Ihre Schüler.</p>
+    <a href="/users/add" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Erste Übungsfirma erstellen
+    </a>
 </div>
 
 <?php else: ?>
-<!-- Users Table with Accordion -->
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-hover mb-0">
-            <thead class="table-primary">
-                <tr>
-                    <th style="width: 40px;"></th>
-                    <th><?= $this->Paginator->sort('name', 'Name') ?></th>
-                    <th><?= $this->Paginator->sort('username', 'Benutzername') ?></th>
-                    <?php if (!$isSchoolAdmin): ?>
-                    <th><?= $this->Paginator->sort('school_id', 'Schule') ?></th>
-                    <?php endif; ?>
-                    <th class="text-center"><?= $this->Paginator->sort('active', 'Status') ?></th>
-                    <th><?= $this->Paginator->sort('created', 'Erstellt') ?></th>
-                    <th><?= __('Aktionen') ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($users as $user): ?>
-                <?php
-                    $hasAccounts = !empty($user->accounts);
-                    $accountCount = $hasAccounts ? count($user->accounts) : 0;
-                    $totalBalance = 0;
-                    if ($hasAccounts) {
-                        foreach ($user->accounts as $acc) {
-                            $totalBalance += $acc->balance;
-                        }
-                    }
-                ?>
-                <tr class="user-row" data-user-id="<?= $user->id ?>" style="cursor: pointer;">
-                    <td class="text-center">
-                        <?php if ($hasAccounts): ?>
-                        <i class="bi bi-chevron-right toggle-icon" style="transition: transform 0.2s;"></i>
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <strong><?= h($user->name) ?></strong>
-                        <?php if ($hasAccounts): ?>
-                        <br><small class="text-muted">
-                            <i class="bi bi-wallet2 me-1"></i><?= $accountCount ?> <?= $accountCount > 1 ? 'Konten' : 'Konto' ?>
-                            · <span class="<?= $totalBalance >= 0 ? 'text-success' : 'text-danger' ?>"><?= $this->Number->currency($totalBalance, 'EUR') ?></span>
-                        </small>
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <code><?= h($user->username) ?></code>
-                    </td>
-                    <?php if (!$isSchoolAdmin): ?>
-                    <td>
-                        <?= $user->has('school') ? h($user->school->name) : '<span class="text-muted">-</span>' ?>
-                    </td>
-                    <?php endif; ?>
-                    <td class="text-center">
-                        <?php if ($user->active): ?>
-                            <span class="badge bg-success">Aktiv</span>
-                        <?php else: ?>
-                            <span class="badge bg-secondary">Inaktiv</span>
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <small><?= h($user->created->format('d.m.Y')) ?></small>
-                    </td>
-                    <td onclick="event.stopPropagation();">
-                        <div class="d-flex flex-wrap gap-1">
-                            <?php if ($isSchoolAdmin): ?>
-                            <?= $this->Html->link(
-                                '<i class="bi bi-box-arrow-in-right"></i>',
-                                ['action' => 'impersonate', $user->id],
-                                ['class' => 'btn btn-sm btn-outline-success', 'escape' => false, 'title' => 'Anmelden als']
-                            ) ?>
-                            <?php endif; ?>
-                            <?= $this->Html->link(
-                                '<i class="bi bi-eye"></i>',
-                                ['action' => 'view', $user->id],
-                                ['class' => 'btn btn-sm btn-outline-primary', 'escape' => false, 'title' => 'Ansehen']
-                            ) ?>
-                            <?= $this->Html->link(
-                                '<i class="bi bi-pencil"></i>',
-                                ['action' => 'edit', $user->id],
-                                ['class' => 'btn btn-sm btn-outline-secondary', 'escape' => false, 'title' => 'Bearbeiten']
-                            ) ?>
-                            <?= $this->Form->postLink(
-                                '<i class="bi bi-trash"></i>',
-                                ['action' => 'delete', $user->id],
-                                ['class' => 'btn btn-sm btn-outline-danger', 'escape' => false, 'title' => 'Löschen', 'confirm' => __('Übungsfirma "{0}" wirklich löschen?', $user->name)]
-                            ) ?>
-                        </div>
-                    </td>
-                </tr>
-                <?php if ($hasAccounts): ?>
-                <tr class="account-row bg-light" data-parent="<?= $user->id ?>" style="display: none;">
-                    <td></td>
-                    <td colspan="<?= $isSchoolAdmin ? 5 : 6 ?>">
-                        <div class="py-2">
-                            <table class="table table-sm mb-0 bg-white">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th><i class="bi bi-wallet2 me-1"></i>Kontoname</th>
-                                        <th>IBAN</th>
-                                        <th class="text-end">Kontostand</th>
-                                        <th class="text-end">Limit</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($user->accounts as $account): ?>
-                                    <tr>
-                                        <td><?= h($account->name) ?></td>
-                                        <td>
-                                            <code class="small"><?= h($account->iban) ?></code>
-                                            <button type="button" class="btn btn-sm btn-link p-0 ms-1 copy-iban" data-iban="<?= h($account->iban) ?>" title="IBAN kopieren">
-                                                <i class="bi bi-clipboard small"></i>
-                                            </button>
-                                        </td>
-                                        <td class="text-end">
-                                            <span class="<?= $account->balance >= 0 ? 'text-success' : 'text-danger' ?> fw-bold">
-                                                <?= $this->Number->currency($account->balance, 'EUR') ?>
-                                            </span>
-                                        </td>
-                                        <td class="text-end text-muted">
-                                            <?= $this->Number->currency($account->maxlimit, 'EUR') ?>
-                                        </td>
-                                        <td class="text-end">
-                                            <?= $this->Html->link(
-                                                '<i class="bi bi-list"></i> Transaktionen',
-                                                ['controller' => 'Accounts', 'action' => 'view', $account->id],
-                                                ['class' => 'btn btn-sm btn-outline-primary', 'escape' => false]
-                                            ) ?>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </td>
-                </tr>
-                <?php endif; ?>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
 
-    <div class="card-footer d-flex justify-content-between align-items-center py-2">
-        <small class="text-muted">
-            <?= $this->Paginator->counter('Zeige {{start}}-{{end}} von {{count}} Übungsfirmen') ?>
-        </small>
-        <?php if ($this->Paginator->total() > 1): ?>
-        <?php
-        # Bootstrap 5 Pagination Templates
-        $this->Paginator->setTemplates([
-            'number' => '<li class="page-item"><a class="page-link" href="{{url}}">{{text}}</a></li>',
-            'current' => '<li class="page-item active"><span class="page-link">{{text}}</span></li>',
-            'first' => '<li class="page-item"><a class="page-link" href="{{url}}">{{text}}</a></li>',
-            'last' => '<li class="page-item"><a class="page-link" href="{{url}}">{{text}}</a></li>',
-            'prevActive' => '<li class="page-item"><a class="page-link" href="{{url}}">{{text}}</a></li>',
-            'prevDisabled' => '<li class="page-item disabled"><span class="page-link">{{text}}</span></li>',
-            'nextActive' => '<li class="page-item"><a class="page-link" href="{{url}}">{{text}}</a></li>',
-            'nextDisabled' => '<li class="page-item disabled"><span class="page-link">{{text}}</span></li>',
-        ]);
-        ?>
-        <nav>
-            <ul class="pagination pagination-sm mb-0">
-                <?= $this->Paginator->first('«', ['escape' => false]) ?>
-                <?= $this->Paginator->prev('‹', ['escape' => false]) ?>
-                <?= $this->Paginator->numbers(['modulus' => 3]) ?>
-                <?= $this->Paginator->next('›', ['escape' => false]) ?>
-                <?= $this->Paginator->last('»', ['escape' => false]) ?>
-            </ul>
-        </nav>
-        <?php endif; ?>
+<!-- Übungsfirmen Cards -->
+<div class="row g-3 mb-4">
+    <?php foreach ($users as $user): ?>
+    <?php
+        # Konto-Infos
+        $hasAccounts = !empty($user->accounts);
+        $firstAccount = $hasAccounts ? $user->accounts[0] : null;
+        $totalBalance = 0;
+        if ($hasAccounts) {
+            foreach ($user->accounts as $acc) {
+                $totalBalance += $acc->balance;
+            }
+        }
+
+        # Letzte Aktivität formatieren
+        $lastActivity = null;
+        if ($user->last_login) {
+            $diff = time() - $user->last_login->getTimestamp();
+            if ($diff < 60) {
+                $lastActivity = 'gerade eben';
+            } elseif ($diff < 3600) {
+                $lastActivity = 'vor ' . round($diff / 60) . ' Min';
+            } elseif ($diff < 86400) {
+                $lastActivity = 'vor ' . round($diff / 3600) . ' Std';
+            } else {
+                $lastActivity = $user->last_login->format('d.m.Y H:i');
+            }
+        }
+    ?>
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <!-- Header: Name + Status -->
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <h6 class="mb-0"><?= h($user->name) ?></h6>
+                        <small class="text-muted">@<?= h($user->username) ?></small>
+                    </div>
+                    <?php if ($user->active): ?>
+                        <span class="badge bg-success">Aktiv</span>
+                    <?php else: ?>
+                        <span class="badge bg-secondary">Inaktiv</span>
+                    <?php endif; ?>
+                </div>
+
+                <?php if ($hasAccounts && $firstAccount): ?>
+                <!-- IBAN + Kontostand -->
+                <div class="bg-light rounded p-2 mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="font-monospace small text-truncate" style="max-width: 70%;">
+                            <?= h($firstAccount->iban) ?>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-link p-0 copy-iban" data-iban="<?= h($firstAccount->iban) ?>" title="IBAN kopieren">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                    <div class="mt-1">
+                        <span class="fw-bold <?= $totalBalance >= 0 ? 'text-success' : 'text-danger' ?>">
+                            <?= $this->Number->currency($totalBalance, 'EUR') ?>
+                        </span>
+                        <?php if (count($user->accounts) > 1): ?>
+                        <small class="text-muted">(<?= count($user->accounts) ?> Konten)</small>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <!-- Letzte Aktivität -->
+                <?php if ($lastActivity): ?>
+                <small class="text-muted d-block mb-2">
+                    <i class="bi bi-clock me-1"></i>Zuletzt aktiv: <?= $lastActivity ?>
+                </small>
+                <?php endif; ?>
+
+                <!-- Aktionen -->
+                <div class="d-flex gap-2">
+                    <?php if ($isSchoolAdmin): ?>
+                    <?= $this->Html->link(
+                        '<i class="bi bi-box-arrow-in-right me-1"></i>Anmelden als',
+                        ['action' => 'impersonate', $user->id],
+                        ['class' => 'btn btn-sm btn-outline-success flex-grow-1', 'escape' => false]
+                    ) ?>
+                    <?php endif; ?>
+                    <?= $this->Html->link(
+                        '<i class="bi bi-arrow-right"></i>',
+                        ['action' => 'view', $user->id],
+                        ['class' => 'btn btn-sm btn-outline-primary', 'escape' => false, 'title' => 'Details']
+                    ) ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+</div>
+
+<!-- Pagination -->
+<?php if ($this->Paginator->total() > 1): ?>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <small class="text-muted">
+        <?= $this->Paginator->counter('{{start}}-{{end}} von {{count}}') ?>
+    </small>
+    <?php
+    $this->Paginator->setTemplates([
+        'number' => '<li class="page-item"><a class="page-link" href="{{url}}">{{text}}</a></li>',
+        'current' => '<li class="page-item active"><span class="page-link">{{text}}</span></li>',
+        'prevActive' => '<li class="page-item"><a class="page-link" href="{{url}}">‹</a></li>',
+        'prevDisabled' => '<li class="page-item disabled"><span class="page-link">‹</span></li>',
+        'nextActive' => '<li class="page-item"><a class="page-link" href="{{url}}">›</a></li>',
+        'nextDisabled' => '<li class="page-item disabled"><span class="page-link">›</span></li>',
+    ]);
+    ?>
+    <nav>
+        <ul class="pagination pagination-sm mb-0">
+            <?= $this->Paginator->prev() ?>
+            <?= $this->Paginator->numbers(['modulus' => 3]) ?>
+            <?= $this->Paginator->next() ?>
+        </ul>
+    </nav>
+</div>
+<?php endif; ?>
+
+<?php if ($isSchoolAdmin && !empty($recentTransactions)): ?>
+<!-- Aktivitäts-Feed -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center py-2">
+        <h6 class="mb-0"><i class="bi bi-activity me-2"></i>Letzte Aktivitäten</h6>
+        <a href="#" onclick="location.reload(); return false;" class="btn btn-sm btn-link p-0">
+            <i class="bi bi-arrow-clockwise"></i>
+        </a>
+    </div>
+    <div class="list-group list-group-flush">
+        <?php foreach ($recentTransactions as $tx): ?>
+        <div class="list-group-item py-2">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong><?= h($tx->account->user->name ?? 'Unbekannt') ?></strong>
+                    <i class="bi bi-arrow-right mx-1 text-muted"></i>
+                    <span><?= h($tx->empfaenger_name) ?></span>
+                </div>
+                <div class="text-end">
+                    <span class="text-danger fw-bold">
+                        -<?= $this->Number->currency($tx->betrag, 'EUR') ?>
+                    </span>
+                    <br>
+                    <small class="text-muted"><?= $tx->created->format('H:i') ?></small>
+                </div>
+            </div>
+        </div>
+        <?php endforeach; ?>
     </div>
 </div>
 <?php endif; ?>
 
+<?php endif; ?>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Accordion Toggle für User-Rows
-    document.querySelectorAll('.user-row').forEach(function(row) {
-        row.addEventListener('click', function() {
-            var userId = this.getAttribute('data-user-id');
-            var accountRow = document.querySelector('.account-row[data-parent="' + userId + '"]');
-            var toggleIcon = this.querySelector('.toggle-icon');
-
-            if (accountRow) {
-                if (accountRow.style.display === 'none') {
-                    accountRow.style.display = 'table-row';
-                    if (toggleIcon) toggleIcon.style.transform = 'rotate(90deg)';
-                } else {
-                    accountRow.style.display = 'none';
-                    if (toggleIcon) toggleIcon.style.transform = 'rotate(0deg)';
-                }
-            }
-        });
-    });
-
     // IBAN kopieren
     document.querySelectorAll('.copy-iban').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
-            e.stopPropagation();
+            e.preventDefault();
             var iban = this.getAttribute('data-iban');
             navigator.clipboard.writeText(iban).then(function() {
-                btn.innerHTML = '<i class="bi bi-check text-success small"></i>';
+                btn.innerHTML = '<i class="bi bi-check text-success"></i>';
                 setTimeout(function() {
-                    btn.innerHTML = '<i class="bi bi-clipboard small"></i>';
+                    btn.innerHTML = '<i class="bi bi-clipboard"></i>';
                 }, 2000);
             });
         });
     });
-
-    // Suche mit Debounce
-    var searchInput = document.getElementById('userSearch');
-    if (searchInput) {
-        var timeout = null;
-
-        if (searchInput.value) {
-            searchInput.focus();
-            searchInput.selectionStart = searchInput.selectionEnd = searchInput.value.length;
-        }
-
-        searchInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                document.getElementById('filterForm').submit();
-            }
-        });
-
-        searchInput.addEventListener('input', function() {
-            clearTimeout(timeout);
-            timeout = setTimeout(function() {
-                document.getElementById('filterForm').submit();
-            }, 800);
-        });
-    }
 });
 </script>

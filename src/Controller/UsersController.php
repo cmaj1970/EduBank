@@ -48,10 +48,10 @@ class UsersController extends AppController
      public function index()
      {
          $query = $this->Users->query();
-         # Neueste zuerst (als Default, kann durch Paginator überschrieben werden)
+         # Sortierung: Zuletzt aktive zuerst, dann nach Erstelldatum
          $this->paginate = [
              'contain' => ['Accounts', 'Schools'],
-             'order' => ['Users.created' => 'DESC']
+             'order' => ['Users.last_login' => 'DESC', 'Users.created' => 'DESC']
          ];
 
          # Filter: Nur Übungsfirmen anzeigen (role=user)
@@ -84,15 +84,29 @@ class UsersController extends AppController
 
          $users = $this->paginate($query);
 
-         # Statistiken für Dashboard-Cards berechnen
-         $totalAccounts = 0;
-         $totalBalance = 0;
-         foreach ($users as $user) {
-             if (!empty($user->accounts)) {
-                 foreach ($user->accounts as $account) {
-                     $totalAccounts++;
-                     $totalBalance += $account->balance;
+         # Letzte Transaktionen aller Übungsfirmen laden (für Aktivitäts-Feed)
+         $recentTransactions = [];
+         if ($this->school) {
+             $this->loadModel('Transactions');
+             $this->loadModel('Accounts');
+
+             # Alle Account-IDs der Schule sammeln
+             $accountIds = [];
+             foreach ($users as $user) {
+                 if (!empty($user->accounts)) {
+                     foreach ($user->accounts as $account) {
+                         $accountIds[] = $account->id;
+                     }
                  }
+             }
+
+             if (!empty($accountIds)) {
+                 $recentTransactions = $this->Transactions->find()
+                     ->contain(['Accounts.Users'])
+                     ->where(['Transactions.account_id IN' => $accountIds])
+                     ->order(['Transactions.created' => 'DESC'])
+                     ->limit(10)
+                     ->toArray();
              }
          }
 
@@ -111,7 +125,7 @@ class UsersController extends AppController
          $isSchoolAdmin = ($this->school !== null);
          $selectedSchool = $this->request->getQuery('school_id');
 
-         $this->set(compact('users', 'defaultPassword', 'isSchoolAdmin', 'isSuperadmin', 'schoolList', 'selectedSchool', 'search', 'totalAccounts', 'totalBalance'));
+         $this->set(compact('users', 'defaultPassword', 'isSchoolAdmin', 'isSuperadmin', 'schoolList', 'selectedSchool', 'search', 'recentTransactions'));
     }
 
     /**
@@ -357,6 +371,10 @@ class UsersController extends AppController
                     }
 
                     $this->Auth->setUser($user->toArray());
+
+                    # Last login aktualisieren
+                    $user->last_login = new \DateTime();
+                    $this->Users->save($user);
 
                     # Role-based redirect after login
                     $redirectUrl = $this->_getLoginRedirect($user->toArray());
