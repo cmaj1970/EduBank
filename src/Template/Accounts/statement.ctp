@@ -18,7 +18,7 @@
         </div>
 
         <!-- Kontoauszug -->
-        <div class="card">
+        <div class="card" data-help="Der Kontoauszug ist ein offizielles Dokument, das alle Kontobewegungen auflistet. Kann ausgedruckt oder als Nachweis verwendet werden.">
             <div class="card-body p-4">
 
                 <!-- Kopfbereich -->
@@ -40,17 +40,17 @@
                             <span class="text-muted small">Kontoinhaber</span><br>
                             <strong class="fs-5"><?= h($account->user->name ?? $account->name) ?></strong>
                         </div>
-                        <div class="mb-2">
+                        <div class="mb-2" data-help="Die IBAN ist die internationale Kontonummer. Sie identifiziert das Konto eindeutig.">
                             <span class="text-muted small">IBAN</span><br>
                             <span class="font-monospace"><?= h($account->iban) ?></span>
                         </div>
-                        <div>
+                        <div data-help="Der BIC (Bank Identifier Code) identifiziert die Bank. Bei SEPA-Überweisungen oft nicht mehr nötig.">
                             <span class="text-muted small">BIC</span><br>
                             <span class="font-monospace"><?= h($account->bic) ?></span>
                         </div>
                     </div>
                     <div class="col-md-6 text-md-end">
-                        <div class="mb-2">
+                        <div class="mb-2" data-help="Das aktuell verfügbare Guthaben auf dem Konto. Grün = positiv, Rot = negativ.">
                             <span class="text-muted small">Aktueller Kontostand</span><br>
                             <span class="fs-3 fw-bold <?= $account->balance >= 0 ? 'text-success' : 'text-danger' ?>">
                                 <?= $this->Number->currency($account->balance, 'EUR') ?>
@@ -60,7 +60,7 @@
                 </div>
 
                 <!-- Umsatzliste -->
-                <h6 class="border-bottom pb-2 mb-0 fw-bold">Umsätze</h6>
+                <h6 class="border-bottom pb-2 mb-0 fw-bold" data-help="Chronologische Auflistung aller Kontobewegungen: Eingänge (grün) und Ausgänge (rot).">Umsätze</h6>
                 <?php if (!empty($account->transactions) && $account->transactions->count() > 0): ?>
                 <div class="table-responsive">
                     <table class="table table-sm mb-0">

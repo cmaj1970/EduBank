@@ -26,17 +26,20 @@
         </div>
 
         <!-- Auftragshistorie -->
-        <div class="card">
+        <div class="card" data-help="Übersicht aller Überweisungen, die von diesem Konto getätigt wurden. Geplante Aufträge werden erst zum angegebenen Datum ausgeführt.">
             <div class="card-body p-0">
                 <?php if (!empty($account->transactions) && $account->transactions->count() > 0): ?>
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Empfänger</th>
-                                    <th>Gesendet am</th>
-                                    <th>Status</th>
-                                    <th class="text-end">Betrag</th>
+                                    <th data-help="Name der Person oder Firma, an die überwiesen wurde.">Empfänger</th>
+                                    <th data-help="Zeitpunkt, an dem der Auftrag erstellt wurde.">Gesendet am</th>
+                                    <th data-help="Durchgeführt = Geld wurde überwiesen. Geplant = Überweisung erfolgt erst zum angegebenen Datum.">Status</th>
+                                    <th class="text-end" data-help="Der überwiesene Betrag in Euro.">Betrag</th>
+                                    <?php if ($authuser['role'] == 'admin'): ?>
+                                    <th class="text-center d-print-none">Aktion</th>
+                                    <?php endif; ?>
                                 </tr>
                             </thead>
                             <tbody>
@@ -73,6 +76,21 @@
                                                 -<?= $this->Number->currency($transaction->betrag, 'EUR') ?>
                                             </span>
                                         </td>
+                                        <?php if ($authuser['role'] == 'admin'): ?>
+                                        <td class="text-center d-print-none">
+                                            <?php if (!$isExecuted): ?>
+                                                <?= $this->Form->postLink(
+                                                    '<i class="bi bi-x-circle me-1"></i>Stornieren',
+                                                    ['controller' => 'Transactions', 'action' => 'storno', $transaction->id],
+                                                    [
+                                                        'class' => 'btn btn-sm btn-outline-danger',
+                                                        'escape' => false,
+                                                        'confirm' => __('Soll dieser Auftrag wirklich storniert werden?')
+                                                    ]
+                                                ) ?>
+                                            <?php endif; ?>
+                                        </td>
+                                        <?php endif; ?>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
