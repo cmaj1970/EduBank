@@ -39,7 +39,7 @@ if (!empty($account->transactions)) {
     <!-- Linke Spalte: Konto + Schnellaktionen + Statistik -->
     <div class="col-lg-4">
         <!-- Kontokarte -->
-        <div class="card account-card mb-4" data-help="Hier sind die wichtigsten Kontodaten auf einen Blick: Name, IBAN und aktueller Kontostand.">
+        <div class="card account-card mb-4" <?= $this->HelpText->attr('account', 'card') ?>>
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0"><i class="bi bi-wallet2 me-2"></i>Mein Konto</h5>
             </div>
@@ -48,9 +48,9 @@ if (!empty($account->transactions)) {
                     <div>
                         <div class="text-muted small">Kontobezeichnung</div>
                         <div class="fw-bold"><?= h($account->name) ?></div>
-                        <div class="font-monospace small mt-2" data-help="Die IBAN ist die internationale Kontonummer. Sie wird für Überweisungen benötigt."><?= h($account->iban) ?></div>
+                        <div class="font-monospace small mt-2" <?= $this->HelpText->attr('account', 'iban') ?>><?= h($account->iban) ?></div>
                     </div>
-                    <div class="account-balance-display" data-help="Der Kontostand zeigt das aktuell verfügbare Guthaben auf diesem Konto.">
+                    <div class="account-balance-display" <?= $this->HelpText->attr('account', 'balance') ?>>
                         <div class="balance-label">Verfügbar</div>
                         <div class="balance-amount <?= $account->balance >= 0 ? 'positive' : 'negative' ?>">
                             <?= $this->Number->currency($account->balance, 'EUR') ?>
@@ -61,21 +61,21 @@ if (!empty($account->transactions)) {
         </div>
 
         <!-- Schnellaktionen -->
-        <div class="card mb-4 d-print-none" data-help="Schnellzugriff auf die wichtigsten Funktionen: Geld überweisen, Aufträge ansehen oder Kontoauszug erstellen.">
+        <div class="card mb-4 d-print-none" <?= $this->HelpText->attr('account', 'quick_actions') ?>>
             <div class="card-header">
                 <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Schnellaktionen</h5>
             </div>
             <div class="card-body">
                 <div class="quick-actions">
-                    <a href="/transactions/add" class="quick-action-btn" data-help="Hier kann Geld an andere Konten überwiesen werden.">
+                    <a href="/transactions/add" class="quick-action-btn" <?= $this->HelpText->attr('account', 'btn_transfer') ?>>
                         <i class="bi bi-send"></i>
                         <span>Überweisen</span>
                     </a>
-                    <a href="/accounts/history/<?= $account->id ?>" class="quick-action-btn" data-help="Zeigt alle bisherigen Überweisungen, die von diesem Konto getätigt wurden.">
+                    <a href="/accounts/history/<?= $account->id ?>" class="quick-action-btn" <?= $this->HelpText->attr('account', 'btn_history') ?>>
                         <i class="bi bi-clock-history"></i>
                         <span>Aufträge</span>
                     </a>
-                    <a href="/accounts/statement/<?= $account->id ?>" class="quick-action-btn" data-help="Erstellt einen druckbaren Kontoauszug mit allen Kontobewegungen.">
+                    <a href="/accounts/statement/<?= $account->id ?>" class="quick-action-btn" <?= $this->HelpText->attr('account', 'btn_statement') ?>>
                         <i class="bi bi-file-text"></i>
                         <span>Kontoauszug</span>
                     </a>
@@ -86,7 +86,7 @@ if (!empty($account->transactions)) {
         <!-- Statistik -->
         <div class="row g-3">
             <div class="col-6">
-                <div class="card" data-help="Summe aller eingegangenen Zahlungen (Gutschriften) auf diesem Konto.">
+                <div class="card" <?= $this->HelpText->attr('account', 'income') ?>>
                     <div class="stat-card">
                         <div class="stat-icon positive">
                             <i class="bi bi-arrow-down-left"></i>
@@ -99,7 +99,7 @@ if (!empty($account->transactions)) {
                 </div>
             </div>
             <div class="col-6">
-                <div class="card" data-help="Summe aller ausgehenden Zahlungen (Überweisungen) von diesem Konto.">
+                <div class="card" <?= $this->HelpText->attr('account', 'expenses') ?>>
                     <div class="stat-card">
                         <div class="stat-icon negative">
                             <i class="bi bi-arrow-up-right"></i>
@@ -116,7 +116,7 @@ if (!empty($account->transactions)) {
 
     <!-- Rechte Spalte: Umsätze -->
     <div class="col-lg-8">
-        <div class="card" data-help="Liste aller Kontobewegungen: Grün = eingegangenes Geld, Rot = ausgehendes Geld.">
+        <div class="card" <?= $this->HelpText->attr('account', 'transactions') ?>>
             <div class="card-header">
                 <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i>Umsätze</h5>
             </div>
