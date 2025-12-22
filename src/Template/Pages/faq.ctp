@@ -1,7 +1,7 @@
 <?php
 /**
  * FAQ - Häufige Fragen und Begriffserklärungen
- * Für Schüler:innen, die zum ersten Mal mit Banking zu tun haben
+ * Neutral formuliert für Schulen und Erwachsenenbildung
  */
 ?>
 
@@ -18,7 +18,7 @@
         <div class="mb-4">
             <h1><i class="bi bi-question-circle me-2"></i>Häufige Fragen & Begriffe</h1>
             <p class="lead text-muted">
-                Hier findest du Erklärungen zu den wichtigsten Begriffen rund ums Banking.
+                Erklärungen zu den wichtigsten Begriffen rund ums Banking.
             </p>
         </div>
 
@@ -56,11 +56,11 @@
                 <div id="collapse-konto" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
                         <p>
-                            Ein <strong>Konto</strong> ist wie ein digitaler Geldbeutel bei einer Bank. Dort wird dein
-                            Geld sicher aufbewahrt, und du kannst jederzeit sehen, wie viel du hast.
+                            Ein <strong>Konto</strong> ist wie ein digitaler Geldbeutel bei einer Bank. Dort wird
+                            Geld sicher aufbewahrt, und der aktuelle Stand ist jederzeit einsehbar.
                         </p>
                         <p>
-                            Anders als bei einem echten Geldbeutel kannst du mit einem Konto Geld an andere
+                            Anders als bei einem echten Geldbeutel lässt sich mit einem Konto Geld an andere
                             Personen oder Firmen schicken, ohne es persönlich zu übergeben. Das funktioniert
                             über sogenannte Überweisungen.
                         </p>
@@ -84,7 +84,7 @@
                     <div class="accordion-body">
                         <p>
                             Die <strong>IBAN</strong> (International Bank Account Number) ist die internationale
-                            Kontonummer. Sie ist wie eine Adresse für dein Konto – damit weiß die Bank genau,
+                            Kontonummer. Sie funktioniert wie eine Adresse für das Konto – damit weiß die Bank genau,
                             wohin das Geld geschickt werden soll.
                         </p>
                         <p>
@@ -93,7 +93,7 @@
                         </p>
                         <ul class="mb-0">
                             <li><strong>AT</strong> steht für Österreich (jedes Land hat seinen eigenen Code)</li>
-                            <li>Die <strong>Zahlen danach</strong> identifizieren die Bank und dein persönliches Konto</li>
+                            <li>Die <strong>Zahlen danach</strong> identifizieren die Bank und das jeweilige Konto</li>
                         </ul>
                     </div>
                 </div>
@@ -114,8 +114,8 @@
                             Er wird manchmal auch SWIFT-Code genannt.
                         </p>
                         <p>
-                            Während die IBAN dein persönliches Konto identifiziert, sagt der BIC, bei welcher
-                            Bank dieses Konto liegt.
+                            Während die IBAN das jeweilige Konto identifiziert, gibt der BIC an, bei welcher
+                            Bank dieses Konto geführt wird.
                         </p>
                         <p class="mb-0">
                             <strong>Beispiel:</strong> <code>EDUABORXXX</code><br>
@@ -137,17 +137,17 @@
                 <div id="collapse-kontostand" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
                         <p>
-                            Der <strong>Kontostand</strong> (auch Saldo genannt) zeigt dir, wie viel Geld sich
-                            gerade auf deinem Konto befindet.
+                            Der <strong>Kontostand</strong> (auch Saldo genannt) zeigt, wie viel Geld sich
+                            gerade auf einem Konto befindet.
                         </p>
                         <p>
                             <span class="text-success"><i class="bi bi-plus-circle me-1"></i>Ein positiver Kontostand</span>
-                            bedeutet, dass du Guthaben hast – also Geld, das dir gehört.
+                            bedeutet vorhandenes Guthaben.
                         </p>
                         <p class="mb-0">
                             <span class="text-danger"><i class="bi bi-dash-circle me-1"></i>Ein negativer Kontostand</span>
-                            bedeutet, dass du mehr ausgegeben hast, als du hattest. Das nennt man auch
-                            "im Minus sein" oder "überzogen". Das ist nur möglich, wenn die Bank dir
+                            bedeutet, dass mehr ausgegeben wurde als vorhanden war. Das nennt man auch
+                            "im Minus sein" oder "überzogen". Das ist nur möglich, wenn die Bank
                             einen Überziehungsrahmen einräumt.
                         </p>
                     </div>
@@ -166,20 +166,20 @@
                     <div class="accordion-body">
                         <p>
                             Eine <strong>Überweisung</strong> ist das digitale Senden von Geld von einem Konto
-                            auf ein anderes. Statt Bargeld zu übergeben, gibst du der Bank den Auftrag,
+                            auf ein anderes. Statt Bargeld zu übergeben, wird der Bank der Auftrag erteilt,
                             einen bestimmten Betrag an jemand anderen zu schicken.
                         </p>
                         <p>
-                            Für eine Überweisung brauchst du:
+                            Für eine Überweisung werden benötigt:
                         </p>
                         <ul>
-                            <li>Den <strong>Namen</strong> des Empfängers</li>
+                            <li>Der <strong>Name</strong> des Empfängers</li>
                             <li>Die <strong>IBAN</strong> des Empfängers</li>
-                            <li>Den <strong>Betrag</strong>, den du überweisen möchtest</li>
-                            <li>Einen <strong>Verwendungszweck</strong> (wofür das Geld ist)</li>
+                            <li>Der <strong>Betrag</strong></li>
+                            <li>Ein <strong>Verwendungszweck</strong> (wofür das Geld ist)</li>
                         </ul>
                         <p class="mb-0">
-                            Das Geld wird dann von deinem Konto abgebucht und dem Empfänger gutgeschrieben.
+                            Das Geld wird dann vom eigenen Konto abgebucht und dem Empfänger gutgeschrieben.
                         </p>
                     </div>
                 </div>
@@ -196,17 +196,17 @@
                 <div id="collapse-auftrag" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
                         <p>
-                            Ein <strong>Auftrag</strong> ist eine Anweisung an die Bank, etwas mit deinem Geld
-                            zu tun – meistens eine Überweisung durchzuführen.
+                            Ein <strong>Auftrag</strong> ist eine Anweisung an die Bank, eine bestimmte Aktion
+                            durchzuführen – meistens eine Überweisung.
                         </p>
                         <p>
-                            Wenn du eine Überweisung tätigst, erteilst du der Bank einen Auftrag. In der
-                            <strong>Auftragshistorie</strong> siehst du alle Aufträge, die du erteilt hast –
+                            Bei jeder Überweisung wird ein Auftrag an die Bank erteilt. In der
+                            <strong>Auftragshistorie</strong> sind alle erteilten Aufträge einsehbar –
                             sowohl die bereits durchgeführten als auch die noch offenen.
                         </p>
                         <p class="mb-0">
-                            Der Status eines Auftrags zeigt dir, ob er noch in Bearbeitung ist, erfolgreich
-                            durchgeführt wurde oder vielleicht abgelehnt werden musste.
+                            Der Status eines Auftrags zeigt, ob er noch in Bearbeitung ist, erfolgreich
+                            durchgeführt wurde oder abgelehnt werden musste.
                         </p>
                     </div>
                 </div>
@@ -223,17 +223,16 @@
                 <div id="collapse-umsaetze" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
                         <p>
-                            <strong>Umsätze</strong> sind alle Geldbewegungen auf deinem Konto – also jede
+                            <strong>Umsätze</strong> sind alle Geldbewegungen auf einem Konto – also jede
                             Einzahlung und jede Auszahlung.
                         </p>
                         <p>
                             <span class="text-success"><i class="bi bi-arrow-down-left me-1"></i>Eingehende Umsätze</span>
-                            (Gutschriften) erhöhen deinen Kontostand – zum Beispiel wenn dir jemand Geld überweist.
+                            (Gutschriften) erhöhen den Kontostand – zum Beispiel bei eingehenden Überweisungen.
                         </p>
                         <p class="mb-0">
                             <span class="text-danger"><i class="bi bi-arrow-up-right me-1"></i>Ausgehende Umsätze</span>
-                            (Abbuchungen) verringern deinen Kontostand – zum Beispiel wenn du eine
-                            Überweisung tätigst.
+                            (Abbuchungen) verringern den Kontostand – zum Beispiel bei getätigten Überweisungen.
                         </p>
                     </div>
                 </div>
@@ -251,23 +250,23 @@
                     <div class="accordion-body">
                         <p>
                             Ein <strong>Kontoauszug</strong> ist eine Übersicht über alle Geldbewegungen auf
-                            deinem Konto in einem bestimmten Zeitraum. Er ist wie ein Protokoll, das zeigt,
-                            was auf deinem Konto passiert ist.
+                            einem Konto in einem bestimmten Zeitraum. Er ist wie ein Protokoll, das zeigt,
+                            was auf dem Konto passiert ist.
                         </p>
                         <p>
-                            Auf einem Kontoauszug findest du:
+                            Auf einem Kontoauszug finden sich:
                         </p>
                         <ul>
-                            <li>Deine <strong>Kontodaten</strong> (Name, IBAN, BIC)</li>
-                            <li>Den <strong>Zeitraum</strong>, für den der Auszug gilt</li>
+                            <li>Die <strong>Kontodaten</strong> (Name, IBAN, BIC)</li>
+                            <li>Der <strong>Zeitraum</strong>, für den der Auszug gilt</li>
                             <li>Alle <strong>Umsätze</strong> (Einnahmen und Ausgaben)</li>
-                            <li>Den <strong>Kontostand</strong> am Ende des Zeitraums</li>
+                            <li>Der <strong>Kontostand</strong> am Ende des Zeitraums</li>
                         </ul>
                         <p class="mb-0">
-                            Im echten Banking bekommst du Kontoauszüge regelmäßig von deiner Bank –
+                            Im echten Banking werden Kontoauszüge regelmäßig von der Bank bereitgestellt –
                             entweder digital im Online-Banking oder auf Papier am Kontoauszugsdrucker.
-                            Bei EduBank kannst du deinen Kontoauszug jederzeit über die Schaltfläche
-                            "Kontoauszug" erstellen und ausdrucken.
+                            Bei EduBank kann der Kontoauszug jederzeit über die Schaltfläche
+                            "Kontoauszug" erstellt und ausgedruckt werden.
                         </p>
                     </div>
                 </div>
@@ -285,18 +284,18 @@
                     <div class="accordion-body">
                         <p>
                             Eine <strong>TAN</strong> (Transaktionsnummer) ist ein einmaliger Sicherheitscode,
-                            mit dem du eine Überweisung bestätigst. Sie funktioniert wie eine zweite
+                            mit dem eine Überweisung bestätigt wird. Sie funktioniert wie eine zweite
                             Unterschrift.
                         </p>
                         <p>
-                            Das Prinzip dahinter: Selbst wenn jemand dein Passwort kennt, kann er ohne
-                            die TAN kein Geld überweisen. Die TAN wird für jede einzelne Überweisung
+                            Das Prinzip dahinter: Selbst wenn jemand das Passwort kennt, kann ohne
+                            die TAN kein Geld überwiesen werden. Die TAN wird für jede einzelne Überweisung
                             neu generiert.
                         </p>
                         <p class="mb-0">
-                            Im echten Banking bekommst du die TAN zum Beispiel per SMS oder über eine
-                            spezielle App. Bei EduBank findest du deine TANs auf einer TAN-Liste,
-                            die du von deiner Lehrkraft bekommst.
+                            Im echten Banking wird die TAN zum Beispiel per SMS oder über eine
+                            spezielle App zugestellt. Bei EduBank werden die TANs auf einer TAN-Liste
+                            von der Schul-Admin ausgegeben.
                         </p>
                     </div>
                 </div>
@@ -313,8 +312,8 @@
                 <div id="collapse-verwendungszweck" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
                         <p>
-                            Der <strong>Verwendungszweck</strong> ist eine kurze Notiz, die du bei einer
-                            Überweisung angibst. Sie erklärt, wofür das Geld gedacht ist.
+                            Der <strong>Verwendungszweck</strong> ist eine kurze Notiz, die bei einer
+                            Überweisung angegeben wird. Sie erklärt, wofür das Geld gedacht ist.
                         </p>
                         <p>
                             <strong>Beispiele:</strong>
@@ -322,11 +321,11 @@
                         <ul>
                             <li>"Rechnung Nr. 2024-001"</li>
                             <li>"Bestellung vom 15.03.2024"</li>
-                            <li>"Anteil Klassenfahrt"</li>
+                            <li>"Mitgliedsbeitrag 2024"</li>
                         </ul>
                         <p class="mb-0">
-                            Der Verwendungszweck hilft dem Empfänger zu verstehen, warum er das Geld
-                            bekommt. Bei Rechnungen steht dort oft die Rechnungsnummer, damit der
+                            Der Verwendungszweck hilft dem Empfänger zu verstehen, wofür die Zahlung
+                            gedacht ist. Bei Rechnungen steht dort oft die Rechnungsnummer, damit der
                             Empfänger die Zahlung zuordnen kann.
                         </p>
                     </div>
@@ -344,16 +343,16 @@
                 <div id="collapse-limit" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
                         <p>
-                            Ein <strong>Überweisungslimit</strong> ist ein Höchstbetrag, den du mit einer
-                            einzelnen Überweisung senden kannst.
+                            Ein <strong>Überweisungslimit</strong> ist ein Höchstbetrag, der mit einer
+                            einzelnen Überweisung gesendet werden kann.
                         </p>
                         <p>
-                            Diese Begrenzung dient der Sicherheit: Falls jemand unberechtigt Zugang zu
-                            deinem Konto bekommt, kann nicht sofort das gesamte Geld überwiesen werden.
+                            Diese Begrenzung dient der Sicherheit: Falls jemand unberechtigt Zugang zum
+                            Konto erlangt, kann nicht sofort das gesamte Geld überwiesen werden.
                         </p>
                         <p class="mb-0">
-                            Bei EduBank wird das Überweisungslimit von der Lehrkraft festgelegt. Wenn du
-                            einen höheren Betrag überweisen möchtest, wende dich an deine Lehrkraft.
+                            Bei EduBank wird das Überweisungslimit von der Schul-Admin festgelegt.
+                            Für höhere Beträge kann die Schul-Admin kontaktiert werden.
                         </p>
                     </div>
                 </div>
@@ -367,7 +366,7 @@
                 <i class="bi bi-lightbulb text-primary fs-1 mb-3 d-block"></i>
                 <h5>Noch Fragen?</h5>
                 <p class="text-muted mb-0">
-                    Falls du etwas nicht verstehst oder weitere Fragen hast, wende dich an deine Lehrkraft.
+                    Bei weiteren Fragen steht die Schul-Admin gerne zur Verfügung.
                 </p>
             </div>
         </div>
