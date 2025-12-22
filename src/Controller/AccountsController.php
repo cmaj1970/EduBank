@@ -22,7 +22,7 @@ class AccountsController extends AppController
      */
     public function isAuthorized($user) {
         if (isset($user['role']) && $user['role'] === 'user') {
-            if (in_array($this->request->getParam('action'), ['index', 'view', 'history', 'directory'])) {
+            if (in_array($this->request->getParam('action'), ['index', 'view', 'history', 'directory', 'statement'])) {
                 return true;
             } else {
                 return false;
@@ -163,6 +163,46 @@ class AccountsController extends AppController
 
         $this->set('account', $account);
         // $this->set('account_transactions', $account_transactions);
+    }
+
+    /**
+     * Statement method - show printable bank statement
+     *
+     * @param string|null $id Account id.
+     * @return \Cake\Http\Response|void
+     */
+    public function statement($id = null) {
+        $account = $this->Accounts->get($id, [
+            'contain' => [
+                'Users',
+                'Transactions' => function ($query) {
+                    return $query->order(['created desc']);
+                }
+            ]
+        ]);
+
+        # Zugriffsschutz: Übungsfirma darf nur eigenes Konto sehen
+        if ($this->Auth->user()['role'] !== 'admin' && $account->user_id != $this->Auth->user()['id']) {
+            return $this->redirect(['action' => 'index']);
+        }
+
+        # Schuladmin darf nur Konten seiner Schule sehen
+        if ($this->school && $account->user->school_id != $this->school['id']) {
+            $this->Flash->error(__('Sie können nur Konten Ihrer eigenen Schule einsehen.'));
+            return $this->redirect(['action' => 'index']);
+        }
+
+        // Find transfers to this account
+        $account->transactions = $this->Accounts->Transactions->find('all', ['contain' => ['Accounts.Users']])->where(["datum <= '" . date('Y-m-d') . "'", 'or' => ['and' => ['empfaenger_iban' => $account->iban], 'account_id' => $account->id]])->order(['Transactions.datum desc', 'Transactions.id desc']);
+        foreach ($account->transactions as $k => $to) {
+            if ($to->account_id == $account->id) {
+                $account->balance -= $to->betrag;
+            } else {
+                $account->balance += $to->betrag;
+            }
+        }
+
+        $this->set('account', $account);
     }
 
     /**
