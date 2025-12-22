@@ -315,14 +315,60 @@
          */
         public function checkiban() {
             $this->autoRender = false;
-            $iban_ok = false;
-            $iban = key($this->request->params['?']);
-            $account = $this->Transactions->Accounts->find('all')->where(['iban' => $iban])->first();
-            if(strlen($iban) == 20 && !empty($account)) {
-                $iban_ok = true;
+            $this->response = $this->response->withType('application/json');
+
+            $iban = $this->request->getQuery('iban', '');
+            $enteredName = $this->request->getQuery('name', '');
+
+            # Fallback für alte Aufrufmethode
+            if (empty($iban) && !empty($this->request->params['?'])) {
+                $iban = key($this->request->params['?']);
             }
-            $this->response->body(json_encode($iban_ok));
-            $this->viewBuilder()->layout(false);
-            return  $this->response;
+
+            $result = [
+                'valid' => false,
+                'nameMatch' => null,
+                'actualName' => null,
+                'message' => null
+            ];
+
+            # IBAN-Format prüfen
+            if (strlen($iban) != 20) {
+                $result['message'] = 'Ungültiges IBAN-Format';
+                $this->response = $this->response->withStringBody(json_encode($result));
+                return $this->response;
+            }
+
+            # Konto suchen
+            $account = $this->Transactions->Accounts->find('all')
+                ->contain(['Users'])
+                ->where(['iban' => $iban])
+                ->first();
+
+            if (empty($account)) {
+                $result['message'] = 'IBAN nicht im EduBank-System gefunden';
+                $this->response = $this->response->withStringBody(json_encode($result));
+                return $this->response;
+            }
+
+            # IBAN ist gültig
+            $result['valid'] = true;
+            $result['actualName'] = $account->user->name;
+
+            # Namensvergleich wenn Name angegeben
+            if (!empty($enteredName)) {
+                $enteredNormalized = mb_strtolower(trim($enteredName));
+                $actualNormalized = mb_strtolower(trim($account->user->name));
+
+                if ($enteredNormalized === $actualNormalized) {
+                    $result['nameMatch'] = 'exact';
+                } else {
+                    $result['nameMatch'] = 'none';
+                    $result['message'] = 'Der angegebene Name stimmt mit dem Inhaber des Empfängerkontos nicht überein.';
+                }
+            }
+
+            $this->response = $this->response->withStringBody(json_encode($result));
+            return $this->response;
         }
 	}
