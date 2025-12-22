@@ -46,14 +46,6 @@
                 </div>
 
                 <?= $this->Form->end() ?>
-
-                <hr>
-
-                <div class="text-center">
-                    <a href="/users/request-credentials" class="text-muted small">
-                        <i class="bi bi-envelope me-1"></i>Zugangsdaten vergessen?
-                    </a>
-                </div>
             </div>
         </div>
 
