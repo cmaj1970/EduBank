@@ -89,7 +89,7 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                             <option value=""><?= __('Name oder IBAN eingeben...') ?></option>
                         </select>
                         <div class="form-text">
-                            <i class="bi bi-info-circle me-1"></i>Wählen Sie eine Übungsfirma aus dem System oder geben Sie die Daten manuell ein.
+                            <i class="bi bi-info-circle me-1"></i>Überweisungen sind nur an Konten von teilnehmenden Schulen im EduBank-System möglich.
                         </div>
                     </div>
 
@@ -175,12 +175,13 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                             </div>
 
                             <div class="mb-3">
-                                <label for="zahlungszweck" class="form-label"><?= __('Verwendungszweck') ?></label>
+                                <label for="zahlungszweck" class="form-label"><?= __('Verwendungszweck') ?> <span class="text-danger">*</span></label>
                                 <?= $this->Form->text('zahlungszweck', [
                                     'class' => 'form-control',
                                     'id' => 'zahlungszweck',
                                     'placeholder' => 'z.B. Rechnung Nr. 12345',
-                                    'maxlength' => 140
+                                    'maxlength' => 140,
+                                    'required' => true
                                 ]) ?>
                                 <div class="form-text">Maximal 140 Zeichen</div>
                             </div>
@@ -188,10 +189,26 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                     </div>
                 </div>
 
+                <!-- Empfänger-Warnung (Name stimmt nicht überein) -->
+                <div id="recipient-warning" style="display:none;" class="alert alert-warning mb-3">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-exclamation-triangle-fill text-warning fs-4 me-3"></i>
+                        <div>
+                            <strong>Empfängerüberprüfung</strong>
+                            <p class="mb-2" id="recipient-warning-text"></p>
+                            <small class="text-muted">Hinterlegter Name: <strong id="recipient-actual-name"></strong></small>
+                            <p class="mb-0 mt-2 small">Sie können die Überweisung trotzdem durchführen. Bitte prüfen Sie jedoch, ob Sie den richtigen Empfänger angegeben haben.</p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- TAN-Eingabe (wird nach Validierung angezeigt) -->
-                <div id="taninput" style="display:none;" class="alert alert-warning">
+                <div id="taninput" style="display:none;" class="alert alert-info">
                     <h6><i class="bi bi-shield-lock me-2"></i>TAN-Bestätigung</h6>
-                    <p class="small mb-3">Bitte geben Sie eine gültige TAN ein, um die Überweisung zu bestätigen.</p>
+                    <p class="small mb-3">
+                        Bitte geben Sie eine gültige TAN ein, um die Überweisung zu bestätigen.
+                        <i class="bi bi-question-circle text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Die TAN muss 5-stellig und durch 7 teilbar sein." style="cursor: help;"></i>
+                    </p>
                     <div class="mb-3">
                         <label for="tan" class="form-label"><?= __('TAN') ?></label>
                         <?= $this->Form->text('tan', [
@@ -199,7 +216,8 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                             'id' => 'tan',
                             'placeholder' => '5-stellige TAN',
                             'maxlength' => 5,
-                            'pattern' => '[0-9]{5}'
+                            'pattern' => '[0-9]{5}',
+                            'style' => 'width: 120px;'
                         ]) ?>
                     </div>
                     <div class="d-flex gap-2">
@@ -217,15 +235,6 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                 </div>
 
                 <?= $this->Form->end() ?>
-
-                <!-- Info Box -->
-                <div class="info-box">
-                    <h6><i class="bi bi-info-circle me-1"></i>Hinweis</h6>
-                    <p>
-                        Dies ist eine Übungsüberweisung. Es werden keine echten Transaktionen durchgeführt.
-                        Die TAN muss 5-stellig und durch 7 teilbar sein.
-                    </p>
-                </div>
             </div>
         </div>
     </div>
@@ -237,6 +246,10 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/de.js"></script>
 <script>
 $(document).ready(function() {
+    // Bootstrap Tooltips initialisieren
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
+
     // IBAN-Formatierung (Vierergruppen mit Leerzeichen)
     function formatIBAN(value) {
         var cleaned = value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
@@ -312,31 +325,45 @@ $(document).ready(function() {
         e.preventDefault();
         e.stopPropagation();
 
-        var $form = $("form");
-        var $iban = $form.find('#empfaenger-iban').val().replace(/\s/g, '');
+        var validator = $("#addtransaction").validate({ lang: 'de' });
+        if (!validator.form()) {
+            return;
+        }
 
+        var iban = $('#empfaenger-iban').val().replace(/\s/g, '');
+        var name = $('#empfaenger-name').val();
+
+        // IBAN und Empfängername prüfen
         $.ajax({
             url: '/transactions/checkiban',
-            data: $iban,
-            success: function (response) {
-                if(response != "true") {
-                    alert("Bitte die IBAN überprüfen.");
+            data: { iban: iban, name: name },
+            dataType: 'json',
+            success: function(response) {
+                // IBAN nicht gültig
+                if (!response.valid) {
+                    alert(response.message || 'Die IBAN ist nicht gültig.');
+                    return;
                 }
+
+                // Empfänger-Warnung anzeigen wenn Name nicht übereinstimmt
+                $('#recipient-warning').hide();
+                if (response.nameMatch === 'none') {
+                    $('#recipient-warning-text').text(response.message);
+                    $('#recipient-actual-name').text(response.actualName);
+                    $('#recipient-warning').show();
+                }
+
+                // Weiter zur TAN-Eingabe
+                updateProgressSteps(2);
+                $('#taninput').show();
+                $('#formactions').hide();
+                $('#transactionform').find(':input').prop('readonly', true);
+                $('#tan').focus();
             },
             error: function() {
-                alert('ajax error');
+                alert('Fehler bei der Empfängerprüfung. Bitte versuchen Sie es erneut.');
             }
         });
-
-        var validator = $("#addtransaction").validate({ lang: 'de' });
-
-        if(validator.form()) {
-            updateProgressSteps(2);
-            $('#taninput').show();
-            $('#formactions').hide();
-            $('#transactionform').find(':input').prop('readonly', true);
-            $('#tan').focus();
-        }
     });
 
     // Abbrechen Button
@@ -344,6 +371,7 @@ $(document).ready(function() {
         e.preventDefault();
         updateProgressSteps(1);
         $('#taninput').hide();
+        $('#recipient-warning').hide();
         $('#formactions').show();
         $('#tan').val('');
         $('#transactionform').find(':input').prop('readonly', false);
@@ -372,9 +400,17 @@ $(document).ready(function() {
             return;
         }
         var input = $this.val();
+        // Nur Ziffern, Komma und Punkt erlauben
+        input = input.replace(/[^\d,\.]/g, '');
         input = input.replace('.', '');
         input = input.replace(',', '.');
-        input = parseFloat(input).toFixed(2);
+        var parsed = parseFloat(input);
+        // Bei ungültiger Eingabe auf 0 setzen
+        if (isNaN(parsed)) {
+            $this.val('0,00');
+            return;
+        }
+        input = parsed.toFixed(2);
         input = input.replace('.', ',');
         input = input.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
         $this.val(input);

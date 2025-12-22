@@ -597,6 +597,9 @@ class SchoolsController extends AppController
                     # E-Mail mit Zugangsdaten und Verification-Link versenden
                     $emailSent = $this->_sendWelcomeEmail($email, $school->name, $username, $password, $school->verification_token);
 
+                    # Admin-Benachrichtigung über neue Registrierung
+                    $this->_sendAdminNotification($school->name, $email);
+
                     # Zur Bestätigungsseite weiterleiten (zeigt Credentials + Resend-Option)
                     return $this->redirect([
                         'action' => 'registered',
@@ -1425,6 +1428,30 @@ class SchoolsController extends AppController
         } catch (\Exception $e) {
             $this->log('WelcomeEmail Fehler: ' . $e->getMessage(), 'error');
             return false;
+        }
+    }
+
+    /**
+     * Send admin notification about new school registration
+     *
+     * @param string $schoolName Name of the registered school
+     * @param string $schoolEmail Email of the school admin
+     * @return void
+     */
+    private function _sendAdminNotification($schoolName, $schoolEmail)
+    {
+        try {
+            $adminEmail = new Email('default');
+            $adminEmail
+                ->setFrom([env('EMAIL_FROM', 'noreply@edubank.at') => 'EduBank'])
+                ->setTo('carl.majneri@me.com')
+                ->setSubject('Neue Schulregistrierung: ' . $schoolName)
+                ->setEmailFormat('text')
+                ->send("Neue Schule registriert:\n\nSchule: $schoolName\nE-Mail: $schoolEmail\n\nZeitpunkt: " . date('d.m.Y H:i'));
+
+            $this->log("AdminNotification: Benachrichtigung über $schoolName gesendet", 'info');
+        } catch (\Exception $e) {
+            $this->log('AdminNotification Fehler: ' . $e->getMessage(), 'error');
         }
     }
 
