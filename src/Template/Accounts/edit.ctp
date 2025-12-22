@@ -58,7 +58,7 @@
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="maxlimit" class="form-label"><?= __('Überweisungslimit') ?></label>
+                        <label for="maxlimit" class="form-label"><?= __('Überziehungsrahmen') ?></label>
                         <div class="input-group">
                             <?= $this->Form->text('maxlimit', [
                                 'class' => 'form-control',

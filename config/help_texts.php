@@ -47,6 +47,21 @@ return [
             'transactions' => 'Chronologische Auflistung aller Kontobewegungen: Eingänge (grün) und Ausgänge (rot).',
         ],
 
+        // Schuladmin-Übersicht
+        'schuladmin' => [
+            'firmen_tabelle' => 'Übersicht aller Übungsfirmen Ihrer Schule. Jede Zeile zeigt eine Übungsfirma mit Status und letztem Login.',
+            'konto_zeile' => 'Die Konten der Übungsfirma. Hier sehen Sie IBAN, Überziehungsrahmen und aktuellen Kontostand.',
+            'checkbox' => 'Übungsfirmen auswählen, um die Transaktions-Ansicht nach diesen zu filtern.',
+            'btn_impersonate' => 'Als diese Übungsfirma anmelden, um deren Ansicht zu sehen oder Aktionen durchzuführen.',
+            'btn_edit_firma' => 'Name, Login und andere Daten der Übungsfirma bearbeiten.',
+            'btn_edit_konto' => 'Kontodaten wie Name, Kontostand oder Überziehungsrahmen bearbeiten.',
+            'copy_iban' => 'IBAN in die Zwischenablage kopieren.',
+            'last_login' => 'Zeigt an, wann sich die Übungsfirma zuletzt angemeldet hat. Hilfreich um aktive von inaktiven Firmen zu unterscheiden.',
+            'transaktionen' => 'Live-Übersicht aller Überweisungen der Übungsfirmen. Zeigt wer, wann, wie viel an wen überwiesen hat.',
+            'filter' => 'Wenn Übungsfirmen per Checkbox ausgewählt sind, werden hier nur deren Transaktionen angezeigt.',
+            'tab_switcher' => 'Wechseln zwischen Übungsfirmen-Liste und Transaktions-Übersicht.',
+        ],
+
         // Überweisung (transactions/add.ctp)
         'transfer' => [
             'progress_steps' => 'Die drei Schritte einer Überweisung: 1) Daten eingeben, 2) Angaben prüfen, 3) Mit TAN bestätigen.',
