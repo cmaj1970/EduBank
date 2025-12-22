@@ -48,7 +48,7 @@ if (!empty($account->transactions)) {
                     <div>
                         <div class="text-muted small">Kontobezeichnung</div>
                         <div class="fw-bold"><?= h($account->name) ?></div>
-                        <div class="font-monospace small mt-2" <?= $this->HelpText->attr('account', 'iban') ?>><?= h($account->iban) ?></div>
+                        <div class="font-monospace small mt-2" <?= $this->HelpText->attr('account', 'iban') ?>><?= h($account->iban) ?> <a href="#" class="text-muted copy-iban" data-iban="<?= h($account->iban) ?>" title="IBAN kopieren"><i class="bi bi-clipboard"></i></a></div>
                     </div>
                     <div class="account-balance-display" <?= $this->HelpText->attr('account', 'balance') ?>>
                         <div class="balance-label">Verfügbar</div>
@@ -306,13 +306,15 @@ if (!empty($account->transactions)) {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.copy-iban').forEach(function(btn) {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
             var iban = this.getAttribute('data-iban');
+            var el = this;
             navigator.clipboard.writeText(iban).then(function() {
-                btn.innerHTML = '<i class="bi bi-check text-success"></i>';
+                el.innerHTML = '<i class="bi bi-check text-success"></i>';
                 setTimeout(function() {
-                    btn.innerHTML = '<i class="bi bi-clipboard"></i>';
-                }, 2000);
+                    el.innerHTML = '<i class="bi bi-clipboard"></i>';
+                }, 1500);
             });
         });
     });
