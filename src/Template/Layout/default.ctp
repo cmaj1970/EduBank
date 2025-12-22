@@ -278,6 +278,14 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
                     el.classList.add('help-highlight');
                 });
 
+                // Eingabefelder deaktivieren
+                document.querySelectorAll('input, textarea, select, button[type="submit"], button[type="button"]:not(#helpButton)').forEach(function(el) {
+                    if (!el.disabled) {
+                        el.dataset.helpDisabled = 'true';
+                        el.disabled = true;
+                    }
+                });
+
             } else {
                 closeHelpMode();
             }
@@ -301,6 +309,12 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
             // Highlights entfernen
             document.querySelectorAll('.help-highlight').forEach(function(el) {
                 el.classList.remove('help-highlight');
+            });
+
+            // Eingabefelder wieder aktivieren
+            document.querySelectorAll('[data-help-disabled="true"]').forEach(function(el) {
+                el.disabled = false;
+                delete el.dataset.helpDisabled;
             });
         }
 
@@ -354,12 +368,26 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
         50% { outline-color: #ff9800; }
     }
     .help-popover {
-        max-width: 280px;
+        max-width: 300px;
         z-index: 1060;
+        --bs-popover-bg: #fff3cd;
+        --bs-popover-border-color: #ffc107;
+        --bs-popover-arrow-border: #ffc107;
+        border-width: 2px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     .help-popover .popover-body {
         font-size: 0.95rem;
-        line-height: 1.5;
+        line-height: 1.6;
+        color: #664d03;
+        padding: 0.75rem 1rem;
+    }
+    .help-popover .popover-body::before {
+        content: "Hilfe: ";
+        font-weight: bold;
+        display: block;
+        margin-bottom: 0.25rem;
+        color: #997404;
     }
     .help-fab:hover {
         transform: scale(1.1);
