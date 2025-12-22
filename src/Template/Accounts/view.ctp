@@ -129,11 +129,7 @@ if (!empty($account->transactions)) {
             </div>
             <div class="card-body p-0">
                 <?php if (!empty($account->transactions) && $account->transactions->count() > 0): ?>
-                    <?php
-                    $count = 0;
-                    foreach ($account->transactions as $transaction):
-                        if ($count >= 8) break;
-                        $count++;
+                    <?php foreach ($account->transactions as $transaction):
                         $isIncoming = ($transaction->account_id != $account->id);
                     ?>
                         <div class="transaction-item">

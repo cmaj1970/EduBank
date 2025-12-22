@@ -142,6 +142,11 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
                                 <i class="bi bi-clock-history me-1"></i>Auftragshistorie
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/pages/faq">
+                                <i class="bi bi-question-circle me-1"></i>Hilfe
+                            </a>
+                        </li>
                         <?php else: ?>
                         <li class="nav-item">
                             <a class="nav-link" href="/accounts">
