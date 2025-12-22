@@ -130,7 +130,7 @@
                         <strong><?= h($user->name) ?></strong>
                         <?php if ($hasAccounts): ?>
                         <br><small class="text-muted">
-                            <i class="bi bi-wallet2 me-1"></i><?= $accountCount ?> Konto<?= $accountCount > 1 ? 'n' : '' ?>
+                            <i class="bi bi-wallet2 me-1"></i><?= $accountCount ?> Konto<?= $accountCount > 1 ? 'en' : '' ?>
                             · <span class="<?= $totalBalance >= 0 ? 'text-success' : 'text-danger' ?>"><?= $this->Number->currency($totalBalance, 'EUR') ?></span>
                         </small>
                         <?php endif; ?>
