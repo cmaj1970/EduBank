@@ -37,6 +37,9 @@
                                     <th>Gesendet am</th>
                                     <th>Status</th>
                                     <th class="text-end">Betrag</th>
+                                    <?php if ($authuser['role'] == 'admin'): ?>
+                                    <th class="text-center d-print-none">Aktion</th>
+                                    <?php endif; ?>
                                 </tr>
                             </thead>
                             <tbody>
@@ -73,6 +76,21 @@
                                                 -<?= $this->Number->currency($transaction->betrag, 'EUR') ?>
                                             </span>
                                         </td>
+                                        <?php if ($authuser['role'] == 'admin'): ?>
+                                        <td class="text-center d-print-none">
+                                            <?php if (!$isExecuted): ?>
+                                                <?= $this->Form->postLink(
+                                                    '<i class="bi bi-x-circle me-1"></i>Stornieren',
+                                                    ['controller' => 'Transactions', 'action' => 'storno', $transaction->id],
+                                                    [
+                                                        'class' => 'btn btn-sm btn-outline-danger',
+                                                        'escape' => false,
+                                                        'confirm' => __('Soll dieser Auftrag wirklich storniert werden?')
+                                                    ]
+                                                ) ?>
+                                            <?php endif; ?>
+                                        </td>
+                                        <?php endif; ?>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
