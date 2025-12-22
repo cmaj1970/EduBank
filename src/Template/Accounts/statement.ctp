@@ -7,6 +7,121 @@
  */
 ?>
 
+<style>
+@media print {
+    @page {
+        size: A4;
+        margin: 10mm;
+    }
+    *, *::before, *::after {
+        box-sizing: border-box !important;
+    }
+    html, body {
+        font-size: 10px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: 0 !important;
+        height: auto !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    body.d-flex {
+        display: block !important;
+    }
+    .min-vh-100 {
+        min-height: 0 !important;
+    }
+    .flex-grow-1 {
+        flex-grow: 0 !important;
+    }
+    main, main > .container-fluid {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .container, .container-fluid {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .row {
+        margin: 0 !important;
+    }
+    .col-lg-10, .col-xl-8, [class*="col-"] {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+    .py-4, .py-3, .py-2 {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    .card {
+        border: 1px solid #ccc !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+    }
+    .card-body {
+        padding: 8px !important;
+    }
+    .fs-3 {
+        font-size: 1rem !important;
+    }
+    .fs-5 {
+        font-size: 0.8rem !important;
+    }
+    .mb-4, .mb-3, .mb-2, .mb-1 {
+        margin-bottom: 0.25rem !important;
+    }
+    .pb-3, .pb-2 {
+        padding-bottom: 0.25rem !important;
+    }
+    .mt-4, .mt-3 {
+        margin-top: 0.25rem !important;
+    }
+    .pt-3 {
+        padding-top: 0.25rem !important;
+    }
+    .g-4 {
+        gap: 0 !important;
+    }
+    .table {
+        font-size: 9px !important;
+        margin-bottom: 0 !important;
+    }
+    .table th, .table td {
+        padding: 2px 4px !important;
+    }
+    .table-responsive {
+        overflow: visible !important;
+    }
+    h4.text-primary {
+        font-size: 0.95rem !important;
+        margin-bottom: 0.15rem !important;
+    }
+    h6.fw-bold {
+        font-size: 0.75rem !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0.15rem !important;
+    }
+    .small, small {
+        font-size: 7px !important;
+    }
+    .font-monospace {
+        font-size: 8px !important;
+    }
+    .border-bottom, .border-top {
+        border-width: 1px !important;
+        margin: 0.25rem 0 !important;
+        padding: 0.15rem 0 !important;
+    }
+    .text-muted.small.text-center {
+        font-size: 7px !important;
+        margin-top: 5px !important;
+        padding-top: 5px !important;
+    }
+}
+</style>
+
 <div class="row justify-content-center">
     <div class="col-lg-10 col-xl-8">
 
@@ -42,7 +157,8 @@
                         </div>
                         <div class="mb-2" <?= $this->HelpText->attr('statement', 'iban') ?>>
                             <span class="text-muted small">IBAN</span><br>
-                            <span class="font-monospace"><?= h($account->iban) ?></span>
+                            <span class="font-monospace text-nowrap"><?= h($account->iban) ?></span>
+                            <a href="#" class="text-muted ms-1 d-print-none" onclick="navigator.clipboard.writeText('<?= h($account->iban) ?>');this.innerHTML='<i class=\'bi bi-check\'></i>';setTimeout(()=>this.innerHTML='<i class=\'bi bi-clipboard\'></i>',1500);return false;" title="IBAN kopieren"><i class="bi bi-clipboard"></i></a>
                         </div>
                         <div <?= $this->HelpText->attr('statement', 'bic') ?>>
                             <span class="text-muted small">BIC</span><br>

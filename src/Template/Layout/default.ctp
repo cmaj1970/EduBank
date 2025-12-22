@@ -217,7 +217,7 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
     <?php if($authuser && $authuser['role'] != 'admin'): ?>
     <button type="button" class="btn btn-primary rounded-circle shadow help-fab d-print-none"
             id="helpButton" title="Hilfe anzeigen"
-            style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; z-index: 1050;">
+            style="position: fixed; bottom: 80px; right: 20px; width: 56px; height: 56px; z-index: 1050;">
         <i class="bi bi-question-lg fs-4"></i>
     </button>
     <?php endif; ?>
