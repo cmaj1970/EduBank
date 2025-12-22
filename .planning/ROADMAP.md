@@ -27,7 +27,7 @@ Plans:
 
 Plans:
 - [x] 02-01: Users/index.ctp - Uebungsfirmen-Dashboard
-- [ ] 02-02: Users/view.ctp - Detailansicht Cards
+- [x] 02-02: Users/view.ctp - Detailansicht Cards
 - [ ] 02-03: Accounts/index + Transactions/index Redesign
 
 ### Phase 3: Sample Data
@@ -44,5 +44,5 @@ Plans:
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
 | 1. Quick Fixes | 1/1 | Complete | 2025-12-22 |
-| 2. Layout Redesign | 1/3 | In progress | - |
+| 2. Layout Redesign | 2/3 | In progress | - |
 | 3. Sample Data | 0/2 | Not started | - |
