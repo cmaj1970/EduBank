@@ -5,6 +5,13 @@
  */
 ?>
 
+<style>
+/* Scroll-Offset für sticky Navbar (ca. 70px) */
+.accordion-item[id] {
+    scroll-margin-top: 80px;
+}
+</style>
+
 <div class="row justify-content-center">
     <div class="col-lg-10 col-xl-8">
 
@@ -332,3 +339,50 @@
 
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Alle Sprunglinks abfangen
+    document.querySelectorAll('a[href^="#"]').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            var targetId = this.getAttribute('href').substring(1);
+            var target = document.getElementById(targetId);
+            if (!target) return;
+
+            e.preventDefault();
+
+            // Accordion-Panel finden und öffnen
+            var collapseId = 'collapse-' + targetId;
+            var collapseEl = document.getElementById(collapseId);
+            if (collapseEl && !collapseEl.classList.contains('show')) {
+                var bsCollapse = new bootstrap.Collapse(collapseEl, { toggle: true });
+            }
+
+            // Nach kurzem Delay scrollen (damit Accordion-Animation starten kann)
+            setTimeout(function() {
+                var navbarHeight = 80;
+                var targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+                window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+            }, 100);
+        });
+    });
+
+    // Falls Seite mit Hash geladen wird
+    if (window.location.hash) {
+        var targetId = window.location.hash.substring(1);
+        var target = document.getElementById(targetId);
+        if (target) {
+            var collapseId = 'collapse-' + targetId;
+            var collapseEl = document.getElementById(collapseId);
+            if (collapseEl) {
+                var bsCollapse = new bootstrap.Collapse(collapseEl, { toggle: true });
+            }
+            setTimeout(function() {
+                var navbarHeight = 80;
+                var targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+                window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+            }, 300);
+        }
+    }
+});
+</script>
