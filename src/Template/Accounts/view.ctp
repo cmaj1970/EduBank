@@ -162,12 +162,6 @@ if (!empty($account->transactions)) {
                             </div>
                         </div>
                     <?php endforeach; ?>
-
-                    <?php if ($account->transactions->count() > 8): ?>
-                    <a href="/accounts/history/<?= $account->id ?>" class="view-all-link">
-                        <i class="bi bi-arrow-right me-1"></i>Alle <?= $account->transactions->count() ?> Umsätze anzeigen
-                    </a>
-                    <?php endif; ?>
                 <?php else: ?>
                     <div class="text-center py-5 text-muted">
                         <i class="bi bi-inbox display-4"></i>
