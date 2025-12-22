@@ -106,8 +106,7 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                                     'class' => 'form-control',
                                     'id' => 'empfaenger-name',
                                     'required' => true,
-                                    'placeholder' => 'Vorname Nachname oder Firmenname',
-                                    'data-help' => $this->HelpText->inline('transfer', 'recipient_name')
+                                    'placeholder' => 'Vorname Nachname oder Firmenname'
                                 ]) ?>
                             </div>
 
@@ -128,8 +127,7 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                                         'id' => 'empfaenger-iban',
                                         'required' => true,
                                         'placeholder' => 'AT00 0000 0000 0000 0000',
-                                        'style' => 'letter-spacing: 1px;',
-                                        'data-help' => $this->HelpText->inline('transfer', 'recipient_iban')
+                                        'style' => 'letter-spacing: 1px;'
                                     ]) ?>
                                 </div>
                                 <div class="col-md-4 mb-3">
@@ -137,8 +135,7 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                                     <?= $this->Form->text('empfaenger_bic', [
                                         'class' => 'form-control font-monospace',
                                         'id' => 'empfaenger-bic',
-                                        'placeholder' => 'RZBAATWW',
-                                        'data-help' => $this->HelpText->inline('transfer', 'recipient_bic')
+                                        'placeholder' => 'RZBAATWW'
                                     ]) ?>
                                 </div>
                             </div>
@@ -157,7 +154,7 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                             </h6>
 
                             <div class="row">
-                                <div class="col-md-6 mb-3" <?= $this->HelpText->attr('transfer', 'amount') ?>>
+                                <div class="col-md-6 mb-3">
                                     <label for="betrag" class="form-label"><?= __('Betrag') ?> <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <?= $this->Form->text('betrag', [
@@ -170,14 +167,14 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                                     </div>
                                     <div class="form-text">Maximal <?= $this->Number->currency($max_betrag, 'EUR') ?></div>
                                 </div>
-                                <div class="col-md-6 mb-3" <?= $this->HelpText->attr('transfer', 'date') ?>>
+                                <div class="col-md-6 mb-3">
                                     <label for="datum" class="form-label"><?= __('Ausführungsdatum') ?></label>
                                     <input type="date" name="datum" id="datum" class="form-control" value="<?= date('Y-m-d') ?>">
                                     <div class="form-text">Leer lassen für sofortige Ausführung</div>
                                 </div>
                             </div>
 
-                            <div class="mb-3" <?= $this->HelpText->attr('transfer', 'purpose') ?>>
+                            <div class="mb-3">
                                 <label for="zahlungszweck" class="form-label"><?= __('Verwendungszweck') ?> <span class="text-danger">*</span></label>
                                 <?= $this->Form->text('zahlungszweck', [
                                     'class' => 'form-control',
