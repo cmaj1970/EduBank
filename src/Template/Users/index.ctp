@@ -5,6 +5,54 @@
  */
 ?>
 
+<!-- Welcome Section -->
+<div class="welcome-section">
+    <h1 class="welcome-title">Übungsfirmen-Verwaltung</h1>
+    <p class="welcome-date">
+        <i class="bi bi-calendar3 me-1"></i>
+        <?= date('l, d. F Y') ?>
+    </p>
+</div>
+
+<!-- Statistik-Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-building"></i>
+                </div>
+                <div class="stat-value"><?= count($users) ?></div>
+                <div class="stat-label">Übungsfirmen</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="stat-card">
+                <div class="stat-icon positive">
+                    <i class="bi bi-wallet2"></i>
+                </div>
+                <div class="stat-value"><?= $totalAccounts ?? 0 ?></div>
+                <div class="stat-label">Konten gesamt</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-currency-euro"></i>
+                </div>
+                <div class="stat-value text-success">
+                    <?= $this->Number->currency($totalBalance ?? 0, 'EUR') ?>
+                </div>
+                <div class="stat-label">Gesamtguthaben</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="mb-0"><i class="bi bi-people me-2"></i><?= __('Übungsfirmen') ?></h3>
     <a href="/users/add" class="btn btn-primary">

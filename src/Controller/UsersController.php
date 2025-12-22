@@ -84,6 +84,18 @@ class UsersController extends AppController
 
          $users = $this->paginate($query);
 
+         # Statistiken für Dashboard-Cards berechnen
+         $totalAccounts = 0;
+         $totalBalance = 0;
+         foreach ($users as $user) {
+             if (!empty($user->accounts)) {
+                 foreach ($user->accounts as $account) {
+                     $totalAccounts++;
+                     $totalBalance += $account->balance;
+                 }
+             }
+         }
+
          # Schulen für Dropdown (nur Superadmin)
          $schoolList = [];
          $isSuperadmin = !$this->school;
@@ -99,7 +111,7 @@ class UsersController extends AppController
          $isSchoolAdmin = ($this->school !== null);
          $selectedSchool = $this->request->getQuery('school_id');
 
-         $this->set(compact('users', 'defaultPassword', 'isSchoolAdmin', 'isSuperadmin', 'schoolList', 'selectedSchool', 'search'));
+         $this->set(compact('users', 'defaultPassword', 'isSchoolAdmin', 'isSuperadmin', 'schoolList', 'selectedSchool', 'search', 'totalAccounts', 'totalBalance'));
     }
 
     /**
