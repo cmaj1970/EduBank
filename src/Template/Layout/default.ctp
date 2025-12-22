@@ -257,10 +257,11 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
     (function() {
         var helpMode = false;
         var helpButton = document.getElementById('helpButton');
-        var popovers = [];
+        var activePopover = null;
 
         if (!helpButton) return;
 
+        // Hilfe-Button Klick
         helpButton.addEventListener('click', function() {
             helpMode = !helpMode;
 
@@ -270,49 +271,79 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
                 helpButton.classList.add('btn-warning');
                 helpButton.innerHTML = '<i class="bi bi-x-lg fs-4"></i>';
                 helpButton.title = 'Hilfe schließen';
+                document.body.classList.add('help-mode-active');
 
-                // Alle Elemente mit data-help finden und Popovers erstellen
+                // Alle Elemente mit data-help hervorheben
                 document.querySelectorAll('[data-help]').forEach(function(el) {
                     el.classList.add('help-highlight');
-
-                    var popover = new bootstrap.Popover(el, {
-                        content: el.getAttribute('data-help'),
-                        trigger: 'manual',
-                        placement: 'auto',
-                        html: false,
-                        customClass: 'help-popover'
-                    });
-                    popover.show();
-                    popovers.push(popover);
                 });
 
             } else {
-                // Hilfe-Modus deaktivieren
-                helpButton.classList.remove('btn-warning');
-                helpButton.classList.add('btn-primary');
-                helpButton.innerHTML = '<i class="bi bi-question-lg fs-4"></i>';
-                helpButton.title = 'Hilfe anzeigen';
-
-                // Alle Popovers entfernen
-                popovers.forEach(function(p) { p.dispose(); });
-                popovers = [];
-
-                // Highlights entfernen
-                document.querySelectorAll('.help-highlight').forEach(function(el) {
-                    el.classList.remove('help-highlight');
-                });
+                closeHelpMode();
             }
         });
+
+        // Hilfe-Modus schließen
+        function closeHelpMode() {
+            helpMode = false;
+            helpButton.classList.remove('btn-warning');
+            helpButton.classList.add('btn-primary');
+            helpButton.innerHTML = '<i class="bi bi-question-lg fs-4"></i>';
+            helpButton.title = 'Hilfe anzeigen';
+            document.body.classList.remove('help-mode-active');
+
+            // Aktives Popover schließen
+            if (activePopover) {
+                activePopover.dispose();
+                activePopover = null;
+            }
+
+            // Highlights entfernen
+            document.querySelectorAll('.help-highlight').forEach(function(el) {
+                el.classList.remove('help-highlight');
+            });
+        }
+
+        // Klick auf Element mit data-help im Hilfe-Modus
+        document.addEventListener('click', function(e) {
+            if (!helpMode) return;
+
+            var target = e.target.closest('[data-help]');
+
+            // Vorheriges Popover schließen
+            if (activePopover) {
+                activePopover.dispose();
+                activePopover = null;
+            }
+
+            if (target) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Neues Popover öffnen
+                activePopover = new bootstrap.Popover(target, {
+                    content: target.getAttribute('data-help'),
+                    trigger: 'manual',
+                    placement: 'auto',
+                    html: false,
+                    customClass: 'help-popover'
+                });
+                activePopover.show();
+            }
+        }, true);
 
         // ESC-Taste schließt Hilfe-Modus
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && helpMode) {
-                helpButton.click();
+                closeHelpMode();
             }
         });
     })();
     </script>
     <style>
+    .help-mode-active [data-help] {
+        cursor: help;
+    }
     .help-highlight {
         outline: 3px solid #ffc107 !important;
         outline-offset: 2px;
@@ -324,9 +355,11 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
     }
     .help-popover {
         max-width: 280px;
+        z-index: 1060;
     }
     .help-popover .popover-body {
-        font-size: 0.9rem;
+        font-size: 0.95rem;
+        line-height: 1.5;
     }
     .help-fab:hover {
         transform: scale(1.1);
