@@ -213,6 +213,15 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
         </div>
     </main>
 
+    <!-- Hilfe-Button (Floating Action Button) -->
+    <?php if($authuser && $authuser['role'] != 'admin'): ?>
+    <button type="button" class="btn btn-primary rounded-circle shadow help-fab d-print-none"
+            id="helpButton" title="Hilfe anzeigen"
+            style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; z-index: 1050;">
+        <i class="bi bi-question-lg fs-4"></i>
+    </button>
+    <?php endif; ?>
+
     <!-- Footer -->
     <footer class="footer-edubank mt-auto d-print-none">
         <div class="container-fluid">
@@ -241,5 +250,89 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <?= $this->fetch('script') ?>
+
+    <!-- Hilfe-Modus Script -->
+    <?php if($authuser && $authuser['role'] != 'admin'): ?>
+    <script>
+    (function() {
+        var helpMode = false;
+        var helpButton = document.getElementById('helpButton');
+        var popovers = [];
+
+        if (!helpButton) return;
+
+        helpButton.addEventListener('click', function() {
+            helpMode = !helpMode;
+
+            if (helpMode) {
+                // Hilfe-Modus aktivieren
+                helpButton.classList.remove('btn-primary');
+                helpButton.classList.add('btn-warning');
+                helpButton.innerHTML = '<i class="bi bi-x-lg fs-4"></i>';
+                helpButton.title = 'Hilfe schließen';
+
+                // Alle Elemente mit data-help finden und Popovers erstellen
+                document.querySelectorAll('[data-help]').forEach(function(el) {
+                    el.classList.add('help-highlight');
+
+                    var popover = new bootstrap.Popover(el, {
+                        content: el.getAttribute('data-help'),
+                        trigger: 'manual',
+                        placement: 'auto',
+                        html: false,
+                        customClass: 'help-popover'
+                    });
+                    popover.show();
+                    popovers.push(popover);
+                });
+
+            } else {
+                // Hilfe-Modus deaktivieren
+                helpButton.classList.remove('btn-warning');
+                helpButton.classList.add('btn-primary');
+                helpButton.innerHTML = '<i class="bi bi-question-lg fs-4"></i>';
+                helpButton.title = 'Hilfe anzeigen';
+
+                // Alle Popovers entfernen
+                popovers.forEach(function(p) { p.dispose(); });
+                popovers = [];
+
+                // Highlights entfernen
+                document.querySelectorAll('.help-highlight').forEach(function(el) {
+                    el.classList.remove('help-highlight');
+                });
+            }
+        });
+
+        // ESC-Taste schließt Hilfe-Modus
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && helpMode) {
+                helpButton.click();
+            }
+        });
+    })();
+    </script>
+    <style>
+    .help-highlight {
+        outline: 3px solid #ffc107 !important;
+        outline-offset: 2px;
+        animation: help-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes help-pulse {
+        0%, 100% { outline-color: #ffc107; }
+        50% { outline-color: #ff9800; }
+    }
+    .help-popover {
+        max-width: 280px;
+    }
+    .help-popover .popover-body {
+        font-size: 0.9rem;
+    }
+    .help-fab:hover {
+        transform: scale(1.1);
+        transition: transform 0.2s;
+    }
+    </style>
+    <?php endif; ?>
 </body>
 </html>
