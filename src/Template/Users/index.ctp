@@ -106,7 +106,7 @@
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <div>
                         <h6 class="mb-0"><?= h($user->name) ?></h6>
-                        <small class="text-muted">@<?= h($user->username) ?></small>
+                        <small class="text-muted">Login: <?= h($user->username) ?></small>
                     </div>
                     <?php if ($user->active): ?>
                         <span class="badge bg-success">Aktiv</span>
