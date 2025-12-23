@@ -47,7 +47,7 @@ return [
             'transactions' => 'Chronologische Auflistung aller Kontobewegungen: Eingänge (grün) und Ausgänge (rot).',
         ],
 
-        // Schuladmin-Übersicht
+        // Schuladmin-Übersicht (Users/index)
         'schuladmin' => [
             'firmen_tabelle' => 'Übersicht aller Übungsfirmen Ihrer Schule. Jede Zeile zeigt eine Übungsfirma mit Status und letztem Login.',
             'konto_zeile' => 'Die Konten der Übungsfirma. Hier sehen Sie IBAN, Überziehungsrahmen und aktuellen Kontostand.',
@@ -60,6 +60,53 @@ return [
             'transaktionen' => 'Live-Übersicht aller Überweisungen der Übungsfirmen. Zeigt wer, wann, wie viel an wen überwiesen hat.',
             'filter' => 'Wenn Übungsfirmen per Checkbox ausgewählt sind, werden hier nur deren Transaktionen angezeigt.',
             'tab_switcher' => 'Wechseln zwischen Übungsfirmen-Liste und Transaktions-Übersicht.',
+            'password_info' => 'Das Kennwort ist für alle Übungsfirmen identisch. Es wird beim Login benötigt.',
+            'new_firma' => 'Erstellt eine neue Übungsfirma. Der Benutzername wird automatisch generiert.',
+        ],
+
+        // Übungsfirma-Detailseite (Users/view)
+        'firma_detail' => [
+            'firmendaten' => 'Die wichtigsten Daten der Übungsfirma: Schulzugehörigkeit, Firmenname und Benutzername für die Anmeldung.',
+            'btn_login_as' => 'Die Anwendung aus Sicht dieser Übungsfirma sehen. Nützlich für Support und Tests.',
+            'btn_edit' => 'Firmendaten bearbeiten: Name und Aktiv-Status ändern.',
+            'btn_delete' => 'Übungsfirma und alle zugehörigen Konten und Transaktionen endgültig löschen.',
+            'konten_tabelle' => 'Alle Konten dieser Übungsfirma. Jedes Konto hat eine eigene IBAN und einen separaten Kontostand.',
+            'add_konto' => 'Ein weiteres Konto für diese Übungsfirma anlegen.',
+            'konto_edit' => 'Kontodaten wie Name und Überziehungsrahmen bearbeiten.',
+            'konto_delete' => 'Konto und alle zugehörigen Transaktionen löschen.',
+            'gesamtguthaben' => 'Summe der Kontostände aller Konten dieser Übungsfirma.',
+        ],
+
+        // Übungsfirma bearbeiten (Users/edit)
+        'firma_edit' => [
+            'name' => 'Der Name der Übungsfirma, wie er in Listen und Transaktionen angezeigt wird.',
+            'username' => 'Der Benutzername wird automatisch generiert und kann nicht geändert werden. Er wird für die Anmeldung benötigt.',
+            'active' => 'Deaktivierte Übungsfirmen können sich nicht mehr anmelden. Nützlich am Ende des Schuljahres.',
+        ],
+
+        // Neue Übungsfirma (Users/add)
+        'firma_add' => [
+            'form' => 'Beim Erstellen wird automatisch ein Konto angelegt. Der Benutzername wird aus dem Schulkürzel und einer Nummer generiert.',
+            'name' => 'Ein beschreibender Name für die Übungsfirma, z.B. "Handelsfirma Sonnenschein".',
+            'kontoname' => 'Name des automatisch erstellten Kontos. Kann später geändert werden.',
+            'prefill' => 'Erstellt zufällige Beispieltransaktionen mit Partnerunternehmen. Gut für Übungszwecke.',
+        ],
+
+        // Konto bearbeiten (Accounts/edit)
+        'konto_edit' => [
+            'name' => 'Ein beschreibender Name für das Konto, z.B. "Girokonto" oder "Sparkonto".',
+            'iban' => 'Die IBAN wird automatisch generiert und kann nicht geändert werden.',
+            'balance' => 'Der Kontostand. Bei vorhandenen Transaktionen wird er automatisch berechnet.',
+            'maxlimit' => 'Der Überziehungsrahmen bestimmt, wie weit das Konto ins Minus gehen darf.',
+            'reset' => 'Alle Transaktionen löschen und den Kontostand auf den Startwert (10.000 €) zurücksetzen.',
+            'prefill' => 'Nach dem Zurücksetzen neue Beispieltransaktionen erstellen.',
+        ],
+
+        // Neues Konto (Accounts/add)
+        'konto_add' => [
+            'form' => 'IBAN und BIC werden automatisch generiert. Das Startguthaben beträgt 10.000 €.',
+            'user' => 'Die Übungsfirma, der das Konto gehören soll.',
+            'prefill' => 'Optional: Das Konto mit zufälligen Beispieltransaktionen befüllen.',
         ],
 
         // Überweisung (transactions/add.ctp)
