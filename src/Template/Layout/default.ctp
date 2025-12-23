@@ -411,6 +411,32 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
         transform: scale(1.1);
         transition: transform 0.2s;
     }
+    /* Nicht-gehilfene Elemente abdunkeln im Help-Mode */
+    .help-mode-active .card,
+    .help-mode-active .alert,
+    .help-mode-active .btn,
+    .help-mode-active table,
+    .help-mode-active .form-control,
+    .help-mode-active .form-select,
+    .help-mode-active .form-check {
+        opacity: 0.4;
+        transition: opacity 0.3s ease;
+    }
+    /* Elemente mit data-help und deren Kinder bleiben voll sichtbar */
+    .help-mode-active [data-help],
+    .help-mode-active [data-help] *,
+    .help-mode-active [data-help] .card,
+    .help-mode-active [data-help] .btn,
+    .help-mode-active [data-help] .form-control,
+    .help-mode-active [data-help] .form-select,
+    .help-mode-active [data-help] .form-check,
+    .help-mode-active [data-help] table {
+        opacity: 1 !important;
+    }
+    /* Help-FAB-Button immer sichtbar */
+    .help-mode-active .help-fab {
+        opacity: 1 !important;
+    }
     </style>
     <?php endif; ?>
 </body>
