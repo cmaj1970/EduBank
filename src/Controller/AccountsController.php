@@ -28,6 +28,12 @@ class AccountsController extends AppController
                 return false;
             }
         }
+        # Admins dürfen auch CSV exportieren
+        if (isset($user['role']) && $user['role'] === 'admin') {
+            if (in_array($this->request->getParam('action'), ['exportPartnersCsv'])) {
+                return true;
+            }
+        }
         return parent::isAuthorized($user);
     }
 
@@ -424,26 +430,15 @@ class AccountsController extends AppController
      */
     private function _prefillAccountWithSampleData($accountId)
     {
-        $this->loadModel('Schools');
+        $this->loadModel('Partners');
 
         # Account laden
         $account = $this->Accounts->get($accountId);
 
-        # System-Konten laden
-        $systemSchool = $this->Schools->find()
-            ->where(['kurzname' => 'system'])
-            ->first();
+        # Partnerunternehmen laden
+        $partners = $this->Partners->find()->toArray();
 
-        if (!$systemSchool) {
-            return 0;
-        }
-
-        $systemAccounts = $this->Accounts->find()
-            ->contain(['Users'])
-            ->where(['Users.school_id' => $systemSchool->id])
-            ->toArray();
-
-        if (empty($systemAccounts)) {
+        if (empty($partners)) {
             return 0;
         }
 
@@ -506,48 +501,14 @@ class AccountsController extends AppController
             ],
         ];
 
-        # Einnahmen-Templates mit firmenspezifischen Rechnungsnummern-Formaten
+        # Generische Einnahmen-Templates (neutrale Verwendungszwecke)
         $einnahmenTemplates = [
-            'Bürobedarf Mustermann GmbH' => [
-                ['min' => 150, 'max' => 400, 'format' => 'BM-%d/24'],
-                ['min' => 200, 'max' => 600, 'format' => 'Gutschrift BM-%d'],
-            ],
-            'Druckerei Gutenberg OG' => [
-                ['min' => 200, 'max' => 500, 'format' => 'DG-2024-%04d'],
-                ['min' => 100, 'max' => 300, 'format' => 'Rg. %d Gutenberg'],
-            ],
-            'IT-Service Fischer KEG' => [
-                ['min' => 300, 'max' => 800, 'format' => 'ISF-%d'],
-                ['min' => 150, 'max' => 400, 'format' => 'Wartungsvertrag %d'],
-            ],
-            'Reinigung Sauber & Co' => [
-                ['min' => 100, 'max' => 250, 'format' => 'RS/24/%d'],
-                ['min' => 80, 'max' => 200, 'format' => 'Sauber-Nr. %d'],
-            ],
-            'Catering Lecker GmbH' => [
-                ['min' => 200, 'max' => 600, 'format' => 'CL-2024-%d'],
-                ['min' => 150, 'max' => 400, 'format' => 'Event-Abr. %d'],
-            ],
-            'Versicherung Sicher AG' => [
-                ['min' => 100, 'max' => 300, 'format' => 'VS-POL-%06d'],
-                ['min' => 150, 'max' => 400, 'format' => 'Schadensfall %d'],
-            ],
-            'Werbung Kreativ OG' => [
-                ['min' => 200, 'max' => 500, 'format' => 'WK/%d/24'],
-                ['min' => 100, 'max' => 300, 'format' => 'Kreativ-Ref %d'],
-            ],
-            'Möbel Modern GmbH' => [
-                ['min' => 300, 'max' => 800, 'format' => 'MM-RG-%05d'],
-                ['min' => 200, 'max' => 500, 'format' => 'Rückgabe %d'],
-            ],
-            'Elektro Blitz KEG' => [
-                ['min' => 100, 'max' => 300, 'format' => 'EB-24-%d'],
-                ['min' => 80, 'max' => 200, 'format' => 'Blitz-Service %d'],
-            ],
-            'Transport Schnell GmbH' => [
-                ['min' => 80, 'max' => 200, 'format' => 'TS-FRACHT-%d'],
-                ['min' => 100, 'max' => 300, 'format' => 'Schnell-Nr %d'],
-            ],
+            ['min' => 150, 'max' => 800, 'format' => 'Zahlung RE-%d'],
+            ['min' => 200, 'max' => 600, 'format' => 'Rechnung %d'],
+            ['min' => 100, 'max' => 500, 'format' => 'Zahlungseingang %d'],
+            ['min' => 150, 'max' => 400, 'format' => 'Überweisung'],
+            ['min' => 200, 'max' => 700, 'format' => 'Zahlung Auftrag %d'],
+            ['min' => 100, 'max' => 350, 'format' => 'Bestellung %d'],
         ];
 
         $created = 0;
@@ -556,11 +517,11 @@ class AccountsController extends AppController
         $summeAusgaben = 0;
         $summeEinnahmen = 0;
 
-        # Erst alle Transaktionen generieren
+        # Erst alle Transaktionen generieren (85% Ausgaben, 15% Einnahmen)
         for ($i = 0; $i < $numTransactions; $i++) {
-            $isAusgabe = (rand(1, 100) <= 70);
-            $partner = $systemAccounts[array_rand($systemAccounts)];
-            $partnerName = $partner->user->name;
+            $isAusgabe = (rand(1, 100) <= 85);
+            $partner = $partners[array_rand($partners)];
+            $partnerName = $partner->name;
 
             if ($isAusgabe) {
                 # Passenden Verwendungszweck für diesen Partner wählen
@@ -568,7 +529,7 @@ class AccountsController extends AppController
                     $templates = $partnerTemplates[$partnerName];
                     $template = $templates[array_rand($templates)];
                 } else {
-                    $template = ['min' => 50, 'max' => 200, 'text' => 'Rechnung'];
+                    $template = ['min' => 50, 'max' => 200, 'text' => 'Rechnung ' . $partner->description];
                 }
                 $betrag = rand($template['min'] * 100, $template['max'] * 100) / 100;
                 $verwendung = $template['text'];
@@ -577,7 +538,7 @@ class AccountsController extends AppController
                     'type' => 'ausgabe',
                     'data' => [
                         'account_id' => $accountId,
-                        'empfaenger_name' => $partner->user->name,
+                        'empfaenger_name' => $partner->name,
                         'empfaenger_iban' => $partner->iban,
                         'empfaenger_bic' => $partner->bic,
                         'betrag' => $betrag,
@@ -587,26 +548,25 @@ class AccountsController extends AppController
                 ];
                 $summeAusgaben += $betrag;
             } else {
-                # Eingang: Firmenspezifische Rechnungsnummer
-                if (isset($einnahmenTemplates[$partnerName])) {
-                    $templates = $einnahmenTemplates[$partnerName];
-                    $template = $templates[array_rand($templates)];
-                    $betrag = rand($template['min'] * 100, $template['max'] * 100) / 100;
+                # Eingang: Generische Verwendungszwecke
+                $template = $einnahmenTemplates[array_rand($einnahmenTemplates)];
+                $betrag = rand($template['min'] * 100, $template['max'] * 100) / 100;
+                # Format mit oder ohne Nummer
+                if (strpos($template['format'], '%d') !== false) {
                     $verwendung = sprintf($template['format'], rand(1000, 9999));
                 } else {
-                    $betrag = rand(100, 500);
-                    $verwendung = 'Zahlung ' . rand(1000, 9999);
+                    $verwendung = $template['format'];
                 }
 
+                # Einnahme: Eingang auf dem Konto (negativer Betrag = Gutschrift)
                 $transactions[] = [
                     'type' => 'einnahme',
-                    'partner' => $partner,
                     'data' => [
-                        'account_id' => $partner->id,
-                        'empfaenger_name' => $account->name,
-                        'empfaenger_iban' => $account->iban,
-                        'empfaenger_bic' => $account->bic ?? '',
-                        'betrag' => $betrag,
+                        'account_id' => $accountId,
+                        'empfaenger_name' => 'Zahlungseingang',
+                        'empfaenger_iban' => '',
+                        'empfaenger_bic' => '',
+                        'betrag' => -$betrag, # Negativ = Eingang
                         'zahlungszweck' => $verwendung,
                         'datum' => new \DateTime('-' . rand(1, 90) . ' days'),
                     ]
@@ -618,47 +578,38 @@ class AccountsController extends AppController
         # Differenz berechnen und Ausgleichstransaktion hinzufügen
         $differenz = round($summeAusgaben - $summeEinnahmen, 2);
         if (abs($differenz) > 0.01) {
-            $partner = $systemAccounts[array_rand($systemAccounts)];
-            $partnerName = $partner->user->name;
-
             if ($differenz > 0) {
                 # Mehr Ausgaben als Einnahmen → eine Einnahme hinzufügen
-                if (isset($einnahmenTemplates[$partnerName])) {
-                    $templates = $einnahmenTemplates[$partnerName];
-                    $template = $templates[array_rand($templates)];
-                    $verwendung = sprintf($template['format'], rand(1000, 9999));
-                } else {
-                    $verwendung = 'Ausgleich ' . rand(1000, 9999);
-                }
-
                 $transactions[] = [
                     'type' => 'einnahme',
-                    'partner' => $partner,
                     'data' => [
-                        'account_id' => $partner->id,
-                        'empfaenger_name' => $account->name,
-                        'empfaenger_iban' => $account->iban,
-                        'empfaenger_bic' => $account->bic ?? '',
-                        'betrag' => $differenz,
-                        'zahlungszweck' => $verwendung,
+                        'account_id' => $accountId,
+                        'empfaenger_name' => 'Zahlungseingang',
+                        'empfaenger_iban' => '',
+                        'empfaenger_bic' => '',
+                        'betrag' => -$differenz, # Negativ = Eingang
+                        'zahlungszweck' => 'Zahlung RE-' . rand(1000, 9999),
                         'datum' => new \DateTime('-' . rand(1, 90) . ' days'),
                     ]
                 ];
             } else {
                 # Mehr Einnahmen als Ausgaben → eine Ausgabe hinzufügen
+                $partner = $partners[array_rand($partners)];
+                $partnerName = $partner->name;
+
                 if (isset($partnerTemplates[$partnerName])) {
                     $templates = $partnerTemplates[$partnerName];
                     $template = $templates[array_rand($templates)];
                     $verwendung = $template['text'];
                 } else {
-                    $verwendung = 'Rechnung';
+                    $verwendung = 'Rechnung ' . $partner->description;
                 }
 
                 $transactions[] = [
                     'type' => 'ausgabe',
                     'data' => [
                         'account_id' => $accountId,
-                        'empfaenger_name' => $partner->user->name,
+                        'empfaenger_name' => $partner->name,
                         'empfaenger_iban' => $partner->iban,
                         'empfaenger_bic' => $partner->bic,
                         'betrag' => abs($differenz),
@@ -795,48 +746,181 @@ class AccountsController extends AppController
      */
     public function partners()
     {
-        $this->loadModel('Schools');
+        $this->loadModel('Partners');
 
-        # Branchen-Mapping für Geschäftspartner
-        $branchMapping = [
-            'Bürobedarf Mustermann GmbH' => 'Büro & Einrichtung',
-            'Möbel Modern GmbH' => 'Büro & Einrichtung',
-            'IT-Service Fischer KEG' => 'Dienstleistungen',
-            'Reinigung Sauber & Co' => 'Dienstleistungen',
-            'Druckerei Gutenberg OG' => 'Druck & Werbung',
-            'Werbung Kreativ OG' => 'Druck & Werbung',
-            'Catering Lecker GmbH' => 'Gastronomie',
-            'Elektro Blitz KEG' => 'Handwerk',
-            'Transport Schnell GmbH' => 'Logistik',
-            'Versicherung Sicher AG' => 'Versicherung',
-        ];
+        # Partner nach Branchen gruppiert laden
+        $groupedPartners = $this->Partners->getGroupedByBranch();
 
-        # System-Schule finden
-        $systemSchool = $this->Schools->find()
-            ->where(['kurzname' => 'system'])
-            ->first();
+        # Statistik für Admin-Block
+        $partnerCount = $this->Partners->find()->count();
 
-        $groupedAccounts = [];
-        if ($systemSchool) {
-            $systemAccounts = $this->Accounts->find()
-                ->contain(['Users'])
-                ->where(['Users.school_id' => $systemSchool->id])
-                ->order(['Users.name' => 'ASC'])
-                ->toArray();
+        # Berechtigungen
+        $isSuperadmin = ($this->Auth->user('username') === 'admin');
+        $isAdmin = ($this->Auth->user('role') === 'admin');
 
-            # Nach Branchen gruppieren
-            foreach ($systemAccounts as $account) {
-                $branch = $branchMapping[$account->user->name] ?? 'Sonstige';
-                if (!isset($groupedAccounts[$branch])) {
-                    $groupedAccounts[$branch] = [];
-                }
-                $groupedAccounts[$branch][] = $account;
-            }
+        $this->set(compact('groupedPartners', 'partnerCount', 'isSuperadmin', 'isAdmin'));
+    }
 
-            # Branchen alphabetisch sortieren
-            ksort($groupedAccounts);
+    /**
+     * Export partners as CSV for Excel
+     *
+     * @return \Cake\Http\Response
+     */
+    public function exportPartnersCsv()
+    {
+        $this->loadModel('Partners');
+
+        $partners = $this->Partners->find()
+            ->order(['branch' => 'ASC', 'name' => 'ASC'])
+            ->toArray();
+
+        # CSV Header (Excel-kompatibel mit BOM für UTF-8)
+        $csv = "\xEF\xBB\xBF"; # UTF-8 BOM für Excel
+        $csv .= "Branche;Firmenname;IBAN;BIC;Beschreibung\n";
+
+        foreach ($partners as $partner) {
+            $csv .= sprintf(
+                "%s;%s;%s;%s;%s\n",
+                $this->_csvEscape($partner->branch),
+                $this->_csvEscape($partner->name),
+                $partner->iban,
+                $partner->bic,
+                $this->_csvEscape($partner->description ?? '')
+            );
         }
 
-        $this->set(compact('groupedAccounts'));
+        $this->response = $this->response
+            ->withType('text/csv')
+            ->withCharset('UTF-8')
+            ->withHeader('Content-Disposition', 'attachment; filename="Partnerunternehmen.csv"')
+            ->withStringBody($csv);
+
+        return $this->response;
+    }
+
+    /**
+     * Escape CSV value
+     */
+    private function _csvEscape($value)
+    {
+        # Semikolons und Anführungszeichen escapen
+        if (strpos($value, ';') !== false || strpos($value, '"') !== false) {
+            return '"' . str_replace('"', '""', $value) . '"';
+        }
+        return $value;
+    }
+
+    /**
+     * Create default partners (Superadmin only)
+     * Creates 25 partner companies in 5 branches
+     *
+     * @return \Cake\Http\Response
+     */
+    public function createPartners()
+    {
+        $this->request->allowMethod(['post']);
+
+        # Nur Superadmin
+        if ($this->Auth->user('username') !== 'admin') {
+            $this->Flash->error(__('Keine Berechtigung.'));
+            return $this->redirect(['action' => 'partners']);
+        }
+
+        $this->loadModel('Partners');
+
+        # Prüfen ob bereits Partner existieren
+        if ($this->Partners->find()->count() > 0) {
+            $this->Flash->error(__('Partnerunternehmen existieren bereits.'));
+            return $this->redirect(['action' => 'partners']);
+        }
+
+        # 25 Partnerunternehmen (5 Branchen × 5 Firmen)
+        $partnersData = [
+            # Büro & Ausstattung
+            ['name' => 'Bürobedarf Mustermann GmbH', 'branch' => 'Büro & Ausstattung', 'description' => 'Büromaterial, Schreibwaren'],
+            ['name' => 'Möbel Modern GmbH', 'branch' => 'Büro & Ausstattung', 'description' => 'Büroeinrichtung, Möbel'],
+            ['name' => 'Technik-Partner KEG', 'branch' => 'Büro & Ausstattung', 'description' => 'Computer, Hardware'],
+            ['name' => 'Papier & Druck OG', 'branch' => 'Büro & Ausstattung', 'description' => 'Kopierpapier, Formulare'],
+            ['name' => 'Kantinenbedarf Weber', 'branch' => 'Büro & Ausstattung', 'description' => 'Kaffee, Getränke'],
+            # Dienstleistungen
+            ['name' => 'IT-Service Fischer KEG', 'branch' => 'Dienstleistungen', 'description' => 'EDV-Support, Software'],
+            ['name' => 'Steuerberatung Huber', 'branch' => 'Dienstleistungen', 'description' => 'Buchhaltung, Jahresabschluss'],
+            ['name' => 'Reinigung Sauber & Co', 'branch' => 'Dienstleistungen', 'description' => 'Büroreinigung'],
+            ['name' => 'Personalberatung Schmidt', 'branch' => 'Dienstleistungen', 'description' => 'Recruiting, Schulungen'],
+            ['name' => 'Gebäudeservice Müller', 'branch' => 'Dienstleistungen', 'description' => 'Reparaturen, Wartung'],
+            # Marketing & Kommunikation
+            ['name' => 'Druckerei Gutenberg OG', 'branch' => 'Marketing & Kommunikation', 'description' => 'Visitenkarten, Flyer'],
+            ['name' => 'Werbeagentur Kreativ', 'branch' => 'Marketing & Kommunikation', 'description' => 'Kampagnen, Design'],
+            ['name' => 'Web & Media Solutions', 'branch' => 'Marketing & Kommunikation', 'description' => 'Website, Social Media'],
+            ['name' => 'Messebau Express', 'branch' => 'Marketing & Kommunikation', 'description' => 'Messestände, Roll-ups'],
+            ['name' => 'Fotostudio Bildschön', 'branch' => 'Marketing & Kommunikation', 'description' => 'Produktfotos, Teamfotos'],
+            # Versicherungen & Finanzen
+            ['name' => 'Betriebsversicherung Austria AG', 'branch' => 'Versicherungen & Finanzen', 'description' => 'Betriebshaftpflicht'],
+            ['name' => 'Sachversicherung Sicher GmbH', 'branch' => 'Versicherungen & Finanzen', 'description' => 'Inventar, Gebäude'],
+            ['name' => 'Rechtsschutz Direkt', 'branch' => 'Versicherungen & Finanzen', 'description' => 'Rechtsschutzversicherung'],
+            ['name' => 'Unfallversicherung Plus', 'branch' => 'Versicherungen & Finanzen', 'description' => 'Mitarbeiter-Unfallschutz'],
+            ['name' => 'Kreditversicherung Trust', 'branch' => 'Versicherungen & Finanzen', 'description' => 'Forderungsausfall'],
+            # Logistik & Infrastruktur
+            ['name' => 'Transport Schnell GmbH', 'branch' => 'Logistik & Infrastruktur', 'description' => 'Paketversand, Spedition'],
+            ['name' => 'Elektro Blitz KEG', 'branch' => 'Logistik & Infrastruktur', 'description' => 'Elektroinstallation'],
+            ['name' => 'Telekom Business', 'branch' => 'Logistik & Infrastruktur', 'description' => 'Internet, Telefon'],
+            ['name' => 'Energie Austria', 'branch' => 'Logistik & Infrastruktur', 'description' => 'Strom, Gas'],
+            ['name' => 'Entsorgung Grün', 'branch' => 'Logistik & Infrastruktur', 'description' => 'Müllabfuhr, Recycling'],
+        ];
+
+        $created = 0;
+        foreach ($partnersData as $data) {
+            # Zufällige IBAN generieren (SY + 18 Ziffern)
+            $randomPart = '';
+            for ($i = 0; $i < 18; $i++) {
+                $randomPart .= mt_rand(0, 9);
+            }
+            $randomPart[0] = mt_rand(1, 9); # Erste Ziffer nicht 0
+
+            $partner = $this->Partners->newEntity([
+                'name' => $data['name'],
+                'iban' => 'SY' . $randomPart,
+                'bic' => 'EDUBANKSYS',
+                'branch' => $data['branch'],
+                'description' => $data['description']
+            ]);
+
+            if ($this->Partners->save($partner)) {
+                $created++;
+            }
+        }
+
+        $this->Flash->success(__('Partnerunternehmen erstellt: {0} Firmen in 5 Branchen.', $created));
+        return $this->redirect(['action' => 'partners']);
+    }
+
+    /**
+     * Delete all partners (Superadmin only)
+     *
+     * @return \Cake\Http\Response
+     */
+    public function deletePartners()
+    {
+        $this->request->allowMethod(['post']);
+
+        # Nur Superadmin
+        if ($this->Auth->user('username') !== 'admin') {
+            $this->Flash->error(__('Keine Berechtigung.'));
+            return $this->redirect(['action' => 'partners']);
+        }
+
+        $this->loadModel('Partners');
+
+        $count = $this->Partners->find()->count();
+        if ($count === 0) {
+            $this->Flash->error(__('Keine Partnerunternehmen vorhanden.'));
+            return $this->redirect(['action' => 'partners']);
+        }
+
+        # Alle Partner löschen
+        $this->Partners->deleteAll([]);
+
+        $this->Flash->success(__('Alle {0} Partnerunternehmen wurden gelöscht.', $count));
+        return $this->redirect(['action' => 'partners']);
     }
 }

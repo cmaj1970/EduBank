@@ -121,50 +121,6 @@
         </div>
         <?php endif; ?>
 
-        <!-- System-Konten -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header <?= $systemStats ? 'bg-primary text-white' : '' ?>">
-                <h5 class="mb-0"><i class="bi bi-shop me-2"></i>System-Konten (Geschäftspartner)</h5>
-            </div>
-            <div class="card-body">
-                <?php if ($systemStats): ?>
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <span class="badge bg-primary fs-6"><?= $systemStats['count'] ?></span>
-                        <span class="ms-2">Geschäftspartner verfügbar</span>
-                    </div>
-                    <?= $this->Form->postLink(
-                        '<i class="bi bi-trash me-1"></i> Löschen',
-                        ['action' => 'deleteSystemAccounts'],
-                        [
-                            'class' => 'btn btn-sm btn-outline-danger',
-                            'escape' => false,
-                            'confirm' => 'System-Konten löschen? Transaktionen zu diesen Konten werden ebenfalls gelöscht.'
-                        ]
-                    ) ?>
-                </div>
-                <p class="text-muted small mb-0">
-                    Fiktive Geschäftspartner wie Bürobedarf, Druckerei, IT-Service etc.
-                    Alle Übungsfirmen können an diese Konten überweisen.
-                </p>
-                <?php else: ?>
-                <p class="text-muted mb-3">
-                    <strong>System-Konten</strong> sind 10 fiktive Geschäftspartner (Bürobedarf, Druckerei, Catering etc.),
-                    die für alle Schulen als Überweisungsempfänger verfügbar sind.
-                    Ideal für Schulen mit wenigen Übungsfirmen.
-                </p>
-                <?= $this->Form->postLink(
-                    '<i class="bi bi-plus-lg me-2"></i> System-Konten erstellen',
-                    ['action' => 'createSystemAccounts'],
-                    [
-                        'class' => 'btn btn-primary',
-                        'escape' => false
-                    ]
-                ) ?>
-                <?php endif; ?>
-            </div>
-        </div>
-
         <!-- Demo Login Credentials -->
         <div class="card border-0 shadow-sm">
             <div class="card-header">
