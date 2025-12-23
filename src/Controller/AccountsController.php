@@ -797,20 +797,46 @@ class AccountsController extends AppController
     {
         $this->loadModel('Schools');
 
+        # Branchen-Mapping für Geschäftspartner
+        $branchMapping = [
+            'Bürobedarf Mustermann GmbH' => 'Büro & Einrichtung',
+            'Möbel Modern GmbH' => 'Büro & Einrichtung',
+            'IT-Service Fischer KEG' => 'Dienstleistungen',
+            'Reinigung Sauber & Co' => 'Dienstleistungen',
+            'Druckerei Gutenberg OG' => 'Druck & Werbung',
+            'Werbung Kreativ OG' => 'Druck & Werbung',
+            'Catering Lecker GmbH' => 'Gastronomie',
+            'Elektro Blitz KEG' => 'Handwerk',
+            'Transport Schnell GmbH' => 'Logistik',
+            'Versicherung Sicher AG' => 'Versicherung',
+        ];
+
         # System-Schule finden
         $systemSchool = $this->Schools->find()
             ->where(['kurzname' => 'system'])
             ->first();
 
-        $systemAccounts = [];
+        $groupedAccounts = [];
         if ($systemSchool) {
             $systemAccounts = $this->Accounts->find()
                 ->contain(['Users'])
                 ->where(['Users.school_id' => $systemSchool->id])
                 ->order(['Users.name' => 'ASC'])
                 ->toArray();
+
+            # Nach Branchen gruppieren
+            foreach ($systemAccounts as $account) {
+                $branch = $branchMapping[$account->user->name] ?? 'Sonstige';
+                if (!isset($groupedAccounts[$branch])) {
+                    $groupedAccounts[$branch] = [];
+                }
+                $groupedAccounts[$branch][] = $account;
+            }
+
+            # Branchen alphabetisch sortieren
+            ksort($groupedAccounts);
         }
 
-        $this->set(compact('systemAccounts'));
+        $this->set(compact('groupedAccounts'));
     }
 }
