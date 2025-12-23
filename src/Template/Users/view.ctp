@@ -53,6 +53,11 @@ if (!empty($user->accounts)) {
                     </div>
                     <div class="ms-3 d-flex gap-2 flex-shrink-0">
                         <?= $this->Html->link(
+                            '<i class="bi bi-box-arrow-in-right me-1"></i>Anmelden als',
+                            ['action' => 'impersonate', $user->id],
+                            ['class' => 'btn btn-success btn-sm', 'escape' => false]
+                        ) ?>
+                        <?= $this->Html->link(
                             '<i class="bi bi-pencil me-1"></i>Bearbeiten',
                             ['action' => 'edit', $user->id],
                             ['class' => 'btn btn-outline-primary btn-sm', 'escape' => false]
@@ -84,10 +89,11 @@ if (!empty($user->accounts)) {
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th style="width: 30%">Kontoname</th>
-                                <th style="width: 30%">IBAN</th>
-                                <th style="width: 20%" class="text-end">Überziehungsrahmen</th>
-                                <th style="width: 20%" class="text-end">Kontostand</th>
+                                <th>Kontoname</th>
+                                <th>IBAN</th>
+                                <th class="text-end">Überziehungsrahmen</th>
+                                <th class="text-end">Kontostand</th>
+                                <th style="width: 140px" class="text-end">Aktionen</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -110,6 +116,18 @@ if (!empty($user->accounts)) {
                                     <span class="fw-bold <?= $account->balance >= 0 ? 'text-success' : 'text-danger' ?>">
                                         <?= $this->Number->currency($account->balance, 'EUR') ?>
                                     </span>
+                                </td>
+                                <td class="text-end">
+                                    <?= $this->Html->link(
+                                        '<i class="bi bi-pencil"></i>',
+                                        ['controller' => 'Accounts', 'action' => 'edit', $account->id, '?' => ['redirect_user_id' => $user->id]],
+                                        ['class' => 'btn btn-outline-primary btn-sm me-1', 'escape' => false, 'title' => 'Bearbeiten']
+                                    ) ?>
+                                    <?= $this->Form->postLink(
+                                        '<i class="bi bi-trash"></i>',
+                                        ['controller' => 'Accounts', 'action' => 'delete', $account->id, '?' => ['redirect_user_id' => $user->id]],
+                                        ['class' => 'btn btn-outline-danger btn-sm', 'escape' => false, 'title' => 'Löschen', 'confirm' => __('Konto "{0}" wirklich löschen?', $account->name ?: 'Girokonto')]
+                                    ) ?>
                                 </td>
                             </tr>
                             <?php endforeach; ?>

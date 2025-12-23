@@ -2,28 +2,48 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Account $account
+ * @var array $users
+ * @var \App\Model\Entity\User|null $fixedUser
+ * @var int|null $fixedUserId
  */
+
+# Zurück-URL bestimmen
+$backUrl = ['action' => 'index'];
+if (!empty($fixedUserId)) {
+    $backUrl = ['controller' => 'Users', 'action' => 'view', $fixedUserId];
+}
 ?>
 
 <div class="row justify-content-center">
     <div class="col-lg-6 col-md-8">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header">
                 <h5 class="mb-0"><i class="bi bi-wallet-plus me-2"></i><?= __('Neues Konto') ?></h5>
-                <?= $this->Html->link('<i class="bi bi-arrow-left"></i> Zurück', ['action' => 'index'], ['class' => 'btn btn-sm btn-outline-secondary', 'escape' => false]) ?>
             </div>
             <div class="card-body">
                 <?php if(!empty($users)): ?>
                 <?= $this->Form->create($account) ?>
 
+                <?php if (!empty($fixedUserId)): ?>
+                <?= $this->Form->hidden('redirect_user_id', ['value' => $fixedUserId]) ?>
+                <?php endif; ?>
+
                 <div class="mb-3">
                     <label for="user-id" class="form-label"><?= __('Übungsfirma') ?> <span class="text-danger">*</span></label>
+                    <?php if (!empty($fixedUser)): ?>
+                    <div class="form-control bg-light">
+                        <i class="bi bi-building me-2 text-primary"></i>
+                        <strong><?= h($fixedUser->name) ?></strong>
+                    </div>
+                    <?= $this->Form->hidden('user_id', ['value' => $fixedUser->id]) ?>
+                    <?php else: ?>
                     <?= $this->Form->select('user_id', $users, [
                         'class' => 'form-select',
                         'id' => 'user-id',
                         'empty' => '-- Übungsfirma wählen --',
                         'required' => true
                     ]) ?>
+                    <?php endif; ?>
                 </div>
 
                 <div class="mb-3">
@@ -69,7 +89,7 @@
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="maxlimit" class="form-label"><?= __('Überweisungslimit') ?></label>
+                        <label for="maxlimit" class="form-label"><?= __('Überziehungsrahmen') ?></label>
                         <div class="input-group">
                             <?= $this->Form->text('maxlimit', [
                                 'class' => 'form-control bg-light',
@@ -82,8 +102,22 @@
                     </div>
                 </div>
 
+                <!-- Beispieltransaktionen -->
+                <div class="mb-4">
+                    <div class="form-check">
+                        <?= $this->Form->checkbox('prefill_sample_data', [
+                            'class' => 'form-check-input',
+                            'id' => 'prefill-sample-data'
+                        ]) ?>
+                        <label class="form-check-label" for="prefill-sample-data">
+                            <i class="bi bi-shuffle me-1"></i><?= __('Mit Beispieltransaktionen befüllen') ?>
+                        </label>
+                        <div class="form-text">Erstellt ca. 15 zufällige Transaktionen mit Partnerunternehmen</div>
+                    </div>
+                </div>
+
                 <div class="d-flex gap-2 justify-content-end">
-                    <?= $this->Html->link(__('Abbrechen'), ['action' => 'index'], ['class' => 'btn btn-secondary']) ?>
+                    <?= $this->Html->link(__('Abbrechen'), $backUrl, ['class' => 'btn btn-secondary']) ?>
                     <?= $this->Form->button(__('Konto erstellen'), ['class' => 'btn btn-primary']) ?>
                 </div>
 

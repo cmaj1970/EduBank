@@ -5,14 +5,16 @@
  */
 # Prüfen ob eingeloggter User ein Schuladmin ist
 $isSchoolAdminLoggedIn = isset($loggedinschool);
+
+# Zurück-URL: Schuladmin geht zur Detailseite, Superadmin zur Liste
+$backUrl = $isSchoolAdminLoggedIn ? ['action' => 'view', $user->id] : ['action' => 'index'];
 ?>
 
 <div class="row justify-content-center">
     <div class="col-lg-6 col-md-8">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header">
                 <h5 class="mb-0"><i class="bi bi-person-gear me-2"></i><?= __('Übungsfirma bearbeiten') ?></h5>
-                <?= $this->Html->link('<i class="bi bi-arrow-left"></i> Zurück', ['action' => 'index'], ['class' => 'btn btn-sm btn-outline-secondary', 'escape' => false]) ?>
             </div>
             <div class="card-body">
                 <?= $this->Form->create($user) ?>
@@ -79,7 +81,7 @@ $isSchoolAdminLoggedIn = isset($loggedinschool);
                 </div>
 
                 <div class="d-flex gap-2 justify-content-end">
-                    <?= $this->Html->link(__('Abbrechen'), ['action' => 'index'], ['class' => 'btn btn-secondary']) ?>
+                    <?= $this->Html->link(__('Abbrechen'), $backUrl, ['class' => 'btn btn-secondary']) ?>
                     <?= $this->Form->button(__('Speichern'), ['class' => 'btn btn-primary']) ?>
                 </div>
 

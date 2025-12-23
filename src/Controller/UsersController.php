@@ -416,6 +416,10 @@ class UsersController extends AppController
             $user = $this->Users->patchEntity($user, $data, ['validate' => 'update']);
             if ($this->Users->save($user)) {
                 $this->Flash->success(__('Übungsfirma wurde gespeichert.'));
+                # Schuladmin: Zurück zur Detailseite, Superadmin: zur Liste
+                if ($this->school) {
+                    return $this->redirect(['action' => 'view', $id]);
+                }
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('Die Übungsfirma konnte nicht gespeichert werden.'));
@@ -772,7 +776,7 @@ class UsersController extends AppController
 
     /**
      * Prefill account with sample transactions
-     * Uses system accounts as transaction partners
+     * Uses partners table for transaction partners
      *
      * @param int $accountId The account to prefill
      * @return int Number of transactions created
@@ -781,104 +785,82 @@ class UsersController extends AppController
     {
         $this->loadModel('Accounts');
         $this->loadModel('Transactions');
-        $this->loadModel('Schools');
+        $this->loadModel('Partners');
 
-        # Account laden
-        $account = $this->Accounts->get($accountId);
+        # Partnerunternehmen laden
+        $partners = $this->Partners->find()->toArray();
 
-        # System-Konten laden
-        $systemSchool = $this->Schools->find()
-            ->where(['kurzname' => 'system'])
-            ->first();
-
-        if (!$systemSchool) {
-            # Keine System-Konten vorhanden - nichts zu tun
+        if (empty($partners)) {
             return 0;
         }
 
-        $systemAccounts = $this->Accounts->find()
-            ->contain(['Users'])
-            ->where(['Users.school_id' => $systemSchool->id])
-            ->toArray();
-
-        if (empty($systemAccounts)) {
-            return 0;
-        }
-
-        # Transaktions-Templates (Ausgaben)
+        # Transaktions-Templates (Ausgaben) - passend zu Partnerunternehmen
         $ausgabenTemplates = [
             ['min' => 50, 'max' => 200, 'text' => 'Büromaterial'],
-            ['min' => 100, 'max' => 400, 'text' => 'Rechnung Nr. %d'],
+            ['min' => 100, 'max' => 400, 'text' => 'Rechnung'],
             ['min' => 200, 'max' => 800, 'text' => 'Warenlieferung'],
-            ['min' => 80, 'max' => 250, 'text' => 'Reinigungsservice'],
+            ['min' => 80, 'max' => 250, 'text' => 'Dienstleistung'],
             ['min' => 150, 'max' => 500, 'text' => 'Druckkosten'],
             ['min' => 100, 'max' => 350, 'text' => 'IT-Service'],
             ['min' => 50, 'max' => 180, 'text' => 'Werbekosten'],
             ['min' => 200, 'max' => 600, 'text' => 'Versicherungsprämie'],
         ];
 
-        # Transaktions-Templates (Einnahmen - von System-Konten an uns)
+        # Transaktions-Templates (Einnahmen)
         $einnahmenTemplates = [
-            ['min' => 300, 'max' => 1500, 'text' => 'Zahlung erhalten'],
-            ['min' => 200, 'max' => 800, 'text' => 'Gutschrift'],
-            ['min' => 100, 'max' => 500, 'text' => 'Rückerstattung'],
+            ['min' => 150, 'max' => 800, 'format' => 'Zahlung RE-%d'],
+            ['min' => 200, 'max' => 600, 'format' => 'Rechnung %d'],
+            ['min' => 100, 'max' => 500, 'format' => 'Zahlungseingang %d'],
+            ['min' => 150, 'max' => 400, 'format' => 'Überweisung'],
         ];
 
         $created = 0;
         $numTransactions = rand(12, 18);
-        $balance = 10000; # Startguthaben
 
         for ($i = 0; $i < $numTransactions; $i++) {
-            # 70% Ausgaben, 30% Einnahmen
-            $isAusgabe = (rand(1, 100) <= 70);
-            $partner = $systemAccounts[array_rand($systemAccounts)];
+            # 85% Ausgaben, 15% Einnahmen
+            $isAusgabe = (rand(1, 100) <= 85);
+            $partner = $partners[array_rand($partners)];
 
             if ($isAusgabe) {
                 $template = $ausgabenTemplates[array_rand($ausgabenTemplates)];
                 $betrag = rand($template['min'] * 100, $template['max'] * 100) / 100;
-                $verwendung = sprintf($template['text'], rand(1000, 9999));
 
                 # Transaktion: Von uns an Partner
                 $transaction = $this->Transactions->newEntity([
                     'account_id' => $accountId,
-                    'empfaenger_name' => $partner->user->name,
+                    'empfaenger_name' => $partner->name,
                     'empfaenger_iban' => $partner->iban,
                     'empfaenger_bic' => $partner->bic,
                     'betrag' => $betrag,
-                    'zahlungszweck' => $verwendung,
+                    'zahlungszweck' => $template['text'],
                     'datum' => new \DateTime('-' . rand(1, 90) . ' days'),
                 ]);
-
-                $balance -= $betrag;
             } else {
                 $template = $einnahmenTemplates[array_rand($einnahmenTemplates)];
                 $betrag = rand($template['min'] * 100, $template['max'] * 100) / 100;
-                $verwendung = $template['text'];
+                if (strpos($template['format'], '%d') !== false) {
+                    $verwendung = sprintf($template['format'], rand(1000, 9999));
+                } else {
+                    $verwendung = $template['format'];
+                }
 
-                # Transaktion: Von Partner an uns (wird als eingehende Transaktion gespeichert)
-                # In EduBank ist account_id der Absender, also speichern wir es "umgekehrt"
-                # Das Konto des Partners sendet an uns
+                # Einnahme: Negativer Betrag = Gutschrift
                 $transaction = $this->Transactions->newEntity([
-                    'account_id' => $partner->id,
-                    'empfaenger_name' => $account->name,
-                    'empfaenger_iban' => $account->iban,
-                    'empfaenger_bic' => $account->bic ?? '',
-                    'betrag' => $betrag,
+                    'account_id' => $accountId,
+                    'empfaenger_name' => 'Zahlungseingang',
+                    'empfaenger_iban' => '',
+                    'empfaenger_bic' => '',
+                    'betrag' => -$betrag,
                     'zahlungszweck' => $verwendung,
                     'datum' => new \DateTime('-' . rand(1, 90) . ' days'),
                 ]);
-
-                $balance += $betrag;
             }
 
             if ($this->Transactions->save($transaction)) {
                 $created++;
             }
         }
-
-        # Kontostand aktualisieren
-        $account->balance = round($balance, 2);
-        $this->Accounts->save($account);
 
         return $created;
     }

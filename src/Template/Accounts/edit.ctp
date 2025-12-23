@@ -3,14 +3,17 @@
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Account $account
  */
+
+# Zurück-URL: Wenn redirect_user_id gesetzt, zur Übungsfirma zurück
+$redirectUserId = $this->request->getQuery('redirect_user_id');
+$backUrl = $redirectUserId ? ['controller' => 'Users', 'action' => 'view', $redirectUserId] : ['action' => 'index'];
 ?>
 
 <div class="row justify-content-center">
     <div class="col-lg-6 col-md-8">
         <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header">
                 <h5 class="mb-0"><i class="bi bi-wallet2 me-2"></i><?= __('Konto bearbeiten') ?></h5>
-                <?= $this->Html->link('<i class="bi bi-arrow-left"></i> Zurück', ['action' => 'index'], ['class' => 'btn btn-sm btn-outline-secondary', 'escape' => false]) ?>
             </div>
             <div class="card-body">
                 <?= $this->Form->create($account) ?>
@@ -80,7 +83,7 @@
                 </div>
 
                 <div class="d-flex gap-2 justify-content-end">
-                    <?= $this->Html->link(__('Abbrechen'), ['action' => 'index'], ['class' => 'btn btn-secondary']) ?>
+                    <?= $this->Html->link(__('Abbrechen'), $backUrl, ['class' => 'btn btn-secondary']) ?>
                     <?= $this->Form->button(__('Speichern'), ['class' => 'btn btn-primary']) ?>
                 </div>
 

@@ -270,30 +270,61 @@ class AccountsController extends AppController
      */
     public function add() {
         $account = $this->Accounts->newEntity();
+        $fixedUserId = $this->request->getQuery('user_id');
+        $fixedUser = null;
+
         if ($this->request->is('post')) {
             $account = $this->Accounts->patchEntity($account, $this->request->getData());
-            // $account->balance = 10000;
-            // $account->limit = 2000;
             if ($this->Accounts->save($account)) {
-                $this->Flash->success(__('The account has been saved.'));
+                # Beispieldaten erstellen wenn gewünscht
+                if ($this->request->getData('prefill_sample_data')) {
+                    $txCount = $this->_prefillAccountWithSampleData($account->id);
+                    $this->Flash->success(__('Konto wurde erstellt ({0} Beispieltransaktionen).', $txCount));
+                } else {
+                    $this->Flash->success(__('Konto wurde erstellt.'));
+                }
+
+                # Zurück zur Übungsfirma wenn user_id übergeben wurde
+                $redirectUserId = $this->request->getData('redirect_user_id');
+                if ($redirectUserId && $this->school) {
+                    return $this->redirect(['controller' => 'Users', 'action' => 'view', $redirectUserId]);
+                }
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The account could not be saved. Please, try again.'));
+            $this->Flash->error(__('Konto konnte nicht erstellt werden.'));
         }
+
         $conditions = [];
-        if($this->school) {
+        if ($this->school) {
             $conditions = ['school_id' => $this->school['id'], 'role' => 'user'];
             $account->iban = $this->school['ibanprefix'] . rand(1000,9999).rand(1000,9999).rand(1000,9999).rand(1000,9999);
             $account->bic = $this->school['bic'];
+
+            # Fixierte Übungsfirma laden wenn user_id Parameter vorhanden
+            if ($fixedUserId) {
+                $fixedUser = $this->Accounts->Users->find()
+                    ->where(['id' => $fixedUserId, 'school_id' => $this->school['id']])
+                    ->first();
+                if ($fixedUser) {
+                    $account->user_id = $fixedUserId;
+                }
+            }
         }
+
         $all_users = $this->Accounts->Users->find('all', ['contain' => ['Accounts'], 'limit' => 200])->where($conditions);
-        $users =[];
-        foreach($all_users as $user) {
-            if(empty($user->accounts)) {
+        $users = [];
+        foreach ($all_users as $user) {
+            if (empty($user->accounts)) {
                 $users[$user->id] = $user->name;
             }
         }
-        $this->set(compact('account', 'users'));
+
+        # Bei fixierter Übungsfirma auch diese in die Liste aufnehmen (auch wenn schon Konto vorhanden)
+        if ($fixedUser && !isset($users[$fixedUser->id])) {
+            $users[$fixedUser->id] = $fixedUser->name;
+        }
+
+        $this->set(compact('account', 'users', 'fixedUser', 'fixedUserId'));
     }
 
     /**
@@ -332,11 +363,16 @@ class AccountsController extends AppController
             }
             $account = $this->Accounts->patchEntity($account, $data);
             if ($this->Accounts->save($account)) {
-                $this->Flash->success(__('The account has been saved.'));
+                $this->Flash->success(__('Konto wurde gespeichert.'));
 
+                # Zurück zur Übungsfirma wenn redirect_user_id übergeben wurde
+                $redirectUserId = $this->request->getQuery('redirect_user_id');
+                if ($redirectUserId && $this->school) {
+                    return $this->redirect(['controller' => 'Users', 'action' => 'view', $redirectUserId]);
+                }
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The account could not be saved. Please, try again.'));
+            $this->Flash->error(__('Konto konnte nicht gespeichert werden.'));
         }
         $conditions = [];
         if($this->school) {
@@ -366,11 +402,16 @@ class AccountsController extends AppController
         }
 
         if ($this->Accounts->delete($account)) {
-            $this->Flash->success(__('The account has been deleted.'));
+            $this->Flash->success(__('Konto wurde gelöscht.'));
         } else {
-            $this->Flash->error(__('The account could not be deleted. Please, try again.'));
+            $this->Flash->error(__('Konto konnte nicht gelöscht werden.'));
         }
 
+        # Zurück zur Übungsfirma wenn redirect_user_id übergeben wurde
+        $redirectUserId = $this->request->getQuery('redirect_user_id');
+        if ($redirectUserId && $this->school) {
+            return $this->redirect(['controller' => 'Users', 'action' => 'view', $redirectUserId]);
+        }
         return $this->redirect(['action' => 'index']);
     }
 
