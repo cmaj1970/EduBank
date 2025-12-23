@@ -189,6 +189,12 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                     </div>
                 </div>
 
+                <!-- Validierungsfehler (IBAN nicht gefunden etc.) -->
+                <div id="validation-error" style="display:none;" class="alert alert-danger mb-3">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    <span id="validation-error-text"></span>
+                </div>
+
                 <!-- Empfänger-Warnung (Name stimmt nicht überein) -->
                 <div id="recipient-warning" style="display:none;" class="alert alert-warning mb-3">
                     <div class="d-flex align-items-start">
@@ -338,20 +344,41 @@ $(document).ready(function() {
         }
     });
 
-    $("form#addtransaction").validate({
+    // Custom IBAN-Validator (prüft Länge ohne Leerzeichen)
+    $.validator.addMethod('validIban', function(value, element) {
+        var cleaned = value.replace(/\s/g, '');
+        return this.optional(element) || cleaned.length >= 20;
+    }, 'IBAN muss mindestens 20 Zeichen haben');
+
+    // Custom Betrag-Validator (muss > 0 sein)
+    $.validator.addMethod('validBetrag', function(value, element) {
+        var cleaned = value.replace(/\./g, '').replace(',', '.');
+        var amount = parseFloat(cleaned);
+        return !isNaN(amount) && amount > 0;
+    }, 'Bitte einen gültigen Betrag größer als 0 eingeben');
+
+    // Hilfsfunktion für Fehlermeldungen
+    function showValidationError(message) {
+        $('#validation-error-text').text(message);
+        $('#validation-error').show();
+        $('html, body').animate({ scrollTop: $('#validation-error').offset().top - 100 }, 300);
+    }
+
+    function hideValidationError() {
+        $('#validation-error').hide();
+    }
+
+    var formValidator = $("form#addtransaction").validate({
         lang: 'de',
         rules: {
             empfaenger_name: { required: true },
-            empfaenger_iban: { required: true, minlength: 20 },
-            betrag: { required: true },
+            empfaenger_iban: { required: true, validIban: true },
+            betrag: { required: true, validBetrag: true },
             zahlungszweck: { required: true }
         },
         messages: {
             empfaenger_name: { required: 'Bitte Empfängernamen eingeben' },
-            empfaenger_iban: {
-                required: 'Bitte IBAN eingeben',
-                minlength: 'IBAN muss mindestens 20 Zeichen haben'
-            },
+            empfaenger_iban: { required: 'Bitte IBAN eingeben' },
             betrag: { required: 'Bitte Betrag eingeben' },
             zahlungszweck: { required: 'Bitte Verwendungszweck eingeben' }
         }
@@ -362,11 +389,12 @@ $(document).ready(function() {
         e.preventDefault();
         e.stopPropagation();
 
-        var validator = $("#addtransaction").validate({ lang: 'de' });
-        if (!validator.form()) {
+        // Bestehenden Validator verwenden (nicht neu erstellen!)
+        if (!formValidator.form()) {
             return;
         }
 
+        hideValidationError();
         var iban = $('#empfaenger-iban').val().replace(/\s/g, '');
         var name = $('#empfaenger-name').val();
 
@@ -378,7 +406,8 @@ $(document).ready(function() {
             success: function(response) {
                 // IBAN nicht gültig
                 if (!response.valid) {
-                    alert(response.message || 'Die IBAN ist nicht gültig.');
+                    showValidationError(response.message || 'Die IBAN ist nicht gültig.');
+                    $('#empfaenger-iban').addClass('is-invalid').focus();
                     return;
                 }
 
@@ -398,7 +427,7 @@ $(document).ready(function() {
                 $('#tan').focus();
             },
             error: function() {
-                alert('Fehler bei der Empfängerprüfung. Bitte versuchen Sie es erneut.');
+                showValidationError('Fehler bei der Empfängerprüfung. Bitte versuchen Sie es erneut.');
             }
         });
     });
@@ -409,6 +438,7 @@ $(document).ready(function() {
         updateProgressSteps(1);
         $('#taninput').hide();
         $('#recipient-warning').hide();
+        hideValidationError();
         $('#formactions').show();
         $('#tan').val('');
         $('#transactionform').find(':input').prop('readonly', false);
@@ -420,8 +450,10 @@ $(document).ready(function() {
         var tanval = $('#tan').val();
         var modulo = tanval % 7;
         if(tanval == 0 || modulo > 0 || tanval < 10000 || tanval > 99999) {
-            alert('Ungültige TAN. Die TAN muss 5-stellig und durch 7 teilbar sein.');
+            showValidationError('Ungültige TAN. Die TAN muss 5-stellig und durch 7 teilbar sein.');
+            $('#tan').addClass('is-invalid').focus();
         } else {
+            hideValidationError();
             updateProgressSteps(3);
             var $iban = $('#empfaenger-iban');
             $iban.val($iban.val().replace(/\s/g, ''));
