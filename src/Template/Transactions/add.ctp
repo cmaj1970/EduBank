@@ -89,7 +89,7 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                             <option value=""><?= __('Name oder IBAN eingeben...') ?></option>
                         </select>
                         <div class="form-text">
-                            <i class="bi bi-info-circle me-1"></i>Überweisungen sind nur an Konten von teilnehmenden Schulen im EduBank-System möglich.
+                            <i class="bi bi-info-circle me-1"></i>Überweisungen sind an Partnerunternehmen und Übungsfirmen im EduBank-System möglich.
                         </div>
                     </div>
 
@@ -289,8 +289,8 @@ $(document).ready(function() {
             var $container = $('<div class="select2-result-recipient">' +
                 '<div class="recipient-name"><strong>' + item.name + '</strong></div>' +
                 '<div class="recipient-details text-muted small">' +
-                    '<span class="recipient-school">' + item.school + '</span> · ' +
                     '<span class="recipient-iban font-monospace">' + item.iban + '</span>' +
+                    (item.branch ? ' · <span class="recipient-branch">' + item.branch + '</span>' : '') +
                 '</div>' +
             '</div>');
             return $container;
