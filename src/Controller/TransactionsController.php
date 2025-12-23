@@ -264,7 +264,7 @@
 
         /**
          * Search Recipients - AJAX endpoint for Select2
-         * Returns all practice companies with their IBAN/BIC for autocomplete
+         * Returns all partners with their IBAN/BIC for autocomplete
          *
          * @return \Cake\Http\Response JSON response
          */
@@ -274,42 +274,35 @@
 
             $query = $this->request->getQuery('q', '');
 
-            # Alle Übungsfirmen aus freigegebenen Schulen laden
-            $this->loadModel('Users');
-            $this->loadModel('Accounts');
+            # Partnerunternehmen aus partners Tabelle laden
+            $this->loadModel('Partners');
 
-            # Nur System-Konten laden (Geschäftspartner)
-            $systemAccounts = $this->Accounts->find('all')
-                ->contain(['Users.Schools'])
-                ->matching('Users.Schools', function ($q) {
-                    return $q->where(['Schools.kurzname' => 'system']);
-                });
+            $partnersQuery = $this->Partners->find();
 
             if (!empty($query)) {
-                $systemAccounts->where([
+                $partnersQuery->where([
                     'OR' => [
-                        'Users.name LIKE' => '%' . $query . '%',
-                        'Accounts.name LIKE' => '%' . $query . '%',
-                        'Accounts.iban LIKE' => '%' . $query . '%',
+                        'Partners.name LIKE' => '%' . $query . '%',
+                        'Partners.iban LIKE' => '%' . $query . '%',
+                        'Partners.branch LIKE' => '%' . $query . '%',
                     ]
                 ]);
             }
 
-            $systemAccounts = $systemAccounts->order(['Users.name' => 'ASC'])->toArray();
+            $partners = $partnersQuery->order(['Partners.name' => 'ASC'])->toArray();
 
             # Ergebnis formatieren für Select2
             $results = [];
 
-            # Nur System-Konten (Geschäftspartner)
-            foreach ($systemAccounts as $account) {
+            foreach ($partners as $partner) {
                 $results[] = [
-                    'id' => $account->id,
-                    'text' => '★ ' . $account->user->name . ' – ' . $account->iban,
-                    'name' => $account->user->name,
-                    'iban' => $account->iban,
-                    'bic' => $account->bic,
-                    'school' => 'Geschäftspartner',
-                    'isSystem' => true,
+                    'id' => $partner->id,
+                    'text' => $partner->name . ' – ' . $partner->iban,
+                    'name' => $partner->name,
+                    'iban' => $partner->iban,
+                    'bic' => $partner->bic,
+                    'branch' => $partner->branch,
+                    'isPartner' => true,
                 ];
             }
 
@@ -319,7 +312,7 @@
 
         /**
          * Check IBAN method - AJAX endpoint to validate IBAN
-         * Returns JSON true/false if IBAN exists in system
+         * Returns JSON true/false if IBAN exists in system (accounts or partners)
          *
          * @return \Cake\Http\Response JSON response
          */
@@ -339,7 +332,8 @@
                 'valid' => false,
                 'nameMatch' => null,
                 'actualName' => null,
-                'message' => null
+                'message' => null,
+                'isPartner' => false
             ];
 
             # IBAN-Format prüfen
@@ -349,13 +343,28 @@
                 return $this->response;
             }
 
-            # Konto suchen
+            $actualName = null;
+
+            # Zuerst in Konten suchen
             $account = $this->Transactions->Accounts->find('all')
                 ->contain(['Users'])
-                ->where(['iban' => $iban])
+                ->where(['Accounts.iban' => $iban])
                 ->first();
 
-            if (empty($account)) {
+            if ($account) {
+                $actualName = $account->user->name;
+            } else {
+                # Dann in Partnerunternehmen suchen
+                $this->loadModel('Partners');
+                $partner = $this->Partners->findByIban($iban);
+
+                if ($partner) {
+                    $actualName = $partner->name;
+                    $result['isPartner'] = true;
+                }
+            }
+
+            if (empty($actualName)) {
                 $result['message'] = 'IBAN nicht im EduBank-System gefunden';
                 $this->response = $this->response->withStringBody(json_encode($result));
                 return $this->response;
@@ -363,12 +372,12 @@
 
             # IBAN ist gültig
             $result['valid'] = true;
-            $result['actualName'] = $account->user->name;
+            $result['actualName'] = $actualName;
 
             # Namensvergleich wenn Name angegeben
             if (!empty($enteredName)) {
                 $enteredNormalized = mb_strtolower(trim($enteredName));
-                $actualNormalized = mb_strtolower(trim($account->user->name));
+                $actualNormalized = mb_strtolower(trim($actualName));
 
                 if ($enteredNormalized === $actualNormalized) {
                     $result['nameMatch'] = 'exact';

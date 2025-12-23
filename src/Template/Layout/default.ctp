@@ -127,7 +127,7 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="/accounts/partners">
-                                <i class="bi bi-shop me-1"></i>Geschäftspartner
+                                <i class="bi bi-building me-1"></i>Partnerunternehmen
                             </a>
                         </li>
                         <?php else: ?>
@@ -150,7 +150,7 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="/accounts/partners">
-                                <i class="bi bi-shop me-1"></i>Geschäftspartner
+                                <i class="bi bi-building me-1"></i>Partnerunternehmen
                             </a>
                         </li>
                         <?php endif; ?>
