@@ -88,9 +88,6 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                         <select id="recipient-search" class="form-select">
                             <option value=""><?= __('Name oder IBAN eingeben...') ?></option>
                         </select>
-                        <div class="form-text">
-                            <i class="bi bi-info-circle me-1"></i>Überweisungen sind an Partnerunternehmen und Übungsfirmen im EduBank-System möglich.
-                        </div>
                     </div>
 
                     <!-- Empfänger-Details -->
@@ -129,6 +126,9 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                                         'placeholder' => 'AT00 0000 0000 0000 0000',
                                         'style' => 'letter-spacing: 1px;'
                                     ]) ?>
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle me-1"></i>Überweisungen sind an Partnerunternehmen und Übungsfirmen im EduBank-System möglich.
+                                    </div>
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label for="empfaenger-bic" class="form-label"><?= __('BIC') ?> <span class="text-muted">(optional)</span></label>
