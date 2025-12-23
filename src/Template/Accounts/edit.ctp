@@ -82,20 +82,6 @@ $backUrl = $redirectUserId ? ['controller' => 'Users', 'action' => 'view', $redi
                     </div>
                 </div>
 
-                <div class="mb-3" <?= $this->HelpText->attr('konto_edit', 'initial_balance') ?>>
-                    <label for="initial-balance" class="form-label"><?= __('Anfangskontostand') ?></label>
-                    <div class="input-group">
-                        <?= $this->Form->number('initial_balance', [
-                            'class' => 'form-control',
-                            'id' => 'initial-balance',
-                            'step' => '0.01',
-                            'min' => '0'
-                        ]) ?>
-                        <span class="input-group-text">€</span>
-                    </div>
-                    <div class="form-text">Kontostand nach Zurücksetzen</div>
-                </div>
-
                 <div class="d-flex gap-2 justify-content-end">
                     <?= $this->Html->link(__('Abbrechen'), $backUrl, ['class' => 'btn btn-secondary']) ?>
                     <?= $this->Form->button(__('Speichern'), ['class' => 'btn btn-primary']) ?>
@@ -112,7 +98,7 @@ $backUrl = $redirectUserId ? ['controller' => 'Users', 'action' => 'view', $redi
             </div>
             <div class="card-body">
                 <p class="text-muted small mb-3">
-                    Alle Transaktionen werden gelöscht und der Kontostand auf <?= $this->Number->currency($account->initial_balance ?? 10000, 'EUR') ?> zurückgesetzt.
+                    Alle Transaktionen werden gelöscht und der Kontostand auf 10.000 € zurückgesetzt.
                 </p>
                 <?php $resetUrl = ['action' => 'reset', $account->id]; if ($redirectUserId) { $resetUrl['?'] = ['redirect_user_id' => $redirectUserId]; } ?>
                 <div class="d-flex gap-2 flex-wrap">

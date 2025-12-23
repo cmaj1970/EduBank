@@ -77,18 +77,16 @@ if (!empty($fixedUserId)) {
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="initial-balance" class="form-label"><?= __('Anfangskontostand') ?></label>
+                        <label for="balance" class="form-label"><?= __('Startguthaben') ?></label>
                         <div class="input-group">
-                            <?= $this->Form->number('initial_balance', [
-                                'class' => 'form-control',
-                                'id' => 'initial-balance',
+                            <?= $this->Form->text('balance', [
+                                'class' => 'form-control bg-light',
+                                'id' => 'balance',
                                 'value' => '10000',
-                                'step' => '0.01',
-                                'min' => '0'
+                                'readonly' => true
                             ]) ?>
                             <span class="input-group-text">€</span>
                         </div>
-                        <div class="form-text">Kontostand beim Erstellen und nach Zurücksetzen</div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="maxlimit" class="form-label"><?= __('Überziehungsrahmen') ?></label>

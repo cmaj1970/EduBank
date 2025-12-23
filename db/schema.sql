@@ -30,7 +30,6 @@ CREATE TABLE `accounts` (
   `bic` varchar(255) DEFAULT NULL,
   `maxlimit` decimal(10,2) DEFAULT NULL,
   `balance` decimal(10,2) DEFAULT NULL,
-  `initial_balance` decimal(10,2) NOT NULL DEFAULT 10000.00,
   `active` tinyint(1) DEFAULT NULL,
   `created` datetime DEFAULT NULL,
   `modified` datetime DEFAULT NULL,
