@@ -222,8 +222,8 @@
 <!-- Info Section -->
 <div class="container mb-5">
     <div class="row justify-content-center">
-        <div class="col-lg-5 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm bg-primary text-white h-100">
+        <div class="col-lg-10 col-md-12">
+            <div class="card border-0 shadow-sm bg-primary text-white">
                 <div class="card-body p-4">
                     <h5 class="card-title mb-3"><i class="bi bi-info-circle me-2"></i>Über EduBank</h5>
                     <p class="card-text opacity-90 mb-2">
@@ -243,19 +243,6 @@
                             <i class="bi bi-piggy-bank me-1"></i> Unterstützen
                         </a>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-5 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4 text-center d-flex flex-column justify-content-center">
-                    <i class="bi bi-building text-primary fs-1 mb-3"></i>
-                    <h5>Für Schulen</h5>
-                    <p class="text-muted mb-4">Registrieren Sie Ihre Schule kostenlos und starten Sie mit dem digitalen Banking im Unterricht.</p>
-                    <a href="/schools/register" class="btn btn-primary btn-lg">
-                        <i class="bi bi-rocket-takeoff me-2"></i>Jetzt starten
-                    </a>
                 </div>
             </div>
         </div>
