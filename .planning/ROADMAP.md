@@ -8,7 +8,8 @@ Schuladmin-Bereich auf Design-Niveau des Schueler-Bereichs bringen: Typo-Fixes, 
 
 - [x] **Phase 1: Quick Fixes** - Typo-Korrektur
 - [x] **Phase 2: Layout Redesign** - Dashboard-Stil fuer Admin-Views
-- [ ] **Phase 3: Sample Data** - Beispieltransaktionen vorbefuellen
+- [x] **Phase 3: Sample Data** - Beispieltransaktionen vorbefuellen
+- [ ] **Phase 4: UX Schuladmin** - Klickpfade und Seitenstruktur
 
 ## Phase Details
 
@@ -36,8 +37,18 @@ Plans:
 **Plans**: 2
 
 Plans:
-- [ ] 03-01: System-Uebungsfirmen + Transaktions-Pool
-- [ ] 03-02: Checkbox + Prefill-Logik in UsersController
+- [x] 03-01: System-Konten (Geschaeftspartner) + Prefill-Transaktionen
+- [x] 03-02: Konto-Reset mit Beispieldaten
+
+### Phase 4: UX Schuladmin
+**Goal**: Benutzerfreundliche Navigation und Seitenstruktur fuer Schuladmins
+**Depends on**: Phase 3
+**Plans**: 3
+
+Plans:
+- [ ] 04-01: Klickpfade fuer Schul-Admins ausarbeiten
+- [ ] 04-02: Sinnvolle Struktur der Schul-Admin-Seite ueberlegen
+- [ ] 04-03: Diagramm zur Navigation erstellen
 
 ## Progress
 
@@ -45,4 +56,19 @@ Plans:
 |-------|-------|--------|-----------|
 | 1. Quick Fixes | 1/1 | Complete | 2025-12-22 |
 | 2. Layout Redesign | 3/3 | Complete | 2025-12-23 |
-| 3. Sample Data | 0/2 | Not started | - |
+| 3. Sample Data | 2/2 | Complete | 2025-12-23 |
+| 4. UX Schuladmin | 0/3 | Not started | - |
+
+## Known Issues
+
+- **IBAN-Bug auf Produktiv**: Alle Geschaeftspartner haben dieselbe IBAN (SY000000000000000000) statt zufaelliger Nummern. Ursache: mt_rand() mit zu grossen Zahlen.
+
+- **Geschaeftspartner-Persistenz**: Wenn System-Konten geloescht/neu erstellt werden, sind bestehende Ueberweisungen auf diese Konten nicht mehr sichtbar (IBAN existiert nicht mehr).
+
+  **Loesungsoptionen:**
+  - a) Geschaeftspartner einmalig anlegen, Loeschen nicht mehr erlauben
+  - b) Ueberweisungen auch anzeigen wenn Zielkonto nicht mehr existiert (nur IBAN anzeigen statt Kontoname)
+
+  **Empfehlung:** Option a) ist sauberer - System-Konten sind stabil, IBANs aendern sich nie.
+
+  **Naechster Schritt:** 50 Geschaeftspartner statt 10 anlegen fuer mehr Auswahl.

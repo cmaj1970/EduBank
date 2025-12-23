@@ -1612,7 +1612,13 @@ class SchoolsController extends AppController
 
             if ($this->Users->save($user)) {
                 # Konto erstellen mit zufälliger IBAN (SY + 18 Ziffern)
-                $iban = 'SY' . sprintf('%018d', mt_rand(100000000000000000, 999999999999999999));
+                # mt_rand() kann keine 18-stelligen Zahlen, daher Ziffern einzeln generieren
+                $randomPart = '';
+                for ($i = 0; $i < 18; $i++) {
+                    $randomPart .= mt_rand(0, 9);
+                }
+                $randomPart[0] = mt_rand(1, 9); # Erste Ziffer nicht 0
+                $iban = 'SY' . $randomPart;
                 $account = $this->Accounts->newEntity([
                     'user_id' => $user->id,
                     'name' => $firm['name'],
