@@ -41,6 +41,55 @@ class UsersController extends AppController
     }
 
     /**
+     * Dashboard - Einstiegsseite für Schuladmin
+     * Zeigt Infos und Quick-Links
+     *
+     * @return \Cake\Http\Response|void
+     */
+    public function dashboard()
+    {
+        # Nur für Schuladmin
+        if (!$this->school) {
+            return $this->redirect(['action' => 'index']);
+        }
+
+        # Stats laden
+        $this->loadModel('Accounts');
+        $this->loadModel('Transactions');
+
+        # Anzahl Übungsfirmen
+        $userCount = $this->Users->find()
+            ->where(['school_id' => $this->school['id'], 'role' => 'user'])
+            ->count();
+
+        # Anzahl Konten + Gesamtguthaben
+        $accounts = $this->Accounts->find()
+            ->contain(['Users'])
+            ->where(['Users.school_id' => $this->school['id']])
+            ->all();
+
+        $accountCount = $accounts->count();
+        $totalBalance = 0;
+        foreach ($accounts as $acc) {
+            $totalBalance += $acc->balance;
+        }
+
+        # Transaktionen heute
+        $today = date('Y-m-d');
+        $transactionsToday = $this->Transactions->find()
+            ->contain(['Accounts.Users'])
+            ->where([
+                'Users.school_id' => $this->school['id'],
+                'Transactions.created >=' => $today . ' 00:00:00'
+            ])
+            ->count();
+
+        $defaultPassword = env('DEFAULT_USER_PASSWORD', 'Schueler2024');
+
+        $this->set(compact('defaultPassword', 'userCount', 'accountCount', 'totalBalance', 'transactionsToday'));
+    }
+
+    /**
      * Index method - list all users
      *
      * @return void
@@ -508,9 +557,9 @@ class UsersController extends AppController
             return ['controller' => 'Schools', 'action' => 'index'];
         }
 
-        // Schuladmin (admin role with 'admin-' prefix): Übungsfirmen overview
+        // Schuladmin (admin role with 'admin-' prefix): Dashboard
         if ($user['role'] === 'admin' && strpos($user['username'], 'admin-') === 0) {
-            return ['controller' => 'Users', 'action' => 'index'];
+            return ['controller' => 'Users', 'action' => 'dashboard'];
         }
 
         // Übungsfirma (user role): Account page
@@ -585,7 +634,7 @@ class UsersController extends AppController
         // Redirect based on target user role
         if ($targetUser->role === 'admin' && strpos($targetUser->username, 'admin-') === 0) {
             $this->Flash->success(__('Sie sehen die Anwendung jetzt als Schuladmin "{0}".', $targetUser->name));
-            return $this->redirect(['controller' => 'Users', 'action' => 'index']);
+            return $this->redirect(['controller' => 'Users', 'action' => 'dashboard']);
         } else {
             $this->Flash->success(__('Sie sehen die Anwendung jetzt als "{0}".', $targetUser->name));
             return $this->redirect(['controller' => 'Accounts', 'action' => 'index']);

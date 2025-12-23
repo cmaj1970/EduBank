@@ -40,26 +40,41 @@
 		 */
 		public function index()
 		{
-			# Neueste zuerst (als Default, kann durch Paginator überschrieben werden)
-			$this->paginate = [
-				'contain' => ['Accounts.Users'],
-				'order' => ['Transactions.created' => 'DESC']
-			];
-
 			if ($this->school) {
-				# Schuladmin: Nur Transaktionen von Konten dieser Schule
-				$query = $this->Transactions->find('all')
+				# Schuladmin: Live-Feed mit den letzten 100 Transaktionen (ohne Pagination)
+				$transactions = $this->Transactions->find('all')
 					->contain(['Accounts.Users'])
 					->matching('Accounts.Users', function ($q) {
 						return $q->where(['Users.school_id' => $this->school['id']]);
-					});
-				$transactions = $this->paginate($query);
-			} else {
-				# Superadmin: Alle Transaktionen
-				$transactions = $this->paginate($this->Transactions);
-			}
+					})
+					->order(['Transactions.created' => 'DESC'])
+					->limit(100)
+					->all();
 
-			$this->set(compact('transactions'));
+				# Empfänger-Konten laden für Schulanzeige
+				$ibans = $transactions->extract('empfaenger_iban')->toArray();
+				$recipientAccounts = [];
+				if (!empty($ibans)) {
+					$this->loadModel('Accounts');
+					$accounts = $this->Accounts->find('all')
+						->contain(['Users.Schools'])
+						->where(['Accounts.iban IN' => array_unique($ibans)])
+						->all();
+					foreach ($accounts as $acc) {
+						$recipientAccounts[$acc->iban] = $acc;
+					}
+				}
+
+				$this->set(compact('transactions', 'recipientAccounts'));
+			} else {
+				# Superadmin: Alle Transaktionen mit Pagination
+				$this->paginate = [
+					'contain' => ['Accounts.Users'],
+					'order' => ['Transactions.created' => 'DESC']
+				];
+				$transactions = $this->paginate($this->Transactions);
+				$this->set(compact('transactions'));
+			}
 		}
 
 		/**
