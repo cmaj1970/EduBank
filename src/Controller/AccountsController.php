@@ -606,16 +606,17 @@ class AccountsController extends AppController
 
                 # Einnahme: Eingehende Transaktion (Partner ist Absender, Übungsfirma ist Empfänger)
                 # account_id = NULL (Partner haben keine echten Konten)
-                # empfaenger_iban = Übungsfirma-IBAN (die Übungsfirma empfängt das Geld)
+                # empfaenger_name = Partner-Name (wird als Absender in View angezeigt)
+                # empfaenger_iban = Übungsfirma-IBAN (für Zuordnung zum Konto)
                 $transactions[] = [
                     'type' => 'einnahme',
                     'data' => [
                         'account_id' => null,
-                        'empfaenger_name' => $account->name ?: 'Girokonto',
+                        'empfaenger_name' => $partner->name,
                         'empfaenger_iban' => $account->iban,
                         'empfaenger_bic' => $account->bic,
-                        'betrag' => $betrag, # Positiv = eingehender Betrag
-                        'zahlungszweck' => $partner->name . ': ' . $verwendung,
+                        'betrag' => $betrag,
+                        'zahlungszweck' => $verwendung,
                         'datum' => new \DateTime('-' . rand(1, 90) . ' days'),
                     ]
                 ];
@@ -628,16 +629,16 @@ class AccountsController extends AppController
         if (abs($differenz) > 0.01) {
             if ($differenz > 0) {
                 # Mehr Ausgaben als Einnahmen → eine Einnahme hinzufügen
-                # Einnahme: account_id = NULL, empfaenger_iban = Übungsfirma-IBAN
+                $partner = $partners[array_rand($partners)];
                 $transactions[] = [
                     'type' => 'einnahme',
                     'data' => [
                         'account_id' => null,
-                        'empfaenger_name' => $account->name ?: 'Girokonto',
+                        'empfaenger_name' => $partner->name,
                         'empfaenger_iban' => $account->iban,
                         'empfaenger_bic' => $account->bic,
-                        'betrag' => $differenz, # Positiv = eingehender Betrag
-                        'zahlungszweck' => 'Zahlungseingang RE-' . rand(1000, 9999),
+                        'betrag' => $differenz,
+                        'zahlungszweck' => 'Zahlung RE-' . rand(1000, 9999),
                         'datum' => new \DateTime('-' . rand(1, 90) . ' days'),
                     ]
                 ];

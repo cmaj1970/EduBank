@@ -196,8 +196,13 @@
                                 <td class="text-nowrap"><?= h($transaction->datum->format('d.m.Y')) ?></td>
                                 <td>
                                     <?php if ($isIncoming): ?>
-                                        <?= h($transaction->account->user->name ?? 'Unbekannt') ?>
-                                        <br><small class="text-muted font-monospace"><?= h($transaction->account->iban) ?></small>
+                                        <?php if ($transaction->account_id): ?>
+                                            <?= h($transaction->account->user->name ?? 'Unbekannt') ?>
+                                            <br><small class="text-muted font-monospace"><?= h($transaction->account->iban) ?></small>
+                                        <?php else: ?>
+                                            <?= h($transaction->empfaenger_name) ?>
+                                            <br><small class="text-muted font-monospace"><?= h($transaction->empfaenger_iban) ?></small>
+                                        <?php endif; ?>
                                     <?php else: ?>
                                         <?= h($transaction->empfaenger_name) ?>
                                         <br><small class="text-muted font-monospace"><?= h($transaction->empfaenger_iban) ?></small>
