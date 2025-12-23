@@ -604,17 +604,18 @@ class AccountsController extends AppController
                     $verwendung = $template['format'];
                 }
 
-                # Einnahme: Eingang auf dem Konto (negativer Betrag = Gutschrift)
-                # Verwende Partner-IBAN für gültige Transaktion
+                # Einnahme: Eingehende Transaktion (Partner ist Absender, Übungsfirma ist Empfänger)
+                # account_id = NULL (Partner haben keine echten Konten)
+                # empfaenger_iban = Übungsfirma-IBAN (die Übungsfirma empfängt das Geld)
                 $transactions[] = [
                     'type' => 'einnahme',
                     'data' => [
-                        'account_id' => $accountId,
-                        'empfaenger_name' => $partner->name,
-                        'empfaenger_iban' => $partner->iban,
-                        'empfaenger_bic' => $partner->bic,
-                        'betrag' => -$betrag, # Negativ = Eingang
-                        'zahlungszweck' => $verwendung,
+                        'account_id' => null,
+                        'empfaenger_name' => $account->name ?: 'Girokonto',
+                        'empfaenger_iban' => $account->iban,
+                        'empfaenger_bic' => $account->bic,
+                        'betrag' => $betrag, # Positiv = eingehender Betrag
+                        'zahlungszweck' => $partner->name . ': ' . $verwendung,
                         'datum' => new \DateTime('-' . rand(1, 90) . ' days'),
                     ]
                 ];
@@ -627,16 +628,16 @@ class AccountsController extends AppController
         if (abs($differenz) > 0.01) {
             if ($differenz > 0) {
                 # Mehr Ausgaben als Einnahmen → eine Einnahme hinzufügen
-                $ausgleichsPartner = $partners[array_rand($partners)];
+                # Einnahme: account_id = NULL, empfaenger_iban = Übungsfirma-IBAN
                 $transactions[] = [
                     'type' => 'einnahme',
                     'data' => [
-                        'account_id' => $accountId,
-                        'empfaenger_name' => $ausgleichsPartner->name,
-                        'empfaenger_iban' => $ausgleichsPartner->iban,
-                        'empfaenger_bic' => $ausgleichsPartner->bic,
-                        'betrag' => -$differenz, # Negativ = Eingang
-                        'zahlungszweck' => 'Zahlung RE-' . rand(1000, 9999),
+                        'account_id' => null,
+                        'empfaenger_name' => $account->name ?: 'Girokonto',
+                        'empfaenger_iban' => $account->iban,
+                        'empfaenger_bic' => $account->bic,
+                        'betrag' => $differenz, # Positiv = eingehender Betrag
+                        'zahlungszweck' => 'Zahlungseingang RE-' . rand(1000, 9999),
                         'datum' => new \DateTime('-' . rand(1, 90) . ' days'),
                     ]
                 ];
