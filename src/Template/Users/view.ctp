@@ -86,7 +86,7 @@ if (!empty($user->accounts)) {
                             <tr>
                                 <th style="width: 30%">Kontoname</th>
                                 <th style="width: 30%">IBAN</th>
-                                <th style="width: 20%" class="text-end">Überweisungslimit</th>
+                                <th style="width: 20%" class="text-end">Überziehungsrahmen</th>
                                 <th style="width: 20%" class="text-end">Kontostand</th>
                             </tr>
                         </thead>
