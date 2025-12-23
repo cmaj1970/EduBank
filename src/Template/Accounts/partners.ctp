@@ -19,28 +19,30 @@
         </div>
 
         <?php if (!empty($groupedAccounts)): ?>
-
-        <?php foreach ($groupedAccounts as $branch => $accounts): ?>
-        <div class="card mb-3">
-            <div class="card-header bg-light">
-                <h6 class="mb-0"><i class="bi bi-folder me-2"></i><?= h($branch) ?></h6>
-            </div>
+        <div class="card">
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>Geschäftspartner</th>
-                                <th>IBAN</th>
-                                <th>BIC</th>
+                                <th style="width: 45%">Geschäftspartner</th>
+                                <th style="width: 35%">IBAN</th>
+                                <th style="width: 20%">BIC</th>
                             </tr>
                         </thead>
                         <tbody>
+                            <?php foreach ($groupedAccounts as $branch => $accounts): ?>
+                            <!-- Branchen-Überschrift -->
+                            <tr class="table-secondary">
+                                <td colspan="3" class="fw-semibold">
+                                    <i class="bi bi-folder me-2"></i><?= h($branch) ?>
+                                </td>
+                            </tr>
                             <?php foreach ($accounts as $account): ?>
                             <tr>
                                 <td>
                                     <i class="bi bi-shop text-primary me-2"></i>
-                                    <strong><?= h($account->user->name) ?></strong>
+                                    <?= h($account->user->name) ?>
                                 </td>
                                 <td class="font-monospace">
                                     <?= h($account->iban) ?>
@@ -51,12 +53,12 @@
                                 <td class="font-monospace"><?= h($account->bic) ?></td>
                             </tr>
                             <?php endforeach; ?>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        <?php endforeach; ?>
 
         <div class="text-muted small mt-3">
             <i class="bi bi-info-circle me-1"></i>
