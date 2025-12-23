@@ -102,7 +102,7 @@ $backUrl = $redirectUserId ? ['controller' => 'Users', 'action' => 'view', $redi
                 </p>
                 <?php $resetUrl = ['action' => 'reset', $account->id]; if ($redirectUserId) { $resetUrl['?'] = ['redirect_user_id' => $redirectUserId]; } ?>
                 <div class="d-flex gap-2 flex-wrap">
-                    <?= $this->Form->create(null, ['url' => $resetUrl]) ?>
+                    <span <?= $this->HelpText->attr('konto_edit', 'leeren') ?>><?= $this->Form->create(null, ['url' => $resetUrl]) ?>
                     <?= $this->Form->hidden('prefill', ['value' => '0']) ?>
                     <?= $this->Form->button(
                         '<i class="bi bi-eraser me-1"></i> Leeren',
@@ -112,9 +112,9 @@ $backUrl = $redirectUserId ? ['controller' => 'Users', 'action' => 'view', $redi
                             'confirm' => 'Alle Transaktionen löschen und Konto auf Startwerte zurücksetzen?'
                         ]
                     ) ?>
-                    <?= $this->Form->end() ?>
+                    <?= $this->Form->end() ?></span>
 
-                    <?= $this->Form->create(null, ['url' => $resetUrl]) ?>
+                    <span <?= $this->HelpText->attr('konto_edit', 'prefill') ?>><?= $this->Form->create(null, ['url' => $resetUrl]) ?>
                     <?= $this->Form->hidden('prefill', ['value' => '1']) ?>
                     <?= $this->Form->button(
                         '<i class="bi bi-shuffle me-1"></i> Mit Beispieldaten befüllen',
@@ -124,7 +124,7 @@ $backUrl = $redirectUserId ? ['controller' => 'Users', 'action' => 'view', $redi
                             'confirm' => 'Alle Transaktionen löschen und mit neuen Beispieldaten befüllen?'
                         ]
                     ) ?>
-                    <?= $this->Form->end() ?>
+                    <?= $this->Form->end() ?></span>
                 </div>
             </div>
         </div>

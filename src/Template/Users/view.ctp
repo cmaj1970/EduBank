@@ -65,11 +65,11 @@ if (!empty($user->accounts)) {
                         </div>
                     </div>
                     <div class="ms-3 d-flex gap-2 flex-shrink-0">
-                        <?= $this->Html->link(
+                        <span <?= $this->HelpText->attr('schuladmin', 'btn_impersonate') ?>><?= $this->Html->link(
                             '<i class="bi bi-box-arrow-in-right me-1"></i>Anmelden als',
                             ['action' => 'impersonate', $user->id],
                             ['class' => 'btn btn-success btn-sm', 'escape' => false]
-                        ) ?>
+                        ) ?></span>
                         <?= $this->Html->link(
                             '<i class="bi bi-pencil me-1"></i>Bearbeiten',
                             ['action' => 'edit', $user->id],
