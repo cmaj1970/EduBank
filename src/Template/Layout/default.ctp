@@ -148,6 +148,11 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
                                 <i class="bi bi-arrow-left-right me-1"></i>Transaktionen
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/accounts/partners">
+                                <i class="bi bi-shop me-1"></i>Geschäftspartner
+                            </a>
+                        </li>
                         <?php endif; ?>
                     <?php else: ?>
                         <!-- Übungsfirma: Konto-Navigation -->
