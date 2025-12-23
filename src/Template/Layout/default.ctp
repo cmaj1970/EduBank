@@ -114,7 +114,7 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
                         <?php endif; ?>
 
                         <?php if (isset($loggedinschool)): ?>
-                        <!-- Schuladmin: Übungsfirmen + Transaktionen -->
+                        <!-- Schuladmin: Übungsfirmen + Transaktionen + Geschäftspartner -->
                         <li class="nav-item">
                             <a class="nav-link" href="/users">
                                 <i class="bi bi-building me-1"></i>Übungsfirmen
@@ -123,6 +123,11 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
                         <li class="nav-item">
                             <a class="nav-link" href="/transactions">
                                 <i class="bi bi-activity me-1"></i>Transaktionen
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/accounts/partners">
+                                <i class="bi bi-shop me-1"></i>Geschäftspartner
                             </a>
                         </li>
                         <?php else: ?>

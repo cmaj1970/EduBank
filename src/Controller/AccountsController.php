@@ -22,7 +22,7 @@ class AccountsController extends AppController
      */
     public function isAuthorized($user) {
         if (isset($user['role']) && $user['role'] === 'user') {
-            if (in_array($this->request->getParam('action'), ['index', 'view', 'history', 'directory', 'statement'])) {
+            if (in_array($this->request->getParam('action'), ['index', 'view', 'history', 'directory', 'statement', 'partners'])) {
                 return true;
             } else {
                 return false;
@@ -308,8 +308,23 @@ class AccountsController extends AppController
             return $this->redirect(['action' => 'index']);
         }
 
+        # Anzahl der Transaktionen für dieses Konto zählen
+        $transactionCount = $this->Accounts->Transactions->find()
+            ->where([
+                'OR' => [
+                    'account_id' => $id,
+                    'empfaenger_iban' => $account->iban
+                ]
+            ])
+            ->count();
+
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $account = $this->Accounts->patchEntity($account, $this->request->getData());
+            # Balance-Änderung nur erlauben wenn keine Transaktionen existieren
+            $data = $this->request->getData();
+            if ($transactionCount > 0 && isset($data['balance'])) {
+                unset($data['balance']);
+            }
+            $account = $this->Accounts->patchEntity($account, $data);
             if ($this->Accounts->save($account)) {
                 $this->Flash->success(__('The account has been saved.'));
 
@@ -322,7 +337,7 @@ class AccountsController extends AppController
             $conditions = ['school_id' => $this->school['id'], 'role' => 'user'];
         }
         $users = $this->Accounts->Users->find('list', ['limit' => 200])->where($conditions);
-        $this->set(compact('account', 'users'));
+        $this->set(compact('account', 'users', 'transactionCount'));
     }
 
     /**
@@ -356,13 +371,19 @@ class AccountsController extends AppController
     /**
      * Reset method - reset account to initial state
      * Deletes all transactions and resets balance/limit
+     * Optional: prefill with sample transactions
      *
      * @param string|null $id Account id.
-     * @return \Cake\Http\Response|null Redirects to index.
+     * @return \Cake\Http\Response|null Redirects to edit page.
      */
     public function reset($id = null) {
-        $this->request->allowMethod(['post', 'reset']);
+        $this->request->allowMethod(['post']);
         $account = $this->Accounts->find('all', ['contain' => ['Transactions', 'Users']])->where(['Accounts.id' => $id])->first();
+
+        if (!$account) {
+            $this->Flash->error(__('Konto nicht gefunden.'));
+            return $this->redirect(['action' => 'index']);
+        }
 
         # Schuladmin darf nur Konten seiner Schule zurücksetzen
         if ($this->school && $account->user->school_id != $this->school['id']) {
@@ -370,19 +391,293 @@ class AccountsController extends AppController
             return $this->redirect(['action' => 'index']);
         }
 
+        # Alle Transaktionen löschen
+        $this->Accounts->Transactions->deleteAll(['account_id' => $id]);
+        $this->Accounts->Transactions->deleteAll(['empfaenger_iban' => $account->iban]);
+
+        # Balance zurücksetzen
         $account->balance = 10000;
         $account->maxlimit = 2000;
 
         if ($this->Accounts->save($account)) {
-            $this->Accounts->Transactions->deleteAll(['account_id' => $id]);
-            $this->Accounts->Transactions->deleteAll(['empfaenger_iban' => $account->iban]);
-            $this->Flash->success(__('Das Konto wurde zurückgesetzt.'));
-
+            # Prefill wenn gewünscht
+            $prefill = $this->request->getData('prefill');
+            if ($prefill) {
+                $txCount = $this->_prefillAccountWithSampleData($account->id);
+                $this->Flash->success(__('Konto zurückgesetzt und mit {0} Beispieltransaktionen befüllt.', $txCount));
+            } else {
+                $this->Flash->success(__('Konto wurde auf Startwerte zurückgesetzt.'));
+            }
         } else {
             $this->Flash->error(__('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es noch einmal.'));
         }
 
-        return $this->redirect(['action' => 'index']);
+        return $this->redirect(['action' => 'edit', $id]);
+    }
+
+    /**
+     * Prefill account with sample transactions
+     * Uses system accounts as transaction partners
+     *
+     * @param int $accountId The account to prefill
+     * @return int Number of transactions created
+     */
+    private function _prefillAccountWithSampleData($accountId)
+    {
+        $this->loadModel('Schools');
+
+        # Account laden
+        $account = $this->Accounts->get($accountId);
+
+        # System-Konten laden
+        $systemSchool = $this->Schools->find()
+            ->where(['kurzname' => 'system'])
+            ->first();
+
+        if (!$systemSchool) {
+            return 0;
+        }
+
+        $systemAccounts = $this->Accounts->find()
+            ->contain(['Users'])
+            ->where(['Users.school_id' => $systemSchool->id])
+            ->toArray();
+
+        if (empty($systemAccounts)) {
+            return 0;
+        }
+
+        # Verwendungszwecke passend zu den Geschäftspartnern
+        $partnerTemplates = [
+            'Bürobedarf Mustermann GmbH' => [
+                ['min' => 30, 'max' => 120, 'text' => 'Druckerpapier A4'],
+                ['min' => 50, 'max' => 200, 'text' => 'Büromaterial Bestellung'],
+                ['min' => 20, 'max' => 80, 'text' => 'Schreibwaren'],
+                ['min' => 40, 'max' => 150, 'text' => 'Ordner und Mappen'],
+            ],
+            'Druckerei Gutenberg OG' => [
+                ['min' => 150, 'max' => 400, 'text' => 'Visitenkarten 500 Stk'],
+                ['min' => 200, 'max' => 600, 'text' => 'Flyer Druck'],
+                ['min' => 100, 'max' => 300, 'text' => 'Briefpapier Bestellung'],
+                ['min' => 80, 'max' => 250, 'text' => 'Stempel und Formulare'],
+            ],
+            'IT-Service Fischer KEG' => [
+                ['min' => 80, 'max' => 200, 'text' => 'PC-Wartung'],
+                ['min' => 150, 'max' => 400, 'text' => 'Software-Lizenz'],
+                ['min' => 100, 'max' => 350, 'text' => 'Netzwerk-Support'],
+                ['min' => 200, 'max' => 800, 'text' => 'Hardware-Reparatur'],
+            ],
+            'Reinigung Sauber & Co' => [
+                ['min' => 120, 'max' => 280, 'text' => 'Büroreinigung Monat'],
+                ['min' => 80, 'max' => 180, 'text' => 'Fensterreinigung'],
+                ['min' => 150, 'max' => 350, 'text' => 'Grundreinigung'],
+            ],
+            'Catering Lecker GmbH' => [
+                ['min' => 100, 'max' => 300, 'text' => 'Mittagsmenüs'],
+                ['min' => 200, 'max' => 500, 'text' => 'Firmenfeier Catering'],
+                ['min' => 50, 'max' => 150, 'text' => 'Besprechungs-Snacks'],
+            ],
+            'Versicherung Sicher AG' => [
+                ['min' => 200, 'max' => 500, 'text' => 'Betriebshaftpflicht Quartal'],
+                ['min' => 150, 'max' => 400, 'text' => 'Inventarversicherung'],
+                ['min' => 100, 'max' => 300, 'text' => 'Rechtsschutz Prämie'],
+            ],
+            'Werbung Kreativ OG' => [
+                ['min' => 150, 'max' => 400, 'text' => 'Logo-Design'],
+                ['min' => 100, 'max' => 300, 'text' => 'Social Media Kampagne'],
+                ['min' => 80, 'max' => 250, 'text' => 'Werbebanner'],
+                ['min' => 50, 'max' => 180, 'text' => 'Werbegeschenke'],
+            ],
+            'Möbel Modern GmbH' => [
+                ['min' => 200, 'max' => 600, 'text' => 'Bürostuhl ergonomisch'],
+                ['min' => 300, 'max' => 800, 'text' => 'Schreibtisch'],
+                ['min' => 150, 'max' => 400, 'text' => 'Aktenschrank'],
+                ['min' => 100, 'max' => 300, 'text' => 'Besprechungstisch'],
+            ],
+            'Elektro Blitz KEG' => [
+                ['min' => 80, 'max' => 200, 'text' => 'Leuchtmittel'],
+                ['min' => 150, 'max' => 400, 'text' => 'Steckdosen-Installation'],
+                ['min' => 100, 'max' => 300, 'text' => 'Elektro-Reparatur'],
+            ],
+            'Transport Schnell GmbH' => [
+                ['min' => 50, 'max' => 150, 'text' => 'Paketversand'],
+                ['min' => 100, 'max' => 300, 'text' => 'Warenlieferung'],
+                ['min' => 80, 'max' => 250, 'text' => 'Express-Transport'],
+            ],
+        ];
+
+        # Einnahmen-Templates mit firmenspezifischen Rechnungsnummern-Formaten
+        $einnahmenTemplates = [
+            'Bürobedarf Mustermann GmbH' => [
+                ['min' => 150, 'max' => 400, 'format' => 'BM-%d/24'],
+                ['min' => 200, 'max' => 600, 'format' => 'Gutschrift BM-%d'],
+            ],
+            'Druckerei Gutenberg OG' => [
+                ['min' => 200, 'max' => 500, 'format' => 'DG-2024-%04d'],
+                ['min' => 100, 'max' => 300, 'format' => 'Rg. %d Gutenberg'],
+            ],
+            'IT-Service Fischer KEG' => [
+                ['min' => 300, 'max' => 800, 'format' => 'ISF-%d'],
+                ['min' => 150, 'max' => 400, 'format' => 'Wartungsvertrag %d'],
+            ],
+            'Reinigung Sauber & Co' => [
+                ['min' => 100, 'max' => 250, 'format' => 'RS/24/%d'],
+                ['min' => 80, 'max' => 200, 'format' => 'Sauber-Nr. %d'],
+            ],
+            'Catering Lecker GmbH' => [
+                ['min' => 200, 'max' => 600, 'format' => 'CL-2024-%d'],
+                ['min' => 150, 'max' => 400, 'format' => 'Event-Abr. %d'],
+            ],
+            'Versicherung Sicher AG' => [
+                ['min' => 100, 'max' => 300, 'format' => 'VS-POL-%06d'],
+                ['min' => 150, 'max' => 400, 'format' => 'Schadensfall %d'],
+            ],
+            'Werbung Kreativ OG' => [
+                ['min' => 200, 'max' => 500, 'format' => 'WK/%d/24'],
+                ['min' => 100, 'max' => 300, 'format' => 'Kreativ-Ref %d'],
+            ],
+            'Möbel Modern GmbH' => [
+                ['min' => 300, 'max' => 800, 'format' => 'MM-RG-%05d'],
+                ['min' => 200, 'max' => 500, 'format' => 'Rückgabe %d'],
+            ],
+            'Elektro Blitz KEG' => [
+                ['min' => 100, 'max' => 300, 'format' => 'EB-24-%d'],
+                ['min' => 80, 'max' => 200, 'format' => 'Blitz-Service %d'],
+            ],
+            'Transport Schnell GmbH' => [
+                ['min' => 80, 'max' => 200, 'format' => 'TS-FRACHT-%d'],
+                ['min' => 100, 'max' => 300, 'format' => 'Schnell-Nr %d'],
+            ],
+        ];
+
+        $created = 0;
+        $numTransactions = rand(12, 18);
+        $transactions = [];
+        $summeAusgaben = 0;
+        $summeEinnahmen = 0;
+
+        # Erst alle Transaktionen generieren
+        for ($i = 0; $i < $numTransactions; $i++) {
+            $isAusgabe = (rand(1, 100) <= 70);
+            $partner = $systemAccounts[array_rand($systemAccounts)];
+            $partnerName = $partner->user->name;
+
+            if ($isAusgabe) {
+                # Passenden Verwendungszweck für diesen Partner wählen
+                if (isset($partnerTemplates[$partnerName])) {
+                    $templates = $partnerTemplates[$partnerName];
+                    $template = $templates[array_rand($templates)];
+                } else {
+                    $template = ['min' => 50, 'max' => 200, 'text' => 'Rechnung'];
+                }
+                $betrag = rand($template['min'] * 100, $template['max'] * 100) / 100;
+                $verwendung = $template['text'];
+
+                $transactions[] = [
+                    'type' => 'ausgabe',
+                    'data' => [
+                        'account_id' => $accountId,
+                        'empfaenger_name' => $partner->user->name,
+                        'empfaenger_iban' => $partner->iban,
+                        'empfaenger_bic' => $partner->bic,
+                        'betrag' => $betrag,
+                        'zahlungszweck' => $verwendung,
+                        'datum' => new \DateTime('-' . rand(1, 90) . ' days'),
+                    ]
+                ];
+                $summeAusgaben += $betrag;
+            } else {
+                # Eingang: Firmenspezifische Rechnungsnummer
+                if (isset($einnahmenTemplates[$partnerName])) {
+                    $templates = $einnahmenTemplates[$partnerName];
+                    $template = $templates[array_rand($templates)];
+                    $betrag = rand($template['min'] * 100, $template['max'] * 100) / 100;
+                    $verwendung = sprintf($template['format'], rand(1000, 9999));
+                } else {
+                    $betrag = rand(100, 500);
+                    $verwendung = 'Zahlung ' . rand(1000, 9999);
+                }
+
+                $transactions[] = [
+                    'type' => 'einnahme',
+                    'partner' => $partner,
+                    'data' => [
+                        'account_id' => $partner->id,
+                        'empfaenger_name' => $account->name,
+                        'empfaenger_iban' => $account->iban,
+                        'empfaenger_bic' => $account->bic ?? '',
+                        'betrag' => $betrag,
+                        'zahlungszweck' => $verwendung,
+                        'datum' => new \DateTime('-' . rand(1, 90) . ' days'),
+                    ]
+                ];
+                $summeEinnahmen += $betrag;
+            }
+        }
+
+        # Differenz berechnen und Ausgleichstransaktion hinzufügen
+        $differenz = round($summeAusgaben - $summeEinnahmen, 2);
+        if (abs($differenz) > 0.01) {
+            $partner = $systemAccounts[array_rand($systemAccounts)];
+            $partnerName = $partner->user->name;
+
+            if ($differenz > 0) {
+                # Mehr Ausgaben als Einnahmen → eine Einnahme hinzufügen
+                if (isset($einnahmenTemplates[$partnerName])) {
+                    $templates = $einnahmenTemplates[$partnerName];
+                    $template = $templates[array_rand($templates)];
+                    $verwendung = sprintf($template['format'], rand(1000, 9999));
+                } else {
+                    $verwendung = 'Ausgleich ' . rand(1000, 9999);
+                }
+
+                $transactions[] = [
+                    'type' => 'einnahme',
+                    'partner' => $partner,
+                    'data' => [
+                        'account_id' => $partner->id,
+                        'empfaenger_name' => $account->name,
+                        'empfaenger_iban' => $account->iban,
+                        'empfaenger_bic' => $account->bic ?? '',
+                        'betrag' => $differenz,
+                        'zahlungszweck' => $verwendung,
+                        'datum' => new \DateTime('-' . rand(1, 90) . ' days'),
+                    ]
+                ];
+            } else {
+                # Mehr Einnahmen als Ausgaben → eine Ausgabe hinzufügen
+                if (isset($partnerTemplates[$partnerName])) {
+                    $templates = $partnerTemplates[$partnerName];
+                    $template = $templates[array_rand($templates)];
+                    $verwendung = $template['text'];
+                } else {
+                    $verwendung = 'Rechnung';
+                }
+
+                $transactions[] = [
+                    'type' => 'ausgabe',
+                    'data' => [
+                        'account_id' => $accountId,
+                        'empfaenger_name' => $partner->user->name,
+                        'empfaenger_iban' => $partner->iban,
+                        'empfaenger_bic' => $partner->bic,
+                        'betrag' => abs($differenz),
+                        'zahlungszweck' => $verwendung,
+                        'datum' => new \DateTime('-' . rand(1, 90) . ' days'),
+                    ]
+                ];
+            }
+        }
+
+        # Alle Transaktionen speichern
+        foreach ($transactions as $tx) {
+            $entity = $this->Accounts->Transactions->newEntity($tx['data']);
+            if ($this->Accounts->Transactions->save($entity)) {
+                $created++;
+            }
+        }
+
+        return $created;
     }
 
     /**
@@ -490,5 +785,32 @@ class AccountsController extends AppController
         }
 
         $this->set(compact('companiesBySchool', 'schoolList', 'selectedSchool', 'search'));
+    }
+
+    /**
+     * Partners method - show all system accounts (business partners)
+     * Available to all users for transfer recipients
+     *
+     * @return \Cake\Http\Response|void
+     */
+    public function partners()
+    {
+        $this->loadModel('Schools');
+
+        # System-Schule finden
+        $systemSchool = $this->Schools->find()
+            ->where(['kurzname' => 'system'])
+            ->first();
+
+        $systemAccounts = [];
+        if ($systemSchool) {
+            $systemAccounts = $this->Accounts->find()
+                ->contain(['Users'])
+                ->where(['Users.school_id' => $systemSchool->id])
+                ->order(['Users.name' => 'ASC'])
+                ->toArray();
+        }
+
+        $this->set(compact('systemAccounts'));
     }
 }

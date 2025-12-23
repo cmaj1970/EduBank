@@ -50,6 +50,7 @@
                                     <tr>
                                         <td>
                                             <strong><?= h($transaction->empfaenger_name) ?></strong>
+                                            <br><small class="text-muted font-monospace"><?= h($transaction->empfaenger_iban) ?></small>
                                             <?php if ($transaction->zahlungszweck): ?>
                                                 <br><small class="text-muted"><?= h(\Cake\Utility\Text::truncate($transaction->zahlungszweck, 40)) ?></small>
                                             <?php endif; ?>

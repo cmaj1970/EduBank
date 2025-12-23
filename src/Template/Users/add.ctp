@@ -53,6 +53,19 @@ $isSchoolAdmin = isset($loggedinschool);
                     <div class="form-text"><i class="bi bi-info-circle me-1"></i>Ein Konto mit IBAN und BIC wird automatisch angelegt</div>
                 </div>
 
+                <div class="mb-3">
+                    <div class="form-check">
+                        <?= $this->Form->checkbox('prefill_sample_data', [
+                            'class' => 'form-check-input',
+                            'id' => 'prefillSampleData'
+                        ]) ?>
+                        <label class="form-check-label" for="prefillSampleData">
+                            <i class="bi bi-shuffle me-1"></i><?= __('Mit Beispieltransaktionen befüllen') ?>
+                        </label>
+                        <div class="form-text">Erstellt ~15 realistische Transaktionen der letzten 3 Monate</div>
+                    </div>
+                </div>
+
                 <?php else: ?>
                 <!-- Superadmin: Kann Schule und Rolle wählen -->
                 <div class="mb-3">

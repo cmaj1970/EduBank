@@ -85,7 +85,7 @@ class SchoolsTable extends Table
 
         $validator
             ->scalar('status')
-            ->inList('status', ['pending', 'approved', 'rejected'])
+            ->inList('status', ['pending', 'approved', 'rejected', 'system'])
             ->allowEmpty('status');
 
         return $validator;

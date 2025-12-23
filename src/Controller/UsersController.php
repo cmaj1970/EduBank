@@ -335,7 +335,13 @@ class UsersController extends AppController
                     $account->maxlimit = 2000; // Default overdraft limit
 
                     if ($this->Accounts->save($account)) {
-                        $this->Flash->success(__('Übungsfirma und Konto wurden erstellt.'));
+                        # Prefill mit Beispieltransaktionen wenn gewünscht
+                        if ($this->request->getData('prefill_sample_data')) {
+                            $txCount = $this->_prefillAccountWithSampleData($account->id);
+                            $this->Flash->success(__('Übungsfirma und Konto wurden erstellt ({0} Beispieltransaktionen).', $txCount));
+                        } else {
+                            $this->Flash->success(__('Übungsfirma und Konto wurden erstellt.'));
+                        }
                     } else {
                         $this->Flash->success(__('Übungsfirma wurde erstellt, aber Konto konnte nicht angelegt werden.'));
                     }
@@ -762,6 +768,119 @@ class UsersController extends AppController
             $this->log('CredentialsEmail Fehler: ' . $e->getMessage(), 'error');
             return false;
         }
+    }
+
+    /**
+     * Prefill account with sample transactions
+     * Uses system accounts as transaction partners
+     *
+     * @param int $accountId The account to prefill
+     * @return int Number of transactions created
+     */
+    private function _prefillAccountWithSampleData($accountId)
+    {
+        $this->loadModel('Accounts');
+        $this->loadModel('Transactions');
+        $this->loadModel('Schools');
+
+        # Account laden
+        $account = $this->Accounts->get($accountId);
+
+        # System-Konten laden
+        $systemSchool = $this->Schools->find()
+            ->where(['kurzname' => 'system'])
+            ->first();
+
+        if (!$systemSchool) {
+            # Keine System-Konten vorhanden - nichts zu tun
+            return 0;
+        }
+
+        $systemAccounts = $this->Accounts->find()
+            ->contain(['Users'])
+            ->where(['Users.school_id' => $systemSchool->id])
+            ->toArray();
+
+        if (empty($systemAccounts)) {
+            return 0;
+        }
+
+        # Transaktions-Templates (Ausgaben)
+        $ausgabenTemplates = [
+            ['min' => 50, 'max' => 200, 'text' => 'Büromaterial'],
+            ['min' => 100, 'max' => 400, 'text' => 'Rechnung Nr. %d'],
+            ['min' => 200, 'max' => 800, 'text' => 'Warenlieferung'],
+            ['min' => 80, 'max' => 250, 'text' => 'Reinigungsservice'],
+            ['min' => 150, 'max' => 500, 'text' => 'Druckkosten'],
+            ['min' => 100, 'max' => 350, 'text' => 'IT-Service'],
+            ['min' => 50, 'max' => 180, 'text' => 'Werbekosten'],
+            ['min' => 200, 'max' => 600, 'text' => 'Versicherungsprämie'],
+        ];
+
+        # Transaktions-Templates (Einnahmen - von System-Konten an uns)
+        $einnahmenTemplates = [
+            ['min' => 300, 'max' => 1500, 'text' => 'Zahlung erhalten'],
+            ['min' => 200, 'max' => 800, 'text' => 'Gutschrift'],
+            ['min' => 100, 'max' => 500, 'text' => 'Rückerstattung'],
+        ];
+
+        $created = 0;
+        $numTransactions = rand(12, 18);
+        $balance = 10000; # Startguthaben
+
+        for ($i = 0; $i < $numTransactions; $i++) {
+            # 70% Ausgaben, 30% Einnahmen
+            $isAusgabe = (rand(1, 100) <= 70);
+            $partner = $systemAccounts[array_rand($systemAccounts)];
+
+            if ($isAusgabe) {
+                $template = $ausgabenTemplates[array_rand($ausgabenTemplates)];
+                $betrag = rand($template['min'] * 100, $template['max'] * 100) / 100;
+                $verwendung = sprintf($template['text'], rand(1000, 9999));
+
+                # Transaktion: Von uns an Partner
+                $transaction = $this->Transactions->newEntity([
+                    'account_id' => $accountId,
+                    'empfaenger_name' => $partner->user->name,
+                    'empfaenger_iban' => $partner->iban,
+                    'empfaenger_bic' => $partner->bic,
+                    'betrag' => $betrag,
+                    'zahlungszweck' => $verwendung,
+                    'datum' => new \DateTime('-' . rand(1, 90) . ' days'),
+                ]);
+
+                $balance -= $betrag;
+            } else {
+                $template = $einnahmenTemplates[array_rand($einnahmenTemplates)];
+                $betrag = rand($template['min'] * 100, $template['max'] * 100) / 100;
+                $verwendung = $template['text'];
+
+                # Transaktion: Von Partner an uns (wird als eingehende Transaktion gespeichert)
+                # In EduBank ist account_id der Absender, also speichern wir es "umgekehrt"
+                # Das Konto des Partners sendet an uns
+                $transaction = $this->Transactions->newEntity([
+                    'account_id' => $partner->id,
+                    'empfaenger_name' => $account->name,
+                    'empfaenger_iban' => $account->iban,
+                    'empfaenger_bic' => $account->bic ?? '',
+                    'betrag' => $betrag,
+                    'zahlungszweck' => $verwendung,
+                    'datum' => new \DateTime('-' . rand(1, 90) . ' days'),
+                ]);
+
+                $balance += $betrag;
+            }
+
+            if ($this->Transactions->save($transaction)) {
+                $created++;
+            }
+        }
+
+        # Kontostand aktualisieren
+        $account->balance = round($balance, 2);
+        $this->Accounts->save($account);
+
+        return $created;
     }
 
 }
