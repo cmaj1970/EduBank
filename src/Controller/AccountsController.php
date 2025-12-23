@@ -275,8 +275,6 @@ class AccountsController extends AppController
 
         if ($this->request->is('post')) {
             $account = $this->Accounts->patchEntity($account, $this->request->getData());
-            # Balance auf initial_balance setzen (Standard: 10000)
-            $account->balance = $account->initial_balance ?? 10000;
             if ($this->Accounts->save($account)) {
                 # Beispieldaten erstellen wenn gewünscht
                 if ($this->request->getData('prefill_sample_data')) {
@@ -444,8 +442,8 @@ class AccountsController extends AppController
         $this->Accounts->Transactions->deleteAll(['account_id' => $id]);
         $this->Accounts->Transactions->deleteAll(['empfaenger_iban' => $account->iban]);
 
-        # Balance auf initial_balance zurücksetzen (Standard: 10000)
-        $account->balance = $account->initial_balance ?? 10000;
+        # Balance zurücksetzen
+        $account->balance = 10000;
         $account->maxlimit = 2000;
 
         if ($this->Accounts->save($account)) {
