@@ -1,9 +1,9 @@
 <?php
 /**
- * Geschäftspartner - System-Konten für Überweisungen
+ * Geschäftspartner - System-Konten für Überweisungen (nach Branchen gruppiert)
  *
  * @var \App\View\AppView $this
- * @var array $systemAccounts
+ * @var array $groupedAccounts
  */
 ?>
 
@@ -18,8 +18,13 @@
             </p>
         </div>
 
-        <?php if (!empty($systemAccounts)): ?>
-        <div class="card">
+        <?php if (!empty($groupedAccounts)): ?>
+
+        <?php foreach ($groupedAccounts as $branch => $accounts): ?>
+        <div class="card mb-3">
+            <div class="card-header bg-light">
+                <h6 class="mb-0"><i class="bi bi-folder me-2"></i><?= h($branch) ?></h6>
+            </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
@@ -31,7 +36,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($systemAccounts as $account): ?>
+                            <?php foreach ($accounts as $account): ?>
                             <tr>
                                 <td>
                                     <i class="bi bi-shop text-primary me-2"></i>
@@ -51,6 +56,7 @@
                 </div>
             </div>
         </div>
+        <?php endforeach; ?>
 
         <div class="text-muted small mt-3">
             <i class="bi bi-info-circle me-1"></i>
