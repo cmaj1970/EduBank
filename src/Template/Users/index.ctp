@@ -101,7 +101,7 @@ $isIframe = $this->request->getQuery('iframe') === '1';
                         <thead class="table-light">
                             <tr>
                                 <th style="width: 35%"><?= $this->Paginator->sort('name', 'Firmenname') ?></th>
-                                <th style="width: 25%"><?= $this->Paginator->sort('username', 'Login-Name') ?></th>
+                                <th style="width: 25%"><?= $this->Paginator->sort('username', 'Benutzername') ?></th>
                                 <th style="width: 15%" class="text-center">Konten</th>
                                 <th style="width: 25%" class="text-end">Aktionen</th>
                             </tr>
