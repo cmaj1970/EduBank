@@ -28,7 +28,7 @@ if (!empty($fixedUserId)) {
                 <?= $this->Form->hidden('redirect_user_id', ['value' => $fixedUserId]) ?>
                 <?php endif; ?>
 
-                <div class="mb-3">
+                <div class="mb-3" <?= $this->HelpText->attr('konto_add', 'user') ?>>
                     <label for="user-id" class="form-label"><?= __('Übungsfirma') ?> <span class="text-danger">*</span></label>
                     <?php if (!empty($fixedUser)): ?>
                     <div class="form-control bg-light">
@@ -103,7 +103,7 @@ if (!empty($fixedUserId)) {
                 </div>
 
                 <!-- Beispieltransaktionen -->
-                <div class="mb-4">
+                <div class="mb-4" <?= $this->HelpText->attr('konto_add', 'prefill') ?>>
                     <div class="form-check">
                         <?= $this->Form->checkbox('prefill_sample_data', [
                             'class' => 'form-check-input',

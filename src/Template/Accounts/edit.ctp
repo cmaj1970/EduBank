@@ -19,7 +19,7 @@ $backUrl = $redirectUserId ? ['controller' => 'Users', 'action' => 'view', $redi
                 <?= $this->Form->create($account) ?>
                 <?= $this->Form->hidden('user_id') ?>
 
-                <div class="mb-3">
+                <div class="mb-3" <?= $this->HelpText->attr('konto_edit', 'name') ?>>
                     <label for="name" class="form-label"><?= __('Kontoname') ?></label>
                     <?= $this->Form->text('name', [
                         'class' => 'form-control',
@@ -27,7 +27,7 @@ $backUrl = $redirectUserId ? ['controller' => 'Users', 'action' => 'view', $redi
                     ]) ?>
                 </div>
 
-                <div class="row">
+                <div class="row" <?= $this->HelpText->attr('konto_edit', 'iban') ?>>
                     <div class="col-md-8 mb-3">
                         <label for="iban" class="form-label"><?= __('IBAN') ?></label>
                         <?= $this->Form->text('iban', [
@@ -47,7 +47,7 @@ $backUrl = $redirectUserId ? ['controller' => 'Users', 'action' => 'view', $redi
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6 mb-3" <?= $this->HelpText->attr('konto_edit', 'balance') ?>>
                         <label for="balance" class="form-label"><?= __('Kontostand') ?></label>
                         <div class="input-group">
                             <?php if ($transactionCount > 0): ?>
@@ -70,7 +70,7 @@ $backUrl = $redirectUserId ? ['controller' => 'Users', 'action' => 'view', $redi
                         </div>
                         <?php endif; ?>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6 mb-3" <?= $this->HelpText->attr('konto_edit', 'maxlimit') ?>>
                         <label for="maxlimit" class="form-label"><?= __('Überziehungsrahmen') ?></label>
                         <div class="input-group">
                             <?= $this->Form->text('maxlimit', [
@@ -92,7 +92,7 @@ $backUrl = $redirectUserId ? ['controller' => 'Users', 'action' => 'view', $redi
         </div>
 
         <!-- Konto zurücksetzen -->
-        <div class="card border-warning">
+        <div class="card border-warning" <?= $this->HelpText->attr('konto_edit', 'reset') ?>>
             <div class="card-header bg-warning bg-opacity-10">
                 <h6 class="mb-0"><i class="bi bi-arrow-counterclockwise me-2"></i><?= __('Konto zurücksetzen') ?></h6>
             </div>

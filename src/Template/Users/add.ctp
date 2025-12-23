@@ -17,7 +17,7 @@ $isSchoolAdmin = isset($loggedinschool);
             <div class="card-body">
                 <?= $this->Form->create($user) ?>
 
-                <div class="mb-3">
+                <div class="mb-3" <?= $this->HelpText->attr('firma_add', 'name') ?>>
                     <label for="name" class="form-label"><?= __('Name der Übungsfirma') ?> <span class="text-danger">*</span></label>
                     <?= $this->Form->text('name', [
                         'class' => 'form-control',
@@ -29,7 +29,7 @@ $isSchoolAdmin = isset($loggedinschool);
 
                 <?php if ($isSchoolAdmin): ?>
                 <!-- Schuladmin: Benutzername wird automatisch generiert -->
-                <div class="mb-3">
+                <div class="mb-3" <?= $this->HelpText->attr('firma_edit', 'username') ?>>
                     <label class="form-label"><?= __('Benutzername') ?></label>
                     <input type="text" class="form-control bg-light" readonly value="<?= h($user->username) ?>">
                     <?= $this->Form->hidden('username', ['value' => $user->username]) ?>
@@ -42,8 +42,8 @@ $isSchoolAdmin = isset($loggedinschool);
 
                 <!-- Kontoname für automatische Kontoerstellung -->
                 <hr class="my-4">
-                <h6 class="mb-3"><i class="bi bi-wallet2 me-2"></i><?= __('Bankkonto') ?></h6>
-                <div class="mb-3">
+                <h6 class="mb-3" <?= $this->HelpText->attr('firma_add', 'form') ?>><i class="bi bi-wallet2 me-2"></i><?= __('Bankkonto') ?></h6>
+                <div class="mb-3" <?= $this->HelpText->attr('firma_add', 'kontoname') ?>>
                     <label for="account_name" class="form-label"><?= __('Kontoname') ?></label>
                     <?= $this->Form->text('account_name', [
                         'class' => 'form-control',
@@ -53,7 +53,7 @@ $isSchoolAdmin = isset($loggedinschool);
                     <div class="form-text"><i class="bi bi-info-circle me-1"></i>Ein Konto mit IBAN und BIC wird automatisch angelegt</div>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-3" <?= $this->HelpText->attr('firma_add', 'prefill') ?>>
                     <div class="form-check">
                         <?= $this->Form->checkbox('prefill_sample_data', [
                             'class' => 'form-check-input',
