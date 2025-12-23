@@ -196,7 +196,7 @@
                     <?php else: ?>
                         <?php foreach ($transactions as $tx): ?>
                         <?php
-                            $senderName = $tx->account->user->name ?? 'Unbekannt';
+                            $senderName = $tx->account_id ? ($tx->account->user->name ?? 'Unbekannt') : $tx->empfaenger_name;
                             $senderId = $tx->account->user->id ?? 0;
                             $senderSchool = $tx->account->user->school->name ?? '';
                         ?>
