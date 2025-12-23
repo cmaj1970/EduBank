@@ -19,7 +19,7 @@ $backUrl = $isSchoolAdminLoggedIn ? ['action' => 'view', $user->id] : ['action' 
             <div class="card-body">
                 <?= $this->Form->create($user) ?>
 
-                <div class="mb-3">
+                <div class="mb-3" <?= $this->HelpText->attr('firma_edit', 'name') ?>>
                     <label for="name" class="form-label"><?= __('Name der Übungsfirma') ?> <span class="text-danger">*</span></label>
                     <?= $this->Form->text('name', [
                         'class' => 'form-control',
@@ -29,7 +29,7 @@ $backUrl = $isSchoolAdminLoggedIn ? ['action' => 'view', $user->id] : ['action' 
                     ]) ?>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-3" <?= $this->HelpText->attr('firma_edit', 'username') ?>>
                     <label class="form-label"><?= __('Benutzername') ?></label>
                     <input type="text" class="form-control bg-light" readonly value="<?= h($user->username) ?>">
                     <div class="form-text"><i class="bi bi-info-circle me-1"></i>Der Benutzername wird automatisch generiert und kann nicht geändert werden.</div>
@@ -70,7 +70,7 @@ $backUrl = $isSchoolAdminLoggedIn ? ['action' => 'view', $user->id] : ['action' 
                 </div>
                 <?php endif; ?>
 
-                <div class="mb-3">
+                <div class="mb-3" <?= $this->HelpText->attr('firma_edit', 'active') ?>>
                     <div class="form-check form-switch">
                         <?= $this->Form->checkbox('active', [
                             'class' => 'form-check-input',
