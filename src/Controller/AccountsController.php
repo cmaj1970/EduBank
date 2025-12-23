@@ -459,6 +459,11 @@ class AccountsController extends AppController
             $this->Flash->error(__('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es noch einmal.'));
         }
 
+        # redirect_user_id erhalten wenn vorhanden
+        $redirectUserId = $this->request->getQuery('redirect_user_id');
+        if ($redirectUserId) {
+            return $this->redirect(['action' => 'edit', $id, '?' => ['redirect_user_id' => $redirectUserId]]);
+        }
         return $this->redirect(['action' => 'edit', $id]);
     }
 

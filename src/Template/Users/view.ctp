@@ -28,6 +28,19 @@ if (!empty($user->accounts)) {
             ) ?>
         </div>
 
+        <?php if (!empty($isSchoolAdmin)): ?>
+        <!-- Kennwort-Hinweis für Schuladmin -->
+        <div class="alert alert-info border-info mb-4">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-key me-2 fs-5"></i>
+                <div>
+                    <strong>Kennwort für alle Übungsfirmen:</strong>
+                    <code class="ms-2 fs-6"><?= h($defaultPassword ?? 'Schueler2024') ?></code>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <!-- Block 1: Firmendaten -->
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
@@ -47,7 +60,7 @@ if (!empty($user->accounts)) {
                             <div class="fw-semibold"><?= h($user->name) ?></div>
                         </div>
                         <div class="col-md-4">
-                            <div class="text-muted small">Login-Name</div>
+                            <div class="text-muted small">Benutzername</div>
                             <div><code class="fs-6"><?= h($user->username) ?></code></div>
                         </div>
                     </div>

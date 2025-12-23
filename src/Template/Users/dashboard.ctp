@@ -95,14 +95,14 @@ $school = $loggedinschool;
     </div>
 </div>
 
-<!-- Info-Box: Passwort -->
+<!-- Info-Box: Kennwort -->
 <div class="card border-primary">
     <div class="card-header bg-primary text-white">
         <i class="bi bi-key-fill me-2"></i>Wichtige Information
     </div>
     <div class="card-body">
         <p class="mb-2">
-            <strong>Passwort für alle Übungsfirmen:</strong>
+            <strong>Kennwort für alle Übungsfirmen:</strong>
         </p>
         <div class="input-group" style="max-width: 300px;">
             <input type="text" class="form-control bg-light font-monospace" value="<?= h($defaultPassword) ?>" readonly>
@@ -111,7 +111,7 @@ $school = $loggedinschool;
             </button>
         </div>
         <small class="text-muted d-block mt-2">
-            Alle Übungsfirmen melden sich mit ihrem Benutzernamen und diesem Passwort an.
+            Alle Übungsfirmen melden sich mit ihrem Benutzernamen und diesem Kennwort an.
         </small>
     </div>
 </div>

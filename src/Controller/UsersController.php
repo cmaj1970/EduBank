@@ -305,7 +305,10 @@ class UsersController extends AppController
             return $this->redirect(['action' => 'index']);
         }
 
-        $this->set('user', $user);
+        $defaultPassword = env('DEFAULT_USER_PASSWORD', 'Schueler2024');
+        $isSchoolAdmin = ($this->school !== null);
+
+        $this->set(compact('user', 'defaultPassword', 'isSchoolAdmin'));
     }
 
     /**
@@ -349,6 +352,10 @@ class UsersController extends AppController
                     $this->Flash->success(__('Übungsfirma wurde erstellt.'));
                 }
 
+                # Schuladmin: Zur Detailseite, Superadmin: zur Liste
+                if ($this->school) {
+                    return $this->redirect(['action' => 'view', $user->id]);
+                }
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('Die Übungsfirma konnte nicht erstellt werden.'));

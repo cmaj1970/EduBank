@@ -100,8 +100,9 @@ $backUrl = $redirectUserId ? ['controller' => 'Users', 'action' => 'view', $redi
                 <p class="text-muted small mb-3">
                     Alle Transaktionen werden gelöscht und der Kontostand auf 10.000 € zurückgesetzt.
                 </p>
+                <?php $resetUrl = ['action' => 'reset', $account->id]; if ($redirectUserId) { $resetUrl['?'] = ['redirect_user_id' => $redirectUserId]; } ?>
                 <div class="d-flex gap-2 flex-wrap">
-                    <?= $this->Form->create(null, ['url' => ['action' => 'reset', $account->id]]) ?>
+                    <?= $this->Form->create(null, ['url' => $resetUrl]) ?>
                     <?= $this->Form->hidden('prefill', ['value' => '0']) ?>
                     <?= $this->Form->button(
                         '<i class="bi bi-eraser me-1"></i> Leeren',
@@ -113,7 +114,7 @@ $backUrl = $redirectUserId ? ['controller' => 'Users', 'action' => 'view', $redi
                     ) ?>
                     <?= $this->Form->end() ?>
 
-                    <?= $this->Form->create(null, ['url' => ['action' => 'reset', $account->id]]) ?>
+                    <?= $this->Form->create(null, ['url' => $resetUrl]) ?>
                     <?= $this->Form->hidden('prefill', ['value' => '1']) ?>
                     <?= $this->Form->button(
                         '<i class="bi bi-shuffle me-1"></i> Mit Beispieldaten befüllen',
