@@ -7,7 +7,7 @@ Schuladmin-Bereich auf Design-Niveau des Schueler-Bereichs bringen: Typo-Fixes, 
 ## Phases
 
 - [x] **Phase 1: Quick Fixes** - Typo-Korrektur
-- [ ] **Phase 2: Layout Redesign** - Dashboard-Stil fuer Admin-Views
+- [x] **Phase 2: Layout Redesign** - Dashboard-Stil fuer Admin-Views
 - [ ] **Phase 3: Sample Data** - Beispieltransaktionen vorbefuellen
 
 ## Phase Details
@@ -28,7 +28,7 @@ Plans:
 Plans:
 - [x] 02-01: Users/index.ctp - Uebungsfirmen-Dashboard
 - [x] 02-02: Users/view.ctp - Detailansicht Cards
-- [ ] 02-03: Accounts/index + Transactions/index Redesign
+- [x] 02-03: Schuladmin Dashboard + separate Views
 
 ### Phase 3: Sample Data
 **Goal**: Neue Konten mit Beispieltransaktionen vorbefuellen
@@ -44,5 +44,5 @@ Plans:
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
 | 1. Quick Fixes | 1/1 | Complete | 2025-12-22 |
-| 2. Layout Redesign | 2/3 | In progress | - |
+| 2. Layout Redesign | 3/3 | Complete | 2025-12-23 |
 | 3. Sample Data | 0/2 | Not started | - |

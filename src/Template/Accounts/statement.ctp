@@ -197,8 +197,10 @@
                                 <td>
                                     <?php if ($isIncoming): ?>
                                         <?= h($transaction->account->user->name ?? 'Unbekannt') ?>
+                                        <br><small class="text-muted font-monospace"><?= h($transaction->account->iban) ?></small>
                                     <?php else: ?>
                                         <?= h($transaction->empfaenger_name) ?>
+                                        <br><small class="text-muted font-monospace"><?= h($transaction->empfaenger_iban) ?></small>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-muted"><?= h($transaction->zahlungszweck) ?></td>

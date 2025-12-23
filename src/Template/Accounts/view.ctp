@@ -140,6 +140,7 @@ if (!empty($account->transactions)) {
                                     </div>
                                     <div class="transaction-meta">
                                         <?= h($transaction->datum->format('d.m.Y')) ?>
+                                        · <span class="font-monospace"><?= $isIncoming ? h($transaction->account->iban) : h($transaction->empfaenger_iban) ?></span>
                                         <?php if ($transaction->zahlungszweck): ?>
                                             · <?= h(\Cake\Utility\Text::truncate($transaction->zahlungszweck, 30)) ?>
                                         <?php endif; ?>

@@ -278,43 +278,38 @@
             $this->loadModel('Users');
             $this->loadModel('Accounts');
 
-            $accountsQuery = $this->Accounts->find('all')
+            # Nur System-Konten laden (Geschäftspartner)
+            $systemAccounts = $this->Accounts->find('all')
                 ->contain(['Users.Schools'])
-                ->matching('Users', function ($q) {
-                    return $q->where(['Users.role' => 'user', 'Users.active' => 1]);
-                })
                 ->matching('Users.Schools', function ($q) {
-                    return $q->where(['Schools.status' => 'approved']);
+                    return $q->where(['Schools.kurzname' => 'system']);
                 });
 
-            # Suchfilter anwenden
             if (!empty($query)) {
-                $accountsQuery->where([
+                $systemAccounts->where([
                     'OR' => [
                         'Users.name LIKE' => '%' . $query . '%',
-                        'Accounts.iban LIKE' => '%' . $query . '%',
                         'Accounts.name LIKE' => '%' . $query . '%',
+                        'Accounts.iban LIKE' => '%' . $query . '%',
                     ]
                 ]);
             }
 
-            # Eigenes Konto ausschließen
-            $userId = $this->Auth->user('id');
-            $accountsQuery->where(['Users.id !=' => $userId]);
-
-            $accounts = $accountsQuery->order(['Users.name' => 'ASC'])->limit(50)->toArray();
+            $systemAccounts = $systemAccounts->order(['Users.name' => 'ASC'])->toArray();
 
             # Ergebnis formatieren für Select2
             $results = [];
-            foreach ($accounts as $account) {
-                $schoolName = $account->user->school->name ?? '';
+
+            # Nur System-Konten (Geschäftspartner)
+            foreach ($systemAccounts as $account) {
                 $results[] = [
                     'id' => $account->id,
-                    'text' => $schoolName . ' | ' . $account->user->name . ' – ' . $account->iban,
+                    'text' => '★ ' . $account->user->name . ' – ' . $account->iban,
                     'name' => $account->user->name,
                     'iban' => $account->iban,
                     'bic' => $account->bic,
-                    'school' => $schoolName,
+                    'school' => 'Geschäftspartner',
+                    'isSystem' => true,
                 ];
             }
 

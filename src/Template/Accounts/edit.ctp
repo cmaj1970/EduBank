@@ -7,7 +7,7 @@
 
 <div class="row justify-content-center">
     <div class="col-lg-6 col-md-8">
-        <div class="card">
+        <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="bi bi-wallet2 me-2"></i><?= __('Konto bearbeiten') ?></h5>
                 <?= $this->Html->link('<i class="bi bi-arrow-left"></i> Zurück', ['action' => 'index'], ['class' => 'btn btn-sm btn-outline-secondary', 'escape' => false]) ?>
@@ -47,15 +47,25 @@
                     <div class="col-md-6 mb-3">
                         <label for="balance" class="form-label"><?= __('Kontostand') ?></label>
                         <div class="input-group">
+                            <?php if ($transactionCount > 0): ?>
+                            <?= $this->Form->text('balance', [
+                                'class' => 'form-control bg-light',
+                                'id' => 'balance',
+                                'disabled' => true
+                            ]) ?>
+                            <?php else: ?>
                             <?= $this->Form->text('balance', [
                                 'class' => 'form-control',
                                 'id' => 'balance'
                             ]) ?>
+                            <?php endif; ?>
                             <span class="input-group-text">€</span>
                         </div>
-                        <div class="form-text text-warning">
-                            <i class="bi bi-exclamation-triangle me-1"></i>Änderung beeinflusst den berechneten Kontostand!
+                        <?php if ($transactionCount > 0): ?>
+                        <div class="form-text text-muted">
+                            <i class="bi bi-lock me-1"></i>Kontostand wird aus Transaktionen berechnet
                         </div>
+                        <?php endif; ?>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="maxlimit" class="form-label"><?= __('Überziehungsrahmen') ?></label>
@@ -75,6 +85,43 @@
                 </div>
 
                 <?= $this->Form->end() ?>
+            </div>
+        </div>
+
+        <!-- Konto zurücksetzen -->
+        <div class="card border-warning">
+            <div class="card-header bg-warning bg-opacity-10">
+                <h6 class="mb-0"><i class="bi bi-arrow-counterclockwise me-2"></i><?= __('Konto zurücksetzen') ?></h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-3">
+                    Alle Transaktionen werden gelöscht und der Kontostand auf 10.000 € zurückgesetzt.
+                </p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <?= $this->Form->create(null, ['url' => ['action' => 'reset', $account->id]]) ?>
+                    <?= $this->Form->hidden('prefill', ['value' => '0']) ?>
+                    <?= $this->Form->button(
+                        '<i class="bi bi-eraser me-1"></i> Leeren',
+                        [
+                            'class' => 'btn btn-outline-warning',
+                            'escape' => false,
+                            'confirm' => 'Alle Transaktionen löschen und Konto auf Startwerte zurücksetzen?'
+                        ]
+                    ) ?>
+                    <?= $this->Form->end() ?>
+
+                    <?= $this->Form->create(null, ['url' => ['action' => 'reset', $account->id]]) ?>
+                    <?= $this->Form->hidden('prefill', ['value' => '1']) ?>
+                    <?= $this->Form->button(
+                        '<i class="bi bi-shuffle me-1"></i> Mit Beispieldaten befüllen',
+                        [
+                            'class' => 'btn btn-outline-primary',
+                            'escape' => false,
+                            'confirm' => 'Alle Transaktionen löschen und mit neuen Beispieldaten befüllen?'
+                        ]
+                    ) ?>
+                    <?= $this->Form->end() ?>
+                </div>
             </div>
         </div>
     </div>
