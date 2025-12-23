@@ -317,8 +317,45 @@ $(document).ready(function() {
         $('#empfaenger-bic').val('');
     });
 
-    // Form Validation initialisieren
-    $("form#addtransaction").validate({ lang: 'de' });
+    // Form Validation mit Bootstrap 5 Styling
+    $.validator.setDefaults({
+        errorClass: 'is-invalid',
+        validClass: 'is-valid',
+        errorElement: 'div',
+        errorPlacement: function(error, element) {
+            error.addClass('invalid-feedback');
+            if (element.closest('.input-group').length) {
+                error.insertAfter(element.closest('.input-group'));
+            } else {
+                error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            $(element).addClass('is-invalid').removeClass('is-valid');
+        },
+        unhighlight: function(element) {
+            $(element).removeClass('is-invalid');
+        }
+    });
+
+    $("form#addtransaction").validate({
+        lang: 'de',
+        rules: {
+            empfaenger_name: { required: true },
+            empfaenger_iban: { required: true, minlength: 20 },
+            betrag: { required: true },
+            zahlungszweck: { required: true }
+        },
+        messages: {
+            empfaenger_name: { required: 'Bitte Empfängernamen eingeben' },
+            empfaenger_iban: {
+                required: 'Bitte IBAN eingeben',
+                minlength: 'IBAN muss mindestens 20 Zeichen haben'
+            },
+            betrag: { required: 'Bitte Betrag eingeben' },
+            zahlungszweck: { required: 'Bitte Verwendungszweck eingeben' }
+        }
+    });
 
     // TAN-Request Button
     $('#requesttan').on('click touchend', function(e) {
