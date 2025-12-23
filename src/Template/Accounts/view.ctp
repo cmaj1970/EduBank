@@ -133,14 +133,18 @@ if (!empty($account->transactions)) {
                                 <div class="transaction-details">
                                     <div class="transaction-name">
                                         <?php if ($isIncoming): ?>
-                                            <?= h($transaction->account->user->name ?? 'Unbekannt') ?>
+                                            <?php if ($transaction->account_id): ?>
+                                                <?= h($transaction->account->user->name ?? 'Unbekannt') ?>
+                                            <?php else: ?>
+                                                <?= h($transaction->empfaenger_name) ?>
+                                            <?php endif; ?>
                                         <?php else: ?>
                                             <?= h($transaction->empfaenger_name) ?>
                                         <?php endif; ?>
                                     </div>
                                     <div class="transaction-meta">
                                         <?= h($transaction->datum->format('d.m.Y')) ?>
-                                        · <span class="font-monospace"><?= $isIncoming ? h($transaction->account->iban) : h($transaction->empfaenger_iban) ?></span>
+                                        · <span class="font-monospace"><?= ($isIncoming && $transaction->account_id) ? h($transaction->account->iban) : h($transaction->empfaenger_iban) ?></span>
                                         <?php if ($transaction->zahlungszweck): ?>
                                             · <?= h(\Cake\Utility\Text::truncate($transaction->zahlungszweck, 30)) ?>
                                         <?php endif; ?>
