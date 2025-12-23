@@ -13,6 +13,7 @@ use Cake\ORM\Entity;
  * @property string $bic
  * @property float $limit
  * @property float $balance
+ * @property float $initial_balance
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
  *
@@ -38,6 +39,7 @@ class Account extends Entity
         'bic' => true,
         'maxlimit' => true,
         'balance' => true,
+        'initial_balance' => true,
         'created' => true,
         'modified' => true,
         'user' => true,
