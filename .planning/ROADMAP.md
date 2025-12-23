@@ -8,7 +8,7 @@ Schuladmin-Bereich auf Design-Niveau des Schueler-Bereichs bringen: Typo-Fixes, 
 
 - [x] **Phase 1: Quick Fixes** - Typo-Korrektur
 - [x] **Phase 2: Layout Redesign** - Dashboard-Stil fuer Admin-Views
-- [x] **Phase 3: Sample Data** - Beispieltransaktionen vorbefuellen
+- [x] **Phase 3: Sample Data** - Partnerunternehmen und Beispieltransaktionen
 - [ ] **Phase 4: UX Schuladmin** - Klickpfade und Seitenstruktur
 
 ## Phase Details
@@ -32,13 +32,15 @@ Plans:
 - [x] 02-03: Schuladmin Dashboard + separate Views
 
 ### Phase 3: Sample Data
-**Goal**: Neue Konten mit Beispieltransaktionen vorbefuellen
+**Goal**: Partnerunternehmen fuer Ueberweisungen, Beispieltransaktionen vorbefuellen
 **Depends on**: Phase 2
-**Plans**: 2
+**Plans**: 4
 
 Plans:
-- [x] 03-01: System-Konten (Geschaeftspartner) + Prefill-Transaktionen
-- [x] 03-02: Konto-Reset mit Beispieldaten
+- [x] 03-01: Partnerunternehmen (eigene `partners`-Tabelle mit 25 Firmen in 5 Branchen)
+- [x] 03-02: Konto-Reset mit Beispieldaten (85% Ausgaben, 15% Einnahmen)
+- [x] 03-03: Umbenennung "Geschaeftspartner" -> "Partnerunternehmen" (inklusiv)
+- [x] 03-04: CSV-Export fuer Excel, Info-Box fuer Admins
 
 ### Phase 4: UX Schuladmin
 **Goal**: Benutzerfreundliche Navigation und Seitenstruktur fuer Schuladmins
@@ -56,19 +58,34 @@ Plans:
 |-------|-------|--------|-----------|
 | 1. Quick Fixes | 1/1 | Complete | 2025-12-22 |
 | 2. Layout Redesign | 3/3 | Complete | 2025-12-23 |
-| 3. Sample Data | 2/2 | Complete | 2025-12-23 |
+| 3. Sample Data | 4/4 | Complete | 2025-12-23 |
 | 4. UX Schuladmin | 0/3 | Not started | - |
 
-## Known Issues
+## Resolved Issues
 
-- **IBAN-Bug auf Produktiv**: Alle Geschaeftspartner haben dieselbe IBAN (SY000000000000000000) statt zufaelliger Nummern. Ursache: mt_rand() mit zu grossen Zahlen.
+- **IBAN-Bug**: Behoben durch Generierung einzelner Ziffern statt mt_rand() mit grossen Zahlen.
 
-- **Geschaeftspartner-Persistenz**: Wenn System-Konten geloescht/neu erstellt werden, sind bestehende Ueberweisungen auf diese Konten nicht mehr sichtbar (IBAN existiert nicht mehr).
+- **Partnerunternehmen-Persistenz**: Geloest durch eigene `partners`-Tabelle.
+  - Partnerunternehmen werden einmalig initial erstellt
+  - IBANs sind stabil und aendern sich nie
+  - Warnung im Admin-Bereich: Nach Setup nicht mehr loeschen/neu generieren
 
-  **Loesungsoptionen:**
-  - a) Geschaeftspartner einmalig anlegen, Loeschen nicht mehr erlauben
-  - b) Ueberweisungen auch anzeigen wenn Zielkonto nicht mehr existiert (nur IBAN anzeigen statt Kontoname)
+## Technische Details Phase 3
 
-  **Empfehlung:** Option a) ist sauberer - System-Konten sind stabil, IBANs aendern sich nie.
+**Neue Dateien:**
+- `db/migration_partners.sql` - Erstellt partners-Tabelle mit 25 Eintraegen
+- `src/Model/Table/PartnersTable.php` - Model mit getGroupedByBranch(), findByIban()
+- `src/Model/Entity/Partner.php` - Entity
 
-  **Naechster Schritt:** 50 Geschaeftspartner statt 10 anlegen fuer mehr Auswahl.
+**Geaenderte Dateien:**
+- `AccountsController.php` - partners(), createPartners(), deletePartners(), exportPartnersCsv()
+- `TransactionsController.php` - searchRecipients() und checkiban() nutzen partners-Tabelle
+- `partners.ctp` - Admin-Info-Box, CSV-Download, Warnung
+- `default.ctp` - Menu: "Partnerunternehmen" statt "Geschaeftspartner"
+
+**5 Branchen:**
+1. Buero & Ausstattung (5 Firmen)
+2. Dienstleistungen (5 Firmen)
+3. Marketing & Kommunikation (5 Firmen)
+4. Versicherungen & Finanzen (5 Firmen)
+5. Logistik & Infrastruktur (5 Firmen)
