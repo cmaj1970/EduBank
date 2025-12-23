@@ -127,7 +127,7 @@ $isIframe = $this->request->getQuery('iframe') === '1';
                                         ['class' => 'btn btn-sm btn-outline-primary me-1', 'escape' => false]
                                     ) ?>
                                     <?php if (!empty($isSchoolAdmin) || !empty($isSuperadmin)): ?>
-                                    <a href="/users/impersonate/<?= $user->id ?>" class="btn btn-sm btn-outline-success">
+                                    <a href="/users/impersonate/<?= $user->id ?>" class="btn btn-sm btn-outline-success" <?= $this->HelpText->attr('schuladmin', 'btn_impersonate') ?>>
                                         <i class="bi bi-box-arrow-in-right me-1"></i>Anmelden als
                                     </a>
                                     <?php endif; ?>
