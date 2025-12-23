@@ -62,7 +62,7 @@ $isIframe = $this->request->getQuery('iframe') === '1';
 
         <!-- Info für Schuladmin: Passwort + Tipp -->
         <?php if (!empty($isSchoolAdmin)): ?>
-        <div class="alert alert-info border-info mb-4">
+        <div class="alert alert-info border-info mb-4" <?= $this->HelpText->attr('schuladmin', 'password_info') ?>>
             <div class="d-flex align-items-center">
                 <i class="bi bi-key me-2 fs-5"></i>
                 <div>

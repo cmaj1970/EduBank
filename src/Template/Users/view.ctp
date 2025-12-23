@@ -30,7 +30,7 @@ if (!empty($user->accounts)) {
 
         <?php if (!empty($isSchoolAdmin)): ?>
         <!-- Kennwort-Hinweis für Schuladmin -->
-        <div class="alert alert-info border-info mb-4">
+        <div class="alert alert-info border-info mb-4" <?= $this->HelpText->attr('schuladmin', 'password_info') ?>>
             <div class="d-flex align-items-center">
                 <i class="bi bi-key me-2 fs-5"></i>
                 <div>
@@ -42,7 +42,7 @@ if (!empty($user->accounts)) {
         <?php endif; ?>
 
         <!-- Block 1: Firmendaten -->
-        <div class="card mb-4">
+        <div class="card mb-4" <?= $this->HelpText->attr('firma_detail', 'firmendaten') ?>>
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0"><i class="bi bi-building me-2"></i>Firmendaten</h5>
             </div>
@@ -86,7 +86,7 @@ if (!empty($user->accounts)) {
         </div>
 
         <!-- Block 2: Konten -->
-        <div class="card">
+        <div class="card" <?= $this->HelpText->attr('firma_detail', 'konten_tabelle') ?>>
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="bi bi-wallet2 me-2"></i>Konten dieser Übungsfirma</h5>
                 <?= $this->Html->link(
