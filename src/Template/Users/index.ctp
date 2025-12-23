@@ -60,11 +60,21 @@ $isIframe = $this->request->getQuery('iframe') === '1';
         </div>
         <?php endif; ?>
 
-        <!-- Tipp für Schuladmin -->
+        <!-- Info für Schuladmin: Passwort + Tipp -->
         <?php if (!empty($isSchoolAdmin)): ?>
-        <div class="alert alert-light border mb-4">
-            <i class="bi bi-info-circle me-2 text-primary"></i>
-            <strong>Tipp:</strong> Mit "Anmelden als" können Sie sich als Übungsfirma einloggen, um Transaktionen durchzuführen oder den Kontostand zu prüfen.
+        <div class="alert alert-info border-info mb-4">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-key me-2 fs-5"></i>
+                <div>
+                    <strong>Kennwort für alle Übungsfirmen:</strong>
+                    <code class="ms-2 fs-6"><?= h($defaultPassword ?? 'Schueler2024') ?></code>
+                </div>
+            </div>
+            <hr class="my-2">
+            <small class="text-muted">
+                <i class="bi bi-lightbulb me-1"></i>
+                <strong>Tipp:</strong> Mit "Anmelden als" können Sie sich direkt als Übungsfirma einloggen.
+            </small>
         </div>
         <?php endif; ?>
 
