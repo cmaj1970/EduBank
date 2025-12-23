@@ -4,6 +4,9 @@
  * Default Layout with Bootstrap 5 - Responsive Design
  */
 
+# iframe-Modus: Minimales Layout ohne Navbar/Footer
+$isIframe = $this->request->getQuery('iframe') === '1';
+
 // Für Übungsfirma: Erstes Konto des Users für Navigation holen
 $userAccountId = null;
 $userSchool = null;
@@ -48,12 +51,13 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
     <?= $this->fetch('meta') ?>
     <?= $this->fetch('css') ?>
 </head>
-<body class="d-flex flex-column min-vh-100 bg-light">
+<body class="d-flex flex-column min-vh-100 bg-light <?= $isIframe ? 'iframe-mode' : '' ?>">
 
+    <?php if (!$isIframe): ?>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark navbar-edubank sticky-top">
         <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="/">
+            <a class="navbar-brand d-flex align-items-center" href="<?= isset($loggedinschool) ? '/users/dashboard' : '/' ?>">
                 <?php if ($activeSchool): ?>
                 <!-- Dynamisches Logo mit Schulname -->
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 60" width="50" height="60" class="me-2">
@@ -109,26 +113,37 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
                         </li>
                         <?php endif; ?>
 
-                        <!-- Admins: Übungsfirmen verwalten -->
+                        <?php if (isset($loggedinschool)): ?>
+                        <!-- Schuladmin: Übungsfirmen + Transaktionen -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/users">
+                                <i class="bi bi-building me-1"></i>Übungsfirmen
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/transactions">
+                                <i class="bi bi-activity me-1"></i>Transaktionen
+                            </a>
+                        </li>
+                        <?php else: ?>
+                        <!-- Superadmin: Übungsfirmen -->
                         <li class="nav-item">
                             <a class="nav-link" href="/users">
                                 <i class="bi bi-people me-1"></i>Übungsfirmen
                             </a>
                         </li>
-
-                        <!-- Admins: Konten -->
+                        <!-- Superadmin: Konten + Transaktionen separat -->
                         <li class="nav-item">
                             <a class="nav-link" href="/accounts">
                                 <i class="bi bi-wallet2 me-1"></i>Konten
                             </a>
                         </li>
-
-                        <!-- Admins: Transaktionen -->
                         <li class="nav-item">
                             <a class="nav-link" href="/transactions">
                                 <i class="bi bi-arrow-left-right me-1"></i>Transaktionen
                             </a>
                         </li>
+                        <?php endif; ?>
                     <?php else: ?>
                         <!-- Übungsfirma: Konto-Navigation -->
                         <?php if ($userAccountId): ?>
@@ -205,14 +220,16 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
         <?= $flash ?>
     </div>
     <?php endif; ?>
+    <?php endif; /* Ende !$isIframe */ ?>
 
     <!-- Main Content -->
     <main class="flex-grow-1">
-        <div class="container-fluid py-4">
+        <div class="container-fluid <?= $isIframe ? 'p-2' : 'py-4' ?>">
             <?= $this->fetch('content') ?>
         </div>
     </main>
 
+    <?php if (!$isIframe): ?>
     <!-- Hilfe-Button (Floating Action Button) -->
     <?php
     # Hilfe für alle außer Superadmin
@@ -244,6 +261,7 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
             </div>
         </div>
     </footer>
+    <?php endif; /* Ende !$isIframe für Footer */ ?>
 
     <!-- jQuery (für bestehende Funktionalität) -->
     <?php echo $this->Html->script('/js/jquery.min.js'); ?>
