@@ -563,9 +563,9 @@ class AccountsController extends AppController
         $summeAusgaben = 0;
         $summeEinnahmen = 0;
 
-        # Erst alle Transaktionen generieren (85% Ausgaben, 15% Einnahmen)
+        # Erst alle Transaktionen generieren (80% Ausgaben, 20% Einnahmen)
         for ($i = 0; $i < $numTransactions; $i++) {
-            $isAusgabe = (rand(1, 100) <= 85);
+            $isAusgabe = (rand(1, 100) <= 80);
             $partner = $partners[array_rand($partners)];
             $partnerName = $partner->name;
 
