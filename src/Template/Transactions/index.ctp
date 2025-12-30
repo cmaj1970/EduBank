@@ -19,7 +19,7 @@ $isIframe = $this->request->getQuery('iframe') === '1';
 <!-- ===================== SCHULADMIN: LIVE-FEED ===================== -->
 
 <?php if (!$isIframe): ?>
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="mb-0">
         <i class="bi bi-activity me-2"></i>Live-Transaktionen
     </h4>
@@ -27,6 +27,9 @@ $isIframe = $this->request->getQuery('iframe') === '1';
         <i class="bi bi-arrow-clockwise"></i>
     </button>
 </div>
+<p class="text-muted mb-4">
+    Überweisungen aller Übungsfirmen der Schule. Die Ansicht aktualisiert sich automatisch alle 10 Sekunden.
+</p>
 <?php endif; ?>
 
 <div class="card" <?= $this->HelpText->attr('schuladmin', 'transaktionen') ?>>

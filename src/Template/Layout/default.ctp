@@ -122,7 +122,7 @@ $activeSchool = isset($loggedinschool) ? $loggedinschool : $userSchool;
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="/transactions">
-                                <i class="bi bi-activity me-1"></i>Transaktionen
+                                <i class="bi bi-activity me-1"></i>Live-Transaktionen
                             </a>
                         </li>
                         <li class="nav-item">
