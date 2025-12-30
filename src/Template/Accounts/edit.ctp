@@ -97,9 +97,13 @@ $backUrl = $redirectUserId ? ['controller' => 'Users', 'action' => 'view', $redi
                 <h6 class="mb-0"><i class="bi bi-arrow-counterclockwise me-2"></i><?= __('Konto zurücksetzen') ?></h6>
             </div>
             <div class="card-body">
-                <p class="text-muted small mb-3">
-                    Alle Transaktionen werden gelöscht und der Kontostand auf 10.000 € zurückgesetzt.
+                <p class="text-muted small mb-2">
+                    Alle bisherigen Transaktionen werden gelöscht.
                 </p>
+                <ul class="text-muted small mb-3">
+                    <li><strong>Leeren</strong> – Das Konto wird auf den Anfangsstand von 10.000 € zurückgesetzt. Es sind danach keine Transaktionen vorhanden.</li>
+                    <li><strong>Mit Beispieldaten befüllen</strong> – Das Konto wird zurückgesetzt und mit 12–18 Beispiel-Überweisungen befüllt. Der Kontostand beträgt danach ebenfalls 10.000 €.</li>
+                </ul>
                 <?php $resetUrl = ['action' => 'reset', $account->id]; if ($redirectUserId) { $resetUrl['?'] = ['redirect_user_id' => $redirectUserId]; } ?>
                 <div class="d-flex gap-2 flex-wrap">
                     <span <?= $this->HelpText->attr('konto_edit', 'leeren') ?>><?= $this->Form->create(null, ['url' => $resetUrl]) ?>
