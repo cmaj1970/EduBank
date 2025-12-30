@@ -22,14 +22,14 @@ $school = $loggedinschool;
 <!-- Anleitung für Schuladmins -->
 <div class="card mb-4">
     <div class="card-body">
-        <h5 class="card-title mb-3">Was können Sie hier tun?</h5>
+        <h5 class="card-title mb-3">Was ist hier möglich?</h5>
         <p class="mb-2">
-            Die EduBank ist eine Übungsbank für Ihre Schülerinnen und Schüler. Als Lehrperson können Sie:
+            Die EduBank ist eine Übungsbank für den Unterricht. Folgende Funktionen stehen zur Verfügung:
         </p>
         <ul class="mb-0">
-            <li><strong>Übungsfirmen anlegen und verwalten</strong> – Jede Übungsfirma erhält eigene Bankkonten, mit denen die Schüler Überweisungen üben können.</li>
-            <li><strong>Transaktionen beobachten</strong> – Sehen Sie in Echtzeit, welche Überweisungen Ihre Übungsfirmen durchführen.</li>
-            <li><strong>Konten einsehen</strong> – Prüfen Sie Kontostände und Buchungshistorie jeder Übungsfirma.</li>
+            <li><strong>Übungsfirmen anlegen und verwalten</strong> – Jede Übungsfirma erhält ein eigenes Bankkonto, mit dem Überweisungen geübt werden können.</li>
+            <li><strong>Transaktionen beobachten</strong> – Alle Überweisungen der Übungsfirmen lassen sich in Echtzeit verfolgen.</li>
+            <li><strong>Konten einsehen</strong> – Kontostände und Buchungshistorie jeder Übungsfirma sind jederzeit abrufbar.</li>
         </ul>
     </div>
 </div>

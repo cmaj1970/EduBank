@@ -1,23 +1,17 @@
 <?php
 /**
  * Übungsfirma-Detailansicht für Schuladmins
- * Firmendaten + Konten-Tabelle
+ * Zusammengeführte Ansicht: Firma + Konto
  *
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\User $user
  */
 
-# Gesamtguthaben berechnen
-$totalBalance = 0;
-if (!empty($user->accounts)) {
-    foreach ($user->accounts as $account) {
-        $totalBalance += $account->balance;
-    }
-}
+$account = !empty($user->accounts) ? $user->accounts[0] : null;
 ?>
 
 <div class="row justify-content-center">
-    <div class="col-lg-10 col-xl-9">
+    <div class="col-lg-10 col-xl-8">
 
         <!-- Zurück-Link -->
         <div class="mb-4">
@@ -41,132 +35,105 @@ if (!empty($user->accounts)) {
         </div>
         <?php endif; ?>
 
-        <!-- Block 1: Firmendaten -->
-        <div class="card mb-4" <?= $this->HelpText->attr('firma_detail', 'firmendaten') ?>>
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="bi bi-building me-2"></i>Firmendaten</h5>
+        <!-- Zusammengeführte Ansicht: Übungsfirma + Konto -->
+        <div class="card" <?= $this->HelpText->attr('firma_detail', 'firmendaten') ?>>
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-building me-2"></i><?= h($user->name) ?></h5>
+                <div class="d-flex gap-2">
+                    <span <?= $this->HelpText->attr('schuladmin', 'btn_impersonate') ?>><?= $this->Html->link(
+                        '<i class="bi bi-box-arrow-in-right me-1"></i>Anmelden als',
+                        ['action' => 'impersonate', $user->id],
+                        ['class' => 'btn btn-light btn-sm', 'escape' => false]
+                    ) ?></span>
+                    <?= $this->Html->link(
+                        '<i class="bi bi-pencil"></i>',
+                        ['action' => 'edit', $user->id],
+                        ['class' => 'btn btn-outline-light btn-sm', 'escape' => false, 'title' => 'Bearbeiten']
+                    ) ?>
+                    <?= $this->Form->postLink(
+                        '<i class="bi bi-trash"></i>',
+                        ['action' => 'delete', $user->id],
+                        ['class' => 'btn btn-outline-light btn-sm', 'escape' => false, 'title' => 'Löschen', 'confirm' => __('Übungsfirma "{0}" wirklich löschen?', $user->name)]
+                    ) ?>
+                </div>
             </div>
+
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="row flex-grow-1">
-                        <?php if ($user->school_id && $user->has('school')): ?>
-                        <div class="col-md-4 mb-3 mb-md-0">
-                            <div class="text-muted small">Zugehörige Schule</div>
-                            <div class="fw-semibold"><?= h($user->school->name) ?></div>
-                        </div>
-                        <?php endif; ?>
-                        <div class="col-md-4 mb-3 mb-md-0">
-                            <div class="text-muted small">Firmenname</div>
-                            <div class="fw-semibold"><?= h($user->name) ?></div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="text-muted small">Benutzername</div>
-                            <div><code class="fs-6"><?= h($user->username) ?></code></div>
-                        </div>
+                <!-- Firmendaten -->
+                <div class="row mb-4">
+                    <?php if ($user->school_id && $user->has('school')): ?>
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <div class="text-muted small">Schule</div>
+                        <div class="fw-semibold"><?= h($user->school->name) ?></div>
                     </div>
-                    <div class="ms-3 d-flex gap-2 flex-shrink-0">
-                        <span <?= $this->HelpText->attr('schuladmin', 'btn_impersonate') ?>><?= $this->Html->link(
-                            '<i class="bi bi-box-arrow-in-right me-1"></i>Anmelden als',
-                            ['action' => 'impersonate', $user->id],
-                            ['class' => 'btn btn-success btn-sm', 'escape' => false]
-                        ) ?></span>
-                        <?= $this->Html->link(
-                            '<i class="bi bi-pencil me-1"></i>Bearbeiten',
-                            ['action' => 'edit', $user->id],
-                            ['class' => 'btn btn-outline-primary btn-sm', 'escape' => false]
-                        ) ?>
-                        <?= $this->Form->postLink(
-                            '<i class="bi bi-trash me-1"></i>Löschen',
-                            ['action' => 'delete', $user->id],
-                            ['class' => 'btn btn-outline-danger btn-sm', 'escape' => false, 'confirm' => __('Übungsfirma "{0}" wirklich löschen?', $user->name)]
-                        ) ?>
+                    <?php endif; ?>
+                    <div class="col-md-6">
+                        <div class="text-muted small">Benutzername</div>
+                        <div><code class="fs-6"><?= h($user->username) ?></code></div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Block 2: Konten -->
-        <div class="card" <?= $this->HelpText->attr('firma_detail', 'konten_tabelle') ?>>
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-wallet2 me-2"></i>Konten dieser Übungsfirma</h5>
-                <?= $this->Html->link(
-                    '<i class="bi bi-plus-lg me-1"></i> Konto hinzufügen',
-                    ['controller' => 'Accounts', 'action' => 'add', '?' => ['user_id' => $user->id]],
-                    ['class' => 'btn btn-primary btn-sm', 'escape' => false]
-                ) ?>
-            </div>
+                <?php if ($account): ?>
+                <hr class="my-4">
 
-            <?php if (!empty($user->accounts)): ?>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Kontoname</th>
-                                <th>IBAN</th>
-                                <th class="text-end">Überziehungsrahmen</th>
-                                <th class="text-end">Kontostand</th>
-                                <th style="width: 140px" class="text-end">Aktionen</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($user->accounts as $account): ?>
-                            <tr>
-                                <td>
-                                    <i class="bi bi-credit-card text-primary me-2"></i>
-                                    <strong><?= h($account->name ?: 'Girokonto') ?></strong>
-                                </td>
-                                <td>
-                                    <code class="font-monospace"><?= h($account->iban) ?></code>
-                                    <a href="#" class="text-muted ms-1 copy-iban" data-iban="<?= h($account->iban) ?>" title="IBAN kopieren">
-                                        <i class="bi bi-clipboard"></i>
-                                    </a>
-                                </td>
-                                <td class="text-end">
-                                    <?= $this->Number->currency($account->maxlimit ?? 0, 'EUR') ?>
-                                </td>
-                                <td class="text-end">
-                                    <span class="fw-bold <?= $account->balance >= 0 ? 'text-success' : 'text-danger' ?>">
-                                        <?= $this->Number->currency($account->balance, 'EUR') ?>
-                                    </span>
-                                </td>
-                                <td class="text-end">
-                                    <?= $this->Html->link(
-                                        '<i class="bi bi-pencil"></i>',
-                                        ['controller' => 'Accounts', 'action' => 'edit', $account->id, '?' => ['redirect_user_id' => $user->id]],
-                                        ['class' => 'btn btn-outline-primary btn-sm me-1', 'escape' => false, 'title' => 'Bearbeiten']
-                                    ) ?>
-                                    <?= $this->Form->postLink(
-                                        '<i class="bi bi-trash"></i>',
-                                        ['controller' => 'Accounts', 'action' => 'delete', $account->id, '?' => ['redirect_user_id' => $user->id]],
-                                        ['class' => 'btn btn-outline-danger btn-sm', 'escape' => false, 'title' => 'Löschen', 'confirm' => __('Konto "{0}" wirklich löschen?', $account->name ?: 'Girokonto')]
-                                    ) ?>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
+                <!-- Kontodaten -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="text-muted small">IBAN</div>
+                        <div class="d-flex align-items-center">
+                            <code class="fs-5 me-2"><?= h($account->iban) ?></code>
+                            <a href="#" class="text-muted copy-iban" data-iban="<?= h($account->iban) ?>" title="IBAN kopieren">
+                                <i class="bi bi-clipboard"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="text-muted small">Kontostand</div>
+                        <div class="fs-4 fw-bold <?= $account->balance >= 0 ? 'text-success' : 'text-danger' ?>">
+                            <?= $this->Number->currency($account->balance, 'EUR') ?>
+                        </div>
+                    </div>
                 </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <div class="text-muted small">Kontoname</div>
+                        <div><?= h($account->name ?: 'Girokonto') ?></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small">Überziehungsrahmen</div>
+                        <div><?= $this->Number->currency($account->maxlimit ?? 0, 'EUR') ?></div>
+                    </div>
+                </div>
+
+                <?php else: ?>
+                <hr class="my-4">
+                <div class="text-center text-muted py-3">
+                    <i class="bi bi-wallet2 fs-1 d-block mb-2"></i>
+                    <p class="mb-3">Noch kein Konto vorhanden</p>
+                    <?= $this->Html->link(
+                        '<i class="bi bi-plus-lg me-1"></i> Konto anlegen',
+                        ['controller' => 'Accounts', 'action' => 'add', '?' => ['user_id' => $user->id]],
+                        ['class' => 'btn btn-primary', 'escape' => false]
+                    ) ?>
+                </div>
+                <?php endif; ?>
             </div>
+
+            <?php if ($account): ?>
             <div class="card-footer bg-light">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="text-muted small">
-                        <i class="bi bi-info-circle me-1"></i>
-                        <?= count($user->accounts) ?> <?= count($user->accounts) == 1 ? 'Konto' : 'Konten' ?> insgesamt
-                    </span>
-                    <span class="fw-semibold">
-                        Gesamtguthaben:
-                        <span class="<?= $totalBalance >= 0 ? 'text-success' : 'text-danger' ?>">
-                            <?= $this->Number->currency($totalBalance, 'EUR') ?>
-                        </span>
-                    </span>
+                    <?= $this->Html->link(
+                        '<i class="bi bi-pencil me-1"></i>Konto bearbeiten',
+                        ['controller' => 'Accounts', 'action' => 'edit', $account->id, '?' => ['redirect_user_id' => $user->id]],
+                        ['class' => 'btn btn-outline-primary btn-sm', 'escape' => false]
+                    ) ?>
+                    <?= $this->Html->link(
+                        '<i class="bi bi-list-ul me-1"></i>Transaktionen anzeigen',
+                        ['controller' => 'Transactions', 'action' => 'index', '?' => ['account_id' => $account->id]],
+                        ['class' => 'btn btn-outline-secondary btn-sm', 'escape' => false]
+                    ) ?>
                 </div>
-            </div>
-
-            <?php else: ?>
-            <div class="card-body text-center text-muted py-5">
-                <i class="bi bi-wallet2 display-4"></i>
-                <p class="mt-3 mb-0">Keine Konten vorhanden</p>
             </div>
             <?php endif; ?>
         </div>
