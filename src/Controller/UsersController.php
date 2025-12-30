@@ -281,7 +281,7 @@ class UsersController extends AppController
             $accountId = $user->accounts[0]->id;
             $transactions = $this->Transactions->find()
                 ->where(['account_id' => $accountId])
-                ->order(['Transactions.created' => 'DESC'])
+                ->order(['Transactions.datum' => 'DESC', 'Transactions.created' => 'DESC'])
                 ->limit(50)
                 ->toArray();
         }

@@ -133,60 +133,55 @@ $account = !empty($user->accounts) ? $user->accounts[0] : null;
         </div>
 
         <?php if ($account): ?>
-        <!-- Transaktionen als Akkordeon -->
-        <div class="accordion" id="transaktionenAccordion">
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#transaktionenCollapse">
-                        <i class="bi bi-arrow-left-right me-2"></i>
-                        Transaktionen
-                        <span class="badge bg-secondary ms-2"><?= count($transactions) ?></span>
-                    </button>
-                </h2>
-                <div id="transaktionenCollapse" class="accordion-collapse collapse" data-bs-parent="#transaktionenAccordion">
-                    <div class="accordion-body p-0">
-                        <?php if (!empty($transactions)): ?>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Datum</th>
-                                        <th>Empfänger / Auftraggeber</th>
-                                        <th>Verwendungszweck</th>
-                                        <th class="text-end">Betrag</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($transactions as $tx): ?>
-                                    <tr>
-                                        <td class="text-nowrap">
-                                            <small><?= $tx->created->format('d.m.Y') ?></small>
-                                        </td>
-                                        <td>
-                                            <?= h($tx->recipient_name) ?>
-                                        </td>
-                                        <td>
-                                            <small class="text-muted"><?= h($tx->purpose) ?></small>
-                                        </td>
-                                        <td class="text-end text-nowrap">
-                                            <span class="<?= $tx->amount >= 0 ? 'text-success' : 'text-danger' ?>">
-                                                <?= $tx->amount >= 0 ? '+' : '' ?><?= $this->Number->currency($tx->amount, 'EUR') ?>
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                        <?php else: ?>
-                        <div class="text-center text-muted py-4">
-                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                            <p class="mb-0">Noch keine Transaktionen vorhanden</p>
-                        </div>
-                        <?php endif; ?>
-                    </div>
+        <!-- Transaktionen -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-arrow-left-right me-2"></i>Transaktionen
+                    <span class="badge bg-secondary ms-2"><?= count($transactions) ?></span>
+                </h6>
+            </div>
+            <?php if (!empty($transactions)): ?>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Datum</th>
+                                <th>Empfänger / Auftraggeber</th>
+                                <th>Verwendungszweck</th>
+                                <th class="text-end">Betrag</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($transactions as $tx): ?>
+                            <tr>
+                                <td class="text-nowrap">
+                                    <small><?= $tx->datum->format('d.m.Y H:i') ?></small>
+                                </td>
+                                <td>
+                                    <?= h($tx->empfaenger_name) ?>
+                                </td>
+                                <td>
+                                    <small class="text-muted"><?= h($tx->zahlungszweck) ?></small>
+                                </td>
+                                <td class="text-end text-nowrap">
+                                    <span class="<?= $tx->betrag >= 0 ? 'text-success' : 'text-danger' ?>">
+                                        <?= $tx->betrag >= 0 ? '+' : '' ?><?= $this->Number->currency($tx->betrag, 'EUR') ?>
+                                    </span>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
+            <?php else: ?>
+            <div class="card-body text-center text-muted py-4">
+                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                <p class="mb-0">Noch keine Transaktionen vorhanden</p>
+            </div>
+            <?php endif; ?>
         </div>
         <?php endif; ?>
 
