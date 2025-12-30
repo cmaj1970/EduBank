@@ -274,16 +274,32 @@ class UsersController extends AppController
             return $this->redirect(['action' => 'index']);
         }
 
-        # Transaktionen des Kontos laden (neueste zuerst)
+        # Transaktionen des Kontos laden (Ausgänge + Eingänge, neueste zuerst)
         $transactions = [];
         if (!empty($user->accounts)) {
             $this->loadModel('Transactions');
-            $accountId = $user->accounts[0]->id;
+            $account = $user->accounts[0];
             $transactions = $this->Transactions->find()
-                ->where(['account_id' => $accountId])
-                ->order(['Transactions.datum' => 'DESC', 'Transactions.created' => 'DESC'])
+                ->where([
+                    'OR' => [
+                        'account_id' => $account->id,
+                        'empfaenger_iban' => $account->iban
+                    ]
+                ])
+                ->order(['Transactions.created' => 'DESC'])
                 ->limit(50)
                 ->toArray();
+
+            # Beträge anpassen: Eingänge positiv, Ausgänge negativ
+            foreach ($transactions as $tx) {
+                if ($tx->account_id == $account->id) {
+                    # Ausgang: Betrag negativ machen
+                    $tx->betrag = -abs($tx->betrag);
+                } else {
+                    # Eingang: Betrag positiv
+                    $tx->betrag = abs($tx->betrag);
+                }
+            }
         }
 
         $defaultPassword = env('DEFAULT_USER_PASSWORD', 'Schueler2024');
