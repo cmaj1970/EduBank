@@ -30,27 +30,28 @@ $school = $loggedinschool;
             <li><strong>Übungsfirmen anlegen und verwalten</strong> – Jede Übungsfirma erhält ein eigenes Bankkonto, mit dem Überweisungen geübt werden können.</li>
             <li><strong>Transaktionen beobachten</strong> – Alle Überweisungen der Übungsfirmen lassen sich in Echtzeit verfolgen.</li>
             <li><strong>Konten einsehen</strong> – Kontostände und Buchungshistorie jeder Übungsfirma sind jederzeit abrufbar.</li>
+            <li><strong>Partnerunternehmen einsehen</strong> – Fiktive Geschäftspartner wie Lieferanten oder Dienstleister, an die Übungsfirmen überweisen können.</li>
         </ul>
     </div>
 </div>
 
 <!-- Quick Links -->
 <div class="row g-3 mb-4">
-    <div class="col-md-6">
+    <div class="col-md-4">
         <a href="/users" class="card text-decoration-none h-100">
             <div class="card-body d-flex align-items-center">
                 <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
                     <i class="bi bi-building text-primary fs-4"></i>
                 </div>
                 <div>
-                    <h5 class="mb-1 text-dark">Übungsfirmen verwalten</h5>
-                    <small class="text-muted">Firmen anlegen, bearbeiten, Konten einsehen</small>
+                    <h5 class="mb-1 text-dark">Übungsfirmen</h5>
+                    <small class="text-muted">Anlegen und verwalten</small>
                 </div>
                 <i class="bi bi-chevron-right ms-auto text-muted"></i>
             </div>
         </a>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
         <a href="/transactions" class="card text-decoration-none h-100">
             <div class="card-body d-flex align-items-center">
                 <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3">
@@ -58,7 +59,21 @@ $school = $loggedinschool;
                 </div>
                 <div>
                     <h5 class="mb-1 text-dark">Live-Transaktionen</h5>
-                    <small class="text-muted">Überweisungen in Echtzeit verfolgen</small>
+                    <small class="text-muted">Überweisungen verfolgen</small>
+                </div>
+                <i class="bi bi-chevron-right ms-auto text-muted"></i>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="/accounts/partners" class="card text-decoration-none h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="rounded-circle bg-info bg-opacity-10 p-3 me-3">
+                    <i class="bi bi-people text-info fs-4"></i>
+                </div>
+                <div>
+                    <h5 class="mb-1 text-dark">Partnerunternehmen</h5>
+                    <small class="text-muted">Fiktive Empfänger</small>
                 </div>
                 <i class="bi bi-chevron-right ms-auto text-muted"></i>
             </div>
