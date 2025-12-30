@@ -212,7 +212,7 @@
                 <div class="text-center">
                     <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3 fs-3 fw-bold" style="width: 60px; height: 60px;">3</div>
                     <h5>Banking starten</h5>
-                    <p class="text-muted">Schüler melden sich an und führen Überweisungen durch.</p>
+                    <p class="text-muted">Die Übungsfirmen melden sich an und führen Überweisungen durch.</p>
                 </div>
             </div>
         </div>
