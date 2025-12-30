@@ -274,10 +274,22 @@ class UsersController extends AppController
             return $this->redirect(['action' => 'index']);
         }
 
+        # Transaktionen des Kontos laden (neueste zuerst)
+        $transactions = [];
+        if (!empty($user->accounts)) {
+            $this->loadModel('Transactions');
+            $accountId = $user->accounts[0]->id;
+            $transactions = $this->Transactions->find()
+                ->where(['account_id' => $accountId])
+                ->order(['Transactions.created' => 'DESC'])
+                ->limit(50)
+                ->toArray();
+        }
+
         $defaultPassword = env('DEFAULT_USER_PASSWORD', 'Schueler2024');
         $isSchoolAdmin = ($this->school !== null);
 
-        $this->set(compact('user', 'defaultPassword', 'isSchoolAdmin'));
+        $this->set(compact('user', 'defaultPassword', 'isSchoolAdmin', 'transactions'));
     }
 
     /**
