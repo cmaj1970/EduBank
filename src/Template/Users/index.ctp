@@ -102,13 +102,12 @@ $isIframe = $this->request->getQuery('iframe') === '1';
                             <tr>
                                 <th style="width: 35%"><?= $this->Paginator->sort('name', 'Firmenname') ?></th>
                                 <th style="width: 25%"><?= $this->Paginator->sort('username', 'Benutzername') ?></th>
-                                <th style="width: 15%" class="text-center">Konten</th>
+                                <th style="width: 15%"><?= $this->Paginator->sort('last_login', 'Letzter Login') ?></th>
                                 <th style="width: 25%" class="text-end">Aktionen</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($users as $user): ?>
-                            <?php $accountCount = count($user->accounts); ?>
                             <tr>
                                 <td>
                                     <i class="bi bi-building text-primary me-2"></i>
@@ -117,8 +116,12 @@ $isIframe = $this->request->getQuery('iframe') === '1';
                                 <td>
                                     <code><?= h($user->username) ?></code>
                                 </td>
-                                <td class="text-center">
-                                    <span class="badge bg-secondary"><?= $accountCount ?></span>
+                                <td>
+                                    <?php if ($user->last_login): ?>
+                                    <small class="text-muted"><?= $user->last_login->format('d.m.Y H:i') ?></small>
+                                    <?php else: ?>
+                                    <small class="text-muted">–</small>
+                                    <?php endif; ?>
                                 </td>
                                 <td class="text-end">
                                     <?= $this->Html->link(
