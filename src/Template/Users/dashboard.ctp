@@ -1,14 +1,10 @@
 <?php
 /**
  * Schuladmin Dashboard - Einstiegsseite
- * Zeigt Übersicht, Passwort-Info und Quick-Links
+ * Zeigt Anleitung, Quick-Links und Passwort-Info
  *
  * @var \App\View\AppView $this
  * @var string $defaultPassword
- * @var int $userCount
- * @var int $accountCount
- * @var float $totalBalance
- * @var int $transactionsToday
  */
 
 $school = $loggedinschool;
@@ -23,43 +19,18 @@ $school = $loggedinschool;
     </div>
 </div>
 
-<!-- Stats -->
-<div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
-        <div class="card text-center h-100">
-            <div class="card-body">
-                <div class="text-primary mb-2"><i class="bi bi-building fs-2"></i></div>
-                <h3 class="mb-1"><?= $userCount ?></h3>
-                <small class="text-muted">Übungsfirmen</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card text-center h-100">
-            <div class="card-body">
-                <div class="text-success mb-2"><i class="bi bi-wallet2 fs-2"></i></div>
-                <h3 class="mb-1"><?= $accountCount ?></h3>
-                <small class="text-muted">Konten</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card text-center h-100">
-            <div class="card-body">
-                <div class="text-info mb-2"><i class="bi bi-currency-euro fs-2"></i></div>
-                <h3 class="mb-1"><?= $this->Number->currency($totalBalance, 'EUR') ?></h3>
-                <small class="text-muted">Gesamtguthaben</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card text-center h-100">
-            <div class="card-body">
-                <div class="text-warning mb-2"><i class="bi bi-arrow-left-right fs-2"></i></div>
-                <h3 class="mb-1"><?= $transactionsToday ?></h3>
-                <small class="text-muted">Transaktionen heute</small>
-            </div>
-        </div>
+<!-- Anleitung für Schuladmins -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title mb-3">Was können Sie hier tun?</h5>
+        <p class="mb-2">
+            Die EduBank ist eine Übungsbank für Ihre Schülerinnen und Schüler. Als Lehrperson können Sie:
+        </p>
+        <ul class="mb-0">
+            <li><strong>Übungsfirmen anlegen und verwalten</strong> – Jede Übungsfirma erhält eigene Bankkonten, mit denen die Schüler Überweisungen üben können.</li>
+            <li><strong>Transaktionen beobachten</strong> – Sehen Sie in Echtzeit, welche Überweisungen Ihre Übungsfirmen durchführen.</li>
+            <li><strong>Konten einsehen</strong> – Prüfen Sie Kontostände und Buchungshistorie jeder Übungsfirma.</li>
+        </ul>
     </div>
 </div>
 

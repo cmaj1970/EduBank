@@ -53,40 +53,9 @@ class UsersController extends AppController
             return $this->redirect(['action' => 'index']);
         }
 
-        # Stats laden
-        $this->loadModel('Accounts');
-        $this->loadModel('Transactions');
-
-        # Anzahl Übungsfirmen
-        $userCount = $this->Users->find()
-            ->where(['school_id' => $this->school['id'], 'role' => 'user'])
-            ->count();
-
-        # Anzahl Konten + Gesamtguthaben
-        $accounts = $this->Accounts->find()
-            ->contain(['Users'])
-            ->where(['Users.school_id' => $this->school['id']])
-            ->all();
-
-        $accountCount = $accounts->count();
-        $totalBalance = 0;
-        foreach ($accounts as $acc) {
-            $totalBalance += $acc->balance;
-        }
-
-        # Transaktionen heute
-        $today = date('Y-m-d');
-        $transactionsToday = $this->Transactions->find()
-            ->contain(['Accounts.Users'])
-            ->where([
-                'Users.school_id' => $this->school['id'],
-                'Transactions.created >=' => $today . ' 00:00:00'
-            ])
-            ->count();
-
         $defaultPassword = env('DEFAULT_USER_PASSWORD', 'Schueler2024');
 
-        $this->set(compact('defaultPassword', 'userCount', 'accountCount', 'totalBalance', 'transactionsToday'));
+        $this->set(compact('defaultPassword'));
     }
 
     /**
