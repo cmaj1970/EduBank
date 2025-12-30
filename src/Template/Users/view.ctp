@@ -157,7 +157,7 @@ $account = !empty($user->accounts) ? $user->accounts[0] : null;
                             <?php foreach ($transactions as $tx): ?>
                             <tr>
                                 <td class="text-nowrap">
-                                    <small><?= $tx->datum->format('d.m.Y H:i') ?></small>
+                                    <small><?= $tx->created->format('d.m.Y H:i') ?></small>
                                 </td>
                                 <td>
                                     <?= h($tx->empfaenger_name) ?>
