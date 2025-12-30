@@ -99,8 +99,8 @@ return [
             'balance' => 'Der Kontostand. Bei vorhandenen Transaktionen wird er automatisch berechnet.',
             'maxlimit' => 'Der Überziehungsrahmen bestimmt, wie weit das Konto ins Minus gehen darf.',
             'reset' => 'Alle Transaktionen löschen und den Kontostand auf den Startwert (10.000 €) zurücksetzen.',
-            'leeren' => 'Setzt das Konto auf den Anfangszustand zurück: Alle Transaktionen werden gelöscht, Kontostand wird auf 10.000 € gesetzt.',
-            'prefill' => 'Wie "Leeren", aber zusätzlich werden ~15 zufällige Beispieltransaktionen mit Partnerunternehmen erstellt.',
+            'leeren' => 'Alle Transaktionen werden gelöscht und der Kontostand auf 10.000 € zurückgesetzt.',
+            'prefill' => 'Alle Transaktionen werden gelöscht, dann werden 12–18 Beispiel-Überweisungen erstellt. Kontostand danach: 10.000 €.',
         ],
 
         // Neues Konto (Accounts/add)
