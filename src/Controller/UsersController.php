@@ -66,10 +66,10 @@ class UsersController extends AppController
      public function index()
      {
          $query = $this->Users->query();
-         # Sortierung: Zuletzt aktive zuerst, dann nach Erstelldatum
+         # Sortierung: Alphabetisch nach Firmenname
          $this->paginate = [
              'contain' => ['Accounts', 'Schools'],
-             'order' => ['Users.last_login' => 'DESC', 'Users.created' => 'DESC']
+             'order' => ['Users.name' => 'ASC']
          ];
 
          # Filter: Nur Übungsfirmen anzeigen (role=user)
