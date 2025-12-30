@@ -619,10 +619,8 @@ class UsersController extends AppController
 
         // Redirect based on target user role
         if ($targetUser->role === 'admin' && strpos($targetUser->username, 'admin-') === 0) {
-            $this->Flash->success(__('Sie sehen die Anwendung jetzt als Schuladmin "{0}".', $targetUser->name));
             return $this->redirect(['controller' => 'Users', 'action' => 'dashboard']);
         } else {
-            $this->Flash->success(__('Sie sehen die Anwendung jetzt als "{0}".', $targetUser->name));
             return $this->redirect(['controller' => 'Accounts', 'action' => 'index']);
         }
     }
