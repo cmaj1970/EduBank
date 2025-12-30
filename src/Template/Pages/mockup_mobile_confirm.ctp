@@ -73,10 +73,10 @@
 <!-- ============================================== -->
 <div class="modal fade" id="mobileConfirmModal" tabindex="-1" aria-labelledby="mobileConfirmModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="background: transparent;">
+        <div class="modal-content border-0" style="background: transparent; pointer-events: none;">
 
             <!-- Smartphone Frame -->
-            <div class="mx-auto" style="max-width: 320px;">
+            <div class="mx-auto" style="max-width: 320px; pointer-events: auto;">
 
                 <!-- Phone Outer Frame -->
                 <div style="background: linear-gradient(145deg, #2d2d2d, #1a1a1a); border-radius: 40px; padding: 12px; box-shadow: 0 25px 50px rgba(0,0,0,0.3);">
