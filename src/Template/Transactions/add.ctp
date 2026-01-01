@@ -256,8 +256,8 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
 </style>
 
 <div class="modal fade" id="mobileConfirmModal" tabindex="-1" data-bs-backdrop="false" aria-labelledby="mobileConfirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="margin: 0; max-width: 100%; width: 100%; height: 100%;">
-        <div class="modal-content border-0 d-flex align-items-center justify-content-center" style="background: transparent; height: 100%;">
+    <div class="modal-dialog" style="margin: 0; max-width: 100%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+        <div class="modal-content border-0" style="background: transparent; width: auto; height: auto;">
 
             <!-- Custom Backdrop (clickable to close) -->
             <div class="modal-backdrop-custom" data-bs-dismiss="modal"></div>
