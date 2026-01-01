@@ -257,14 +257,15 @@ body.modal-scroll-lock {
 }
 
 #mobileConfirmModal .modal-dialog {
-    margin: 0;
-    max-width: 100%;
-    width: 100%;
-    height: 100dvh;
-    height: calc(var(--real-vh, 1vh) * 100);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    height: 100dvh !important;
+    height: calc(var(--real-vh, 1vh) * 100) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transform: none !important;
 }
 
 #mobileConfirmModal .modal-content {
