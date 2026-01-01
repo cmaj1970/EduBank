@@ -244,6 +244,14 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
     --real-vh: 1vh;
 }
 
+/* iOS body scroll lock */
+body.modal-scroll-lock {
+    position: fixed;
+    width: 100%;
+    overflow: hidden;
+    touch-action: none;
+}
+
 #mobileConfirmModal {
     background: rgba(0, 0, 0, 0.6) !important;
 }
@@ -273,7 +281,8 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
 
     #mobileConfirmModal .modal-dialog {
         height: 100%;
-        align-items: stretch;
+        align-items: flex-start;
+        padding-top: env(safe-area-inset-top, 20px);
     }
 
     #mobileConfirmModal .modal-content {
@@ -284,6 +293,8 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
     #mobileConfirmModal .phone-container {
         width: 100% !important;
         height: 100%;
+        display: flex;
+        flex-direction: column;
     }
 
     /* Hide phone frame elements */
@@ -293,6 +304,8 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
         padding: 0 !important;
         box-shadow: none !important;
         height: 100%;
+        display: flex;
+        flex-direction: column;
     }
 
     #mobileConfirmModal .phone-inner {
@@ -300,6 +313,8 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
         border-radius: 0 !important;
         padding: 0 !important;
         height: 100%;
+        display: flex;
+        flex-direction: column;
     }
 
     #mobileConfirmModal .phone-notch,
@@ -311,8 +326,11 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
     #mobileConfirmModal #phoneScreen {
         border-radius: 0 !important;
         aspect-ratio: auto !important;
-        height: 100% !important;
+        flex: 1 !important;
+        height: auto !important;
         background: transparent !important;
+        display: flex;
+        flex-direction: column;
     }
 
     /* Larger content on mobile */
@@ -320,10 +338,14 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
         margin: 16px !important;
         padding: 16px !important;
         font-size: 1rem !important;
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     #mobileConfirmModal .app-header {
         padding: 20px 0 !important;
+        flex-shrink: 0;
     }
 
     #mobileConfirmModal .app-header i {
@@ -692,16 +714,35 @@ $(document).ready(function() {
     syncViewportHeight();
     $(window).on('resize orientationchange', syncViewportHeight);
 
+    // Scroll position tracking for iOS
+    var savedScrollPosition = 0;
+
+    function lockBodyScroll() {
+        savedScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+        $('body').addClass('modal-scroll-lock');
+        $('body').css('top', -savedScrollPosition + 'px');
+    }
+
+    function unlockBodyScroll() {
+        $('body').removeClass('modal-scroll-lock');
+        $('body').css('top', '');
+        window.scrollTo(0, savedScrollPosition);
+    }
+
     // Modal öffnen - Daten befüllen und Zeit aktualisieren
     $('#mobileConfirmModal').on('show.bs.modal', function() {
         syncViewportHeight();
+        lockBodyScroll();
         updatePhoneTime();
         populateModalData();
         resetMobileModal();
+        // Reset any internal scroll positions
+        $('#confirmContent').scrollTop(0);
     });
 
     // Modal schließen - zurücksetzen
     $('#mobileConfirmModal').on('hidden.bs.modal', function() {
+        unlockBodyScroll();
         resetMobileModal();
     });
 
