@@ -244,25 +244,19 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
     background: rgba(0, 0, 0, 0.6) !important;
 }
 #mobileConfirmModal .modal-dialog {
-    margin: 0;
-    width: 100%;
-    max-width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    width: 280px;
+    height: 606px; /* 280 * 844 / 390 */
+    max-width: 280px;
 }
 #mobileConfirmModal .modal-content {
     background: transparent;
     border: none;
-    width: auto;
-}
-#mobileConfirmModal .phone-container {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1060;
 }
 </style>
 
