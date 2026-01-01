@@ -240,27 +240,29 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
 
 <!-- Custom styles for modal -->
 <style>
-#mobileConfirmModal .modal-backdrop-custom {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.6);
-    z-index: 1;
+#mobileConfirmModal {
+    background: rgba(0, 0, 0, 0.6);
 }
-#mobileConfirmModal .phone-container {
-    position: relative;
-    z-index: 2;
+#mobileConfirmModal .modal-dialog {
+    margin: 0;
+    max-width: 100%;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#mobileConfirmModal .modal-content {
+    background: transparent;
+    border: none;
+    width: auto;
+    max-width: none;
 }
 </style>
 
 <div class="modal fade" id="mobileConfirmModal" tabindex="-1" data-bs-backdrop="false" aria-labelledby="mobileConfirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="margin: 0; max-width: 100%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-        <div class="modal-content border-0" style="background: transparent; width: auto; height: auto;">
-
-            <!-- Custom Backdrop (clickable to close) -->
-            <div class="modal-backdrop-custom" data-bs-dismiss="modal"></div>
+    <div class="modal-dialog">
+        <div class="modal-content">
 
             <!-- Smartphone Frame (iPhone 13 Pro: 390x844 CSS pixels, ratio 19.5:9) -->
             <div class="phone-container" style="width: 280px;">
