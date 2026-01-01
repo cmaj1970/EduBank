@@ -238,23 +238,38 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
 <!-- MOBILE CONFIRMATION MODAL                      -->
 <!-- ============================================== -->
 
-<!-- Custom styles for modal -->
+<!-- Custom styles for modal - iOS Safari compatible -->
 <style>
+:root {
+    --real-vh: 1vh;
+}
+
 #mobileConfirmModal {
     background: rgba(0, 0, 0, 0.6) !important;
 }
+
 #mobileConfirmModal .modal-dialog {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    margin: 0 !important;
-    width: 280px;
-    max-width: 280px;
+    margin: 0;
+    max-width: 100%;
+    width: 100%;
+    height: 100dvh; /* Modern browsers */
+    height: calc(var(--real-vh, 1vh) * 100); /* Fallback */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+
 #mobileConfirmModal .modal-content {
     background: transparent;
     border: none;
+    width: auto;
+}
+
+/* Prevent iOS body scroll when modal is open */
+body.modal-open-ios {
+    position: fixed;
+    width: 100%;
+    overflow: hidden;
 }
 </style>
 
@@ -600,16 +615,29 @@ $(document).ready(function() {
         $('#transactionform').find(':input').prop('readonly', false);
     });
 
+    // iOS Safari viewport height fix
+    function syncViewportHeight() {
+        var vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--real-vh', vh + 'px');
+    }
+
+    // Initial call and event listeners
+    syncViewportHeight();
+    $(window).on('resize orientationchange', syncViewportHeight);
+
     // Modal öffnen - Daten befüllen und Zeit aktualisieren
     $('#mobileConfirmModal').on('show.bs.modal', function() {
+        syncViewportHeight();
         updatePhoneTime();
         populateModalData();
         resetMobileModal();
+        $('body').addClass('modal-open-ios');
     });
 
     // Modal schließen - zurücksetzen
     $('#mobileConfirmModal').on('hidden.bs.modal', function() {
         resetMobileModal();
+        $('body').removeClass('modal-open-ios');
     });
 
     // Mobile Bestätigung - Bestätigen Button im Handy
