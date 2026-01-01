@@ -254,15 +254,25 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
     width: 100%;
     height: 100dvh; /* Modern browsers */
     height: calc(var(--real-vh, 1vh) * 100); /* Fallback */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
 #mobileConfirmModal .modal-content {
     background: transparent;
     border: none;
-    width: auto;
+    width: 100%;
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px; /* Padding around phone for scroll space */
+    box-sizing: border-box;
+}
+
+#mobileConfirmModal .phone-container {
+    flex-shrink: 0; /* Don't shrink the phone */
 }
 
 /* Prevent iOS body scroll when modal is open */
