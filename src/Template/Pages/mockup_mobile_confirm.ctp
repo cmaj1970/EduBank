@@ -72,11 +72,11 @@
 <!-- MOBILE CONFIRMATION MODAL                      -->
 <!-- ============================================== -->
 <div class="modal fade" id="mobileConfirmModal" tabindex="-1" aria-labelledby="mobileConfirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0" style="background: transparent; pointer-events: none;">
+    <div class="modal-dialog modal-dialog-centered" style="pointer-events: none;">
+        <div class="modal-content border-0" style="background: transparent;">
 
-            <!-- Smartphone Frame -->
-            <div class="mx-auto" style="max-width: 320px; pointer-events: auto;">
+            <!-- Smartphone Frame (iPhone 13 Pro: 390x844 CSS pixels, ratio 19.5:9) -->
+            <div class="mx-auto" style="width: 300px; pointer-events: auto; position: relative; z-index: 1060;">
 
                 <!-- Phone Outer Frame -->
                 <div style="background: linear-gradient(145deg, #2d2d2d, #1a1a1a); border-radius: 40px; padding: 12px; box-shadow: 0 25px 50px rgba(0,0,0,0.3);">
@@ -84,11 +84,11 @@
                     <!-- Phone Inner Frame -->
                     <div style="background: #000; border-radius: 32px; padding: 8px; position: relative;">
 
-                        <!-- Notch -->
-                        <div style="position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 120px; height: 28px; background: #000; border-radius: 0 0 16px 16px; z-index: 10;"></div>
+                        <!-- Notch (Dynamic Island style) -->
+                        <div style="position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 90px; height: 24px; background: #000; border-radius: 12px; z-index: 10;"></div>
 
-                        <!-- Screen -->
-                        <div id="phoneScreen" style="background: linear-gradient(180deg, #1a365d 0%, #2d4a7c 100%); border-radius: 26px; min-height: 500px; overflow: hidden;">
+                        <!-- Screen (iPhone 13 Pro aspect ratio: 390/844 ≈ 0.462) -->
+                        <div id="phoneScreen" style="background: linear-gradient(180deg, #1a365d 0%, #2d4a7c 100%); border-radius: 26px; aspect-ratio: 390/844; overflow: hidden;">
 
                             <!-- Status Bar -->
                             <div class="d-flex justify-content-between align-items-center px-4 pt-4 pb-2 text-white" style="font-size: 12px;">
@@ -176,13 +176,10 @@
 
                             </div>
 
-                            <!-- Bottom Spacer -->
-                            <div style="height: 60px;"></div>
-
                         </div>
 
                         <!-- Home Indicator -->
-                        <div class="mx-auto mt-2" style="width: 120px; height: 5px; background: #666; border-radius: 3px;"></div>
+                        <div class="mx-auto mt-2 mb-1" style="width: 100px; height: 4px; background: #666; border-radius: 3px;"></div>
 
                     </div>
                 </div>
