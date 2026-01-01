@@ -113,7 +113,7 @@
 
                             <!-- Status Bar -->
                             <div class="d-flex justify-content-between align-items-center px-3 pt-3 pb-1 text-white" style="font-size: 11px; flex-shrink: 0;">
-                                <span>9:41</span>
+                                <span id="phoneTime">9:41</span>
                                 <div class="d-flex gap-1 align-items-center">
                                     <i class="bi bi-reception-4"></i>
                                     <i class="bi bi-wifi"></i>
@@ -236,5 +236,17 @@ function resetDemo() {
 // Reset when modal is closed
 document.getElementById('mobileConfirmModal').addEventListener('hidden.bs.modal', function () {
     resetDemo();
+});
+
+// Update phone time when modal is shown
+function updatePhoneTime() {
+    var now = new Date();
+    var hours = now.getHours();
+    var minutes = now.getMinutes().toString().padStart(2, '0');
+    document.getElementById('phoneTime').textContent = hours + ':' + minutes;
+}
+
+document.getElementById('mobileConfirmModal').addEventListener('show.bs.modal', function () {
+    updatePhoneTime();
 });
 </script>
