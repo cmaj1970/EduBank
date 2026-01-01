@@ -244,6 +244,14 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
     --real-vh: 1vh;
 }
 
+/* iOS body scroll lock */
+body.modal-scroll-lock {
+    position: fixed;
+    width: 100%;
+    overflow: hidden;
+    touch-action: none;
+}
+
 #mobileConfirmModal {
     background: rgba(0, 0, 0, 0.6) !important;
 }
@@ -264,6 +272,94 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
     border: none;
     width: auto;
 }
+
+/* Mobile: Show as full-screen app without phone frame */
+@media (max-width: 576px) {
+    #mobileConfirmModal {
+        background: linear-gradient(180deg, #1a365d 0%, #2d4a7c 100%) !important;
+    }
+
+    #mobileConfirmModal .modal-dialog {
+        height: 100%;
+        align-items: flex-start;
+        padding-top: env(safe-area-inset-top, 20px);
+    }
+
+    #mobileConfirmModal .modal-content {
+        width: 100%;
+        height: 100%;
+    }
+
+    #mobileConfirmModal .phone-container {
+        width: 100% !important;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Hide phone frame elements */
+    #mobileConfirmModal .phone-frame {
+        background: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #mobileConfirmModal .phone-inner {
+        background: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #mobileConfirmModal .phone-notch,
+    #mobileConfirmModal .phone-home-indicator,
+    #mobileConfirmModal .phone-status-bar {
+        display: none !important;
+    }
+
+    #mobileConfirmModal #phoneScreen {
+        border-radius: 0 !important;
+        aspect-ratio: auto !important;
+        flex: 1 !important;
+        height: auto !important;
+        background: transparent !important;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Larger content on mobile */
+    #mobileConfirmModal #confirmContent {
+        margin: 16px !important;
+        padding: 16px !important;
+        font-size: 1rem !important;
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #mobileConfirmModal .app-header {
+        padding: 20px 0 !important;
+        flex-shrink: 0;
+    }
+
+    #mobileConfirmModal .app-header i {
+        font-size: 2.5rem !important;
+    }
+
+    #mobileConfirmModal .app-header .app-title {
+        font-size: 1.2rem !important;
+    }
+
+    #mobileConfirmModal .app-header .app-subtitle {
+        font-size: 0.9rem !important;
+    }
+}
 </style>
 
 <div class="modal fade" id="mobileConfirmModal" tabindex="-1" data-bs-backdrop="false" aria-labelledby="mobileConfirmModalLabel" aria-hidden="true">
@@ -274,19 +370,19 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
             <div class="phone-container" style="width: 280px;">
 
                 <!-- Phone Outer Frame -->
-                <div style="background: linear-gradient(145deg, #2d2d2d, #1a1a1a); border-radius: 36px; padding: 10px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+                <div class="phone-frame" style="background: linear-gradient(145deg, #2d2d2d, #1a1a1a); border-radius: 36px; padding: 10px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
 
                     <!-- Phone Inner Frame -->
-                    <div style="background: #000; border-radius: 28px; padding: 6px; position: relative;">
+                    <div class="phone-inner" style="background: #000; border-radius: 28px; padding: 6px; position: relative;">
 
                         <!-- Notch (Dynamic Island style) -->
-                        <div style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 80px; height: 22px; background: #000; border-radius: 11px; z-index: 10;"></div>
+                        <div class="phone-notch" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 80px; height: 22px; background: #000; border-radius: 11px; z-index: 10;"></div>
 
                         <!-- Screen (iPhone 13 Pro aspect ratio: 390/844) -->
                         <div id="phoneScreen" style="background: linear-gradient(180deg, #1a365d 0%, #2d4a7c 100%); border-radius: 22px; aspect-ratio: 390/844; overflow: hidden; display: flex; flex-direction: column;">
 
-                            <!-- Status Bar -->
-                            <div class="d-flex justify-content-between align-items-center px-3 pt-3 pb-1 text-white" style="font-size: 11px; flex-shrink: 0;">
+                            <!-- Status Bar (hidden on real mobile) -->
+                            <div class="phone-status-bar d-flex justify-content-between align-items-center px-3 pt-3 pb-1 text-white" style="font-size: 11px; flex-shrink: 0;">
                                 <span id="phoneTime">9:41</span>
                                 <div class="d-flex gap-1 align-items-center">
                                     <i class="bi bi-reception-4"></i>
@@ -296,10 +392,10 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                             </div>
 
                             <!-- App Header -->
-                            <div class="text-center text-white py-2" style="flex-shrink: 0;">
+                            <div class="app-header text-center text-white py-2" style="flex-shrink: 0;">
                                 <i class="bi bi-bank2 mb-1 d-block opacity-75" style="font-size: 1.5rem;"></i>
-                                <div class="fw-bold" style="font-size: 0.85rem;">EduBank</div>
-                                <small class="opacity-75" style="font-size: 0.7rem;">Überweisung bestätigen</small>
+                                <div class="app-title fw-bold" style="font-size: 0.85rem;">EduBank</div>
+                                <small class="app-subtitle opacity-75" style="font-size: 0.7rem;">Überweisung bestätigen</small>
                             </div>
 
                             <!-- Content Area -->
@@ -374,7 +470,7 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                         </div>
 
                         <!-- Home Indicator -->
-                        <div class="mx-auto mt-1" style="width: 90px; height: 4px; background: #555; border-radius: 2px;"></div>
+                        <div class="phone-home-indicator mx-auto mt-1" style="width: 90px; height: 4px; background: #555; border-radius: 2px;"></div>
 
                     </div>
                 </div>
@@ -618,16 +714,35 @@ $(document).ready(function() {
     syncViewportHeight();
     $(window).on('resize orientationchange', syncViewportHeight);
 
+    // Scroll position tracking for iOS
+    var savedScrollPosition = 0;
+
+    function lockBodyScroll() {
+        savedScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+        $('body').addClass('modal-scroll-lock');
+        $('body').css('top', -savedScrollPosition + 'px');
+    }
+
+    function unlockBodyScroll() {
+        $('body').removeClass('modal-scroll-lock');
+        $('body').css('top', '');
+        window.scrollTo(0, savedScrollPosition);
+    }
+
     // Modal öffnen - Daten befüllen und Zeit aktualisieren
     $('#mobileConfirmModal').on('show.bs.modal', function() {
         syncViewportHeight();
+        lockBodyScroll();
         updatePhoneTime();
         populateModalData();
         resetMobileModal();
+        // Reset any internal scroll positions
+        $('#confirmContent').scrollTop(0);
     });
 
     // Modal schließen - zurücksetzen
     $('#mobileConfirmModal').on('hidden.bs.modal', function() {
+        unlockBodyScroll();
         resetMobileModal();
     });
 
