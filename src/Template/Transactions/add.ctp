@@ -208,27 +208,15 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
                     </div>
                 </div>
 
-                <!-- TAN-Eingabe (wird nach Validierung angezeigt) -->
-                <div id="taninput" style="display:none;" class="alert alert-info" <?= $this->HelpText->attr('transfer', 'tan') ?>>
-                    <h6><i class="bi bi-shield-lock me-2"></i>TAN-Bestätigung</h6>
+                <!-- Mobile Bestätigung (Info-Box, wird nach Validierung angezeigt) -->
+                <div id="mobileconfirminfo" style="display:none;" class="alert alert-info" <?= $this->HelpText->attr('transfer', 'tan') ?>>
+                    <h6><i class="bi bi-phone me-2"></i>Bestätigung am Smartphone</h6>
                     <p class="small mb-3">
-                        Bitte eine gültige TAN eingeben, um die Überweisung zu bestätigen.
-                        <i class="bi bi-question-circle text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Die TAN muss 5-stellig und durch 7 teilbar sein." style="cursor: help;"></i>
+                        Bitte bestätigen Sie die Überweisung in der EduBank-App auf Ihrem Smartphone.
                     </p>
-                    <div class="mb-3">
-                        <label for="tan" class="form-label"><?= __('TAN') ?></label>
-                        <?= $this->Form->text('tan', [
-                            'class' => 'form-control',
-                            'id' => 'tan',
-                            'placeholder' => '5-stellige TAN',
-                            'maxlength' => 5,
-                            'pattern' => '[0-9]{5}',
-                            'style' => 'width: 120px;'
-                        ]) ?>
-                    </div>
                     <div class="d-flex gap-2">
                         <?= $this->Form->button(__('Abbrechen'), ['type' => 'button', 'id' => 'cancel', 'class' => 'btn btn-secondary']) ?>
-                        <?= $this->Form->button('<i class="bi bi-check-lg me-1"></i>' . __('Überweisung ausführen'), ['type' => 'button', 'id' => 'tansubmit', 'class' => 'btn btn-success', 'escape' => false]) ?>
+                        <?= $this->Form->button('<i class="bi bi-phone me-1"></i>' . __('Am Smartphone bestätigen'), ['type' => 'button', 'id' => 'openMobileConfirm', 'class' => 'btn btn-primary', 'escape' => false, 'data-bs-toggle' => 'modal', 'data-bs-target' => '#mobileConfirmModal']) ?>
                     </div>
                 </div>
 
@@ -242,6 +230,149 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
 
                 <?= $this->Form->end() ?>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================== -->
+<!-- MOBILE CONFIRMATION MODAL                      -->
+<!-- ============================================== -->
+
+<!-- Custom styles for modal -->
+<style>
+#mobileConfirmModal .modal-backdrop-custom {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.6);
+    z-index: 1;
+}
+#mobileConfirmModal .phone-container {
+    position: relative;
+    z-index: 2;
+}
+</style>
+
+<div class="modal fade" id="mobileConfirmModal" tabindex="-1" data-bs-backdrop="false" aria-labelledby="mobileConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="margin: 0; max-width: 100%; width: 100%; height: 100%;">
+        <div class="modal-content border-0 d-flex align-items-center justify-content-center" style="background: transparent; height: 100%;">
+
+            <!-- Custom Backdrop (clickable to close) -->
+            <div class="modal-backdrop-custom" data-bs-dismiss="modal"></div>
+
+            <!-- Smartphone Frame (iPhone 13 Pro: 390x844 CSS pixels, ratio 19.5:9) -->
+            <div class="phone-container" style="width: 280px;">
+
+                <!-- Phone Outer Frame -->
+                <div style="background: linear-gradient(145deg, #2d2d2d, #1a1a1a); border-radius: 36px; padding: 10px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+
+                    <!-- Phone Inner Frame -->
+                    <div style="background: #000; border-radius: 28px; padding: 6px; position: relative;">
+
+                        <!-- Notch (Dynamic Island style) -->
+                        <div style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 80px; height: 22px; background: #000; border-radius: 11px; z-index: 10;"></div>
+
+                        <!-- Screen (iPhone 13 Pro aspect ratio: 390/844) -->
+                        <div id="phoneScreen" style="background: linear-gradient(180deg, #1a365d 0%, #2d4a7c 100%); border-radius: 22px; aspect-ratio: 390/844; overflow: hidden; display: flex; flex-direction: column;">
+
+                            <!-- Status Bar -->
+                            <div class="d-flex justify-content-between align-items-center px-3 pt-3 pb-1 text-white" style="font-size: 11px; flex-shrink: 0;">
+                                <span id="phoneTime">9:41</span>
+                                <div class="d-flex gap-1 align-items-center">
+                                    <i class="bi bi-reception-4"></i>
+                                    <i class="bi bi-wifi"></i>
+                                    <i class="bi bi-battery-full"></i>
+                                </div>
+                            </div>
+
+                            <!-- App Header -->
+                            <div class="text-center text-white py-2" style="flex-shrink: 0;">
+                                <i class="bi bi-bank2 mb-1 d-block opacity-75" style="font-size: 1.5rem;"></i>
+                                <div class="fw-bold" style="font-size: 0.85rem;">EduBank</div>
+                                <small class="opacity-75" style="font-size: 0.7rem;">Überweisung bestätigen</small>
+                            </div>
+
+                            <!-- Content Area -->
+                            <div id="confirmContent" class="bg-white mx-2 rounded-3 p-2 shadow" style="flex: 1; overflow: auto; margin-bottom: 8px;">
+
+                                <!-- Initial State: Confirmation Details -->
+                                <div id="stateInitial">
+                                    <div class="text-center mb-2">
+                                        <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-1" style="width: 36px; height: 36px;">
+                                            <i class="bi bi-exclamation-triangle text-warning" style="font-size: 1rem;"></i>
+                                        </div>
+                                        <div class="fw-bold" style="font-size: 0.8rem;">Überweisung prüfen</div>
+                                        <small class="text-muted" style="font-size: 0.65rem;">Bitte kontrollieren Sie die Daten</small>
+                                    </div>
+
+                                    <div class="border rounded-2 p-2 mb-2" style="background: #f8f9fa; font-size: 0.75rem;">
+                                        <div class="mb-1">
+                                            <small class="text-muted d-block" style="font-size: 0.6rem;">Empfänger</small>
+                                            <strong id="modal-empfaenger">-</strong>
+                                        </div>
+                                        <div class="mb-1">
+                                            <small class="text-muted d-block" style="font-size: 0.6rem;">IBAN</small>
+                                            <span class="font-monospace" style="font-size: 0.65rem;" id="modal-iban">-</span>
+                                        </div>
+                                        <div class="mb-1">
+                                            <small class="text-muted d-block" style="font-size: 0.6rem;">Verwendungszweck</small>
+                                            <span id="modal-zweck">-</span>
+                                        </div>
+                                        <hr class="my-1">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">Betrag</small>
+                                            <strong class="text-primary" style="font-size: 1rem;" id="modal-betrag">-</strong>
+                                        </div>
+                                    </div>
+
+                                    <button id="btnMobileConfirm" class="btn btn-success w-100 py-1" style="font-size: 0.8rem;">
+                                        <i class="bi bi-check-lg me-1"></i>Bestätigen
+                                    </button>
+
+                                    <button class="btn btn-link text-muted w-100 py-0 mt-1" style="font-size: 0.7rem;" data-bs-dismiss="modal">
+                                        Abbrechen
+                                    </button>
+                                </div>
+
+                                <!-- Processing State -->
+                                <div id="stateProcessing" class="text-center py-3" style="display: none;">
+                                    <div class="spinner-border text-primary mb-2" role="status" style="width: 2.5rem; height: 2.5rem;">
+                                        <span class="visually-hidden">Wird verarbeitet...</span>
+                                    </div>
+                                    <div class="fw-bold" style="font-size: 0.8rem;">Wird verarbeitet...</div>
+                                    <small class="text-muted" style="font-size: 0.7rem;">Bitte warten</small>
+                                </div>
+
+                                <!-- Success State -->
+                                <div id="stateSuccess" class="text-center py-3" style="display: none;">
+                                    <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                                        <i class="bi bi-check-lg text-success" style="font-size: 1.8rem;"></i>
+                                    </div>
+                                    <div class="text-success fw-bold mb-1" style="font-size: 0.9rem;">Erfolgreich!</div>
+                                    <p class="text-muted mb-2" style="font-size: 0.7rem;">
+                                        Überweisung über<br>
+                                        <strong class="text-dark" style="font-size: 1rem;" id="modal-betrag-success">-</strong><br>
+                                        wurde ausgeführt.
+                                    </p>
+                                    <button id="btnMobileClose" class="btn btn-outline-success btn-sm" style="font-size: 0.7rem;">
+                                        <i class="bi bi-x-lg me-1"></i>Schließen
+                                    </button>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Home Indicator -->
+                        <div class="mx-auto mt-1" style="width: 90px; height: 4px; background: #555; border-radius: 2px;"></div>
+
+                    </div>
+                </div>
+
+            </div>
+
         </div>
     </div>
 </div>
@@ -384,7 +515,34 @@ $(document).ready(function() {
         }
     });
 
-    // TAN-Request Button
+    // Mobile Confirmation - Helper functions
+    function updatePhoneTime() {
+        var now = new Date();
+        var hours = now.getHours();
+        var minutes = now.getMinutes().toString().padStart(2, '0');
+        $('#phoneTime').text(hours + ':' + minutes);
+    }
+
+    function resetMobileModal() {
+        $('#stateInitial').show();
+        $('#stateProcessing').hide();
+        $('#stateSuccess').hide();
+    }
+
+    function populateModalData() {
+        var empfaenger = $('#empfaenger-name').val();
+        var iban = $('#empfaenger-iban').val();
+        var betrag = $('#betrag').val() + ' €';
+        var zweck = $('#zahlungszweck').val();
+
+        $('#modal-empfaenger').text(empfaenger);
+        $('#modal-iban').text(iban);
+        $('#modal-betrag').text(betrag);
+        $('#modal-betrag-success').text(betrag);
+        $('#modal-zweck').text(zweck);
+    }
+
+    // Request Button - Validierung und dann Mobile-Bestätigung anzeigen
     $('#requesttan').on('click touchend', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -419,12 +577,11 @@ $(document).ready(function() {
                     $('#recipient-warning').show();
                 }
 
-                // Weiter zur TAN-Eingabe
+                // Weiter zur Mobile-Bestätigung
                 updateProgressSteps(2);
-                $('#taninput').show();
+                $('#mobileconfirminfo').show();
                 $('#formactions').hide();
                 $('#transactionform').find(':input').prop('readonly', true);
-                $('#tan').focus();
             },
             error: function() {
                 showValidationError('Fehler bei der Empfängerprüfung. Bitte versuchen Sie es erneut.');
@@ -436,29 +593,54 @@ $(document).ready(function() {
     $('#cancel').on('click touchend', function(e) {
         e.preventDefault();
         updateProgressSteps(1);
-        $('#taninput').hide();
+        $('#mobileconfirminfo').hide();
         $('#recipient-warning').hide();
         hideValidationError();
         $('#formactions').show();
-        $('#tan').val('');
         $('#transactionform').find(':input').prop('readonly', false);
     });
 
-    // TAN Submit Button
-    $('#tansubmit').on('click touchend', function(e) {
+    // Modal öffnen - Daten befüllen und Zeit aktualisieren
+    $('#mobileConfirmModal').on('show.bs.modal', function() {
+        updatePhoneTime();
+        populateModalData();
+        resetMobileModal();
+    });
+
+    // Modal schließen - zurücksetzen
+    $('#mobileConfirmModal').on('hidden.bs.modal', function() {
+        resetMobileModal();
+    });
+
+    // Mobile Bestätigung - Bestätigen Button im Handy
+    $('#btnMobileConfirm').on('click', function(e) {
         e.preventDefault();
-        var tanval = $('#tan').val();
-        var modulo = tanval % 7;
-        if(tanval == 0 || modulo > 0 || tanval < 10000 || tanval > 99999) {
-            showValidationError('Ungültige TAN. Die TAN muss 5-stellig und durch 7 teilbar sein.');
-            $('#tan').addClass('is-invalid').focus();
-        } else {
-            hideValidationError();
+
+        // Zeige Processing State
+        $('#stateInitial').hide();
+        $('#stateProcessing').show();
+
+        // Nach 3 Sekunden: Success State zeigen
+        setTimeout(function() {
+            $('#stateProcessing').hide();
+            $('#stateSuccess').show();
             updateProgressSteps(3);
-            var $iban = $('#empfaenger-iban');
-            $iban.val($iban.val().replace(/\s/g, ''));
-            $('#addtransaction').submit();
-        }
+        }, 3000);
+    });
+
+    // Mobile Bestätigung - Schließen Button (nach Erfolg) → Formular abschicken
+    $('#btnMobileClose').on('click', function(e) {
+        e.preventDefault();
+
+        // Modal schließen
+        $('#mobileConfirmModal').modal('hide');
+
+        // IBAN ohne Leerzeichen setzen
+        var $iban = $('#empfaenger-iban');
+        $iban.val($iban.val().replace(/\s/g, ''));
+
+        // Formular abschicken
+        $('#addtransaction').submit();
     });
 
     // Betrag-Formatierung
