@@ -424,6 +424,10 @@ body.modal-scroll-lock {
                                             <small class="text-muted d-block" style="font-size: 0.6rem;">Verwendungszweck</small>
                                             <span id="modal-zweck">-</span>
                                         </div>
+                                        <div class="mb-1">
+                                            <small class="text-muted d-block" style="font-size: 0.6rem;">Ausführungsdatum</small>
+                                            <span id="modal-datum">-</span>
+                                        </div>
                                         <hr class="my-1">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <small class="text-muted">Betrag</small>
@@ -435,8 +439,8 @@ body.modal-scroll-lock {
                                         <i class="bi bi-check-lg me-1"></i>Bestätigen
                                     </button>
 
-                                    <button class="btn btn-link text-muted w-100 py-0 mt-1" style="font-size: 0.7rem;" data-bs-dismiss="modal">
-                                        Abbrechen
+                                    <button class="btn btn-secondary w-100 py-1 mt-2" style="font-size: 0.8rem;" data-bs-dismiss="modal">
+                                        <i class="bi bi-x-lg me-1"></i>Abbrechen
                                     </button>
                                 </div>
 
@@ -638,12 +642,23 @@ $(document).ready(function() {
         var iban = $('#empfaenger-iban').val();
         var betrag = $('#betrag').val() + ' €';
         var zweck = $('#zahlungszweck').val();
+        var datumRaw = $('#datum').val();
+
+        // Format date to German format (DD.MM.YYYY)
+        var datum = 'Sofort';
+        if (datumRaw) {
+            var parts = datumRaw.split('-');
+            if (parts.length === 3) {
+                datum = parts[2] + '.' + parts[1] + '.' + parts[0];
+            }
+        }
 
         $('#modal-empfaenger').text(empfaenger);
         $('#modal-iban').text(iban);
         $('#modal-betrag').text(betrag);
         $('#modal-betrag-success').text(betrag);
         $('#modal-zweck').text(zweck);
+        $('#modal-datum').text(datum);
     }
 
     // Request Button - Validierung und dann Mobile-Bestätigung anzeigen
