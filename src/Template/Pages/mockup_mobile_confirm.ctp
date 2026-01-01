@@ -36,7 +36,7 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Datum</label>
+                        <label class="form-label">Ausführungsdatum</label>
                         <input type="text" class="form-control" value="30.12.2025" readonly>
                     </div>
                     <div class="col-12">
@@ -72,8 +72,20 @@
 <!-- MOBILE CONFIRMATION MODAL                      -->
 <!-- ============================================== -->
 
-<!-- Custom styles for modal -->
+<!-- Custom styles for modal - iOS Safari compatible -->
 <style>
+:root {
+    --real-vh: 1vh;
+}
+
+/* iOS body scroll lock */
+body.modal-scroll-lock {
+    position: fixed;
+    width: 100%;
+    overflow: hidden;
+    touch-action: none;
+}
+
 #mobileConfirmModal .modal-backdrop-custom {
     position: fixed;
     top: 0;
@@ -83,9 +95,101 @@
     background: rgba(0,0,0,0.6);
     z-index: 1;
 }
+
 #mobileConfirmModal .phone-container {
     position: relative;
     z-index: 2;
+}
+
+/* Mobile: Show as full-screen app without phone frame */
+@media (max-width: 576px) {
+    #mobileConfirmModal .modal-dialog {
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        height: 100dvh !important;
+        height: calc(var(--real-vh, 1vh) * 100) !important;
+    }
+
+    #mobileConfirmModal .modal-content {
+        background: linear-gradient(180deg, #1a365d 0%, #2d4a7c 100%) !important;
+        border-radius: 0 !important;
+        height: 100% !important;
+    }
+
+    #mobileConfirmModal .modal-backdrop-custom {
+        display: none !important;
+    }
+
+    #mobileConfirmModal .phone-container {
+        width: 100% !important;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Hide phone frame elements */
+    #mobileConfirmModal .phone-frame {
+        background: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #mobileConfirmModal .phone-inner {
+        background: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #mobileConfirmModal .phone-notch,
+    #mobileConfirmModal .phone-home-indicator,
+    #mobileConfirmModal .phone-status-bar {
+        display: none !important;
+    }
+
+    #mobileConfirmModal #phoneScreen {
+        border-radius: 0 !important;
+        aspect-ratio: auto !important;
+        flex: 1 !important;
+        height: auto !important;
+        background: transparent !important;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Larger content on mobile */
+    #mobileConfirmModal #confirmContent {
+        margin: 16px !important;
+        padding: 16px !important;
+        font-size: 1rem !important;
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #mobileConfirmModal .app-header {
+        padding: 20px 0 !important;
+        flex-shrink: 0;
+    }
+
+    #mobileConfirmModal .app-header i {
+        font-size: 2.5rem !important;
+    }
+
+    #mobileConfirmModal .app-header .app-title {
+        font-size: 1.2rem !important;
+    }
+
+    #mobileConfirmModal .app-header .app-subtitle {
+        font-size: 0.9rem !important;
+    }
 }
 </style>
 
@@ -100,19 +204,19 @@
             <div class="phone-container" style="width: 280px;">
 
                 <!-- Phone Outer Frame -->
-                <div style="background: linear-gradient(145deg, #2d2d2d, #1a1a1a); border-radius: 36px; padding: 10px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+                <div class="phone-frame" style="background: linear-gradient(145deg, #2d2d2d, #1a1a1a); border-radius: 36px; padding: 10px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
 
                     <!-- Phone Inner Frame -->
-                    <div style="background: #000; border-radius: 28px; padding: 6px; position: relative;">
+                    <div class="phone-inner" style="background: #000; border-radius: 28px; padding: 6px; position: relative;">
 
                         <!-- Notch (Dynamic Island style) -->
-                        <div style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 80px; height: 22px; background: #000; border-radius: 11px; z-index: 10;"></div>
+                        <div class="phone-notch" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 80px; height: 22px; background: #000; border-radius: 11px; z-index: 10;"></div>
 
                         <!-- Screen (iPhone 13 Pro aspect ratio: 390/844) -->
                         <div id="phoneScreen" style="background: linear-gradient(180deg, #1a365d 0%, #2d4a7c 100%); border-radius: 22px; aspect-ratio: 390/844; overflow: hidden; display: flex; flex-direction: column;">
 
-                            <!-- Status Bar -->
-                            <div class="d-flex justify-content-between align-items-center px-3 pt-3 pb-1 text-white" style="font-size: 11px; flex-shrink: 0;">
+                            <!-- Status Bar (hidden on real mobile) -->
+                            <div class="phone-status-bar d-flex justify-content-between align-items-center px-3 pt-3 pb-1 text-white" style="font-size: 11px; flex-shrink: 0;">
                                 <span id="phoneTime">9:41</span>
                                 <div class="d-flex gap-1 align-items-center">
                                     <i class="bi bi-reception-4"></i>
@@ -122,10 +226,10 @@
                             </div>
 
                             <!-- App Header -->
-                            <div class="text-center text-white py-2" style="flex-shrink: 0;">
+                            <div class="app-header text-center text-white py-2" style="flex-shrink: 0;">
                                 <i class="bi bi-bank2 mb-1 d-block opacity-75" style="font-size: 1.5rem;"></i>
-                                <div class="fw-bold" style="font-size: 0.85rem;">EduBank</div>
-                                <small class="opacity-75" style="font-size: 0.7rem;">Überweisung bestätigen</small>
+                                <div class="app-title fw-bold" style="font-size: 0.85rem;">EduBank</div>
+                                <small class="app-subtitle opacity-75" style="font-size: 0.7rem;">Überweisung bestätigen</small>
                             </div>
 
                             <!-- Content Area -->
@@ -154,6 +258,10 @@
                                             <small class="text-muted d-block" style="font-size: 0.6rem;">Verwendungszweck</small>
                                             <span>Rechnung Nr. 2025-0142</span>
                                         </div>
+                                        <div class="mb-1">
+                                            <small class="text-muted d-block" style="font-size: 0.6rem;">Ausführungsdatum</small>
+                                            <span>30.12.2025</span>
+                                        </div>
                                         <hr class="my-1">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <small class="text-muted">Betrag</small>
@@ -165,8 +273,8 @@
                                         <i class="bi bi-check-lg me-1"></i>Bestätigen
                                     </button>
 
-                                    <button class="btn btn-link text-muted w-100 py-0 mt-1" style="font-size: 0.7rem;" data-bs-dismiss="modal">
-                                        Abbrechen
+                                    <button class="btn btn-secondary w-100 py-1 mt-2" style="font-size: 0.8rem;" data-bs-dismiss="modal">
+                                        <i class="bi bi-x-lg me-1"></i>Abbrechen
                                     </button>
                                 </div>
 
@@ -200,7 +308,7 @@
                         </div>
 
                         <!-- Home Indicator -->
-                        <div class="mx-auto mt-1" style="width: 90px; height: 4px; background: #555; border-radius: 2px;"></div>
+                        <div class="phone-home-indicator mx-auto mt-1" style="width: 90px; height: 4px; background: #555; border-radius: 2px;"></div>
 
                     </div>
                 </div>
@@ -213,6 +321,31 @@
 
 <!-- JavaScript für die Animation -->
 <script>
+// iOS Safari viewport height fix
+function syncViewportHeight() {
+    var vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--real-vh', vh + 'px');
+}
+
+syncViewportHeight();
+window.addEventListener('resize', syncViewportHeight);
+window.addEventListener('orientationchange', syncViewportHeight);
+
+// Scroll position tracking for iOS
+var savedScrollPosition = 0;
+
+function lockBodyScroll() {
+    savedScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    document.body.classList.add('modal-scroll-lock');
+    document.body.style.top = -savedScrollPosition + 'px';
+}
+
+function unlockBodyScroll() {
+    document.body.classList.remove('modal-scroll-lock');
+    document.body.style.top = '';
+    window.scrollTo(0, savedScrollPosition);
+}
+
 function startConfirmation() {
     // Hide initial state
     document.getElementById('stateInitial').style.display = 'none';
@@ -233,11 +366,6 @@ function resetDemo() {
     document.getElementById('stateSuccess').style.display = 'none';
 }
 
-// Reset when modal is closed
-document.getElementById('mobileConfirmModal').addEventListener('hidden.bs.modal', function () {
-    resetDemo();
-});
-
 // Update phone time when modal is shown
 function updatePhoneTime() {
     var now = new Date();
@@ -246,7 +374,16 @@ function updatePhoneTime() {
     document.getElementById('phoneTime').textContent = hours + ':' + minutes;
 }
 
+// Modal events
 document.getElementById('mobileConfirmModal').addEventListener('show.bs.modal', function () {
+    syncViewportHeight();
+    lockBodyScroll();
     updatePhoneTime();
+    document.getElementById('confirmContent').scrollTop = 0;
+});
+
+document.getElementById('mobileConfirmModal').addEventListener('hidden.bs.modal', function () {
+    unlockBodyScroll();
+    resetDemo();
 });
 </script>
