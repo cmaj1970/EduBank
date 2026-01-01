@@ -190,8 +190,8 @@
                                         <strong class="text-dark" style="font-size: 1rem;">1.250,00 €</strong><br>
                                         wurde ausgeführt.
                                     </p>
-                                    <button class="btn btn-outline-success btn-sm" style="font-size: 0.7rem;" onclick="resetDemo()">
-                                        <i class="bi bi-arrow-repeat me-1"></i>Wiederholen
+                                    <button class="btn btn-outline-success btn-sm" style="font-size: 0.7rem;" data-bs-dismiss="modal">
+                                        <i class="bi bi-x-lg me-1"></i>Schließen
                                     </button>
                                 </div>
 
