@@ -246,40 +246,38 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
 
 #mobileConfirmModal {
     background: rgba(0, 0, 0, 0.6) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
 }
 
 #mobileConfirmModal .modal-dialog {
     margin: 0;
     max-width: 100%;
     width: 100%;
-    height: 100dvh; /* Modern browsers */
-    height: calc(var(--real-vh, 1vh) * 100); /* Fallback */
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    box-sizing: border-box;
 }
 
 #mobileConfirmModal .modal-content {
     background: transparent;
     border: none;
-    width: 100%;
-    min-height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px; /* Padding around phone for scroll space */
-    box-sizing: border-box;
+    width: auto;
 }
 
 #mobileConfirmModal .phone-container {
-    flex-shrink: 0; /* Don't shrink the phone */
+    flex-shrink: 0;
 }
 
-/* Prevent iOS body scroll when modal is open */
+/* Prevent background scroll when modal is open */
+html.modal-open-ios,
 body.modal-open-ios {
-    position: fixed;
-    width: 100%;
-    overflow: hidden;
+    overflow: hidden !important;
+    height: 100% !important;
 }
 </style>
 
@@ -641,13 +639,13 @@ $(document).ready(function() {
         updatePhoneTime();
         populateModalData();
         resetMobileModal();
-        $('body').addClass('modal-open-ios');
+        $('html, body').addClass('modal-open-ios');
     });
 
     // Modal schließen - zurücksetzen
     $('#mobileConfirmModal').on('hidden.bs.modal', function() {
         resetMobileModal();
-        $('body').removeClass('modal-open-ios');
+        $('html, body').removeClass('modal-open-ios');
     });
 
     // Mobile Bestätigung - Bestätigen Button im Handy
