@@ -246,38 +246,23 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
 
 #mobileConfirmModal {
     background: rgba(0, 0, 0, 0.6) !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch;
 }
 
 #mobileConfirmModal .modal-dialog {
     margin: 0;
     max-width: 100%;
     width: 100%;
-    min-height: 100%;
+    height: 100dvh;
+    height: calc(var(--real-vh, 1vh) * 100);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px 20px;
-    box-sizing: border-box;
 }
 
 #mobileConfirmModal .modal-content {
     background: transparent;
     border: none;
     width: auto;
-}
-
-#mobileConfirmModal .phone-container {
-    flex-shrink: 0;
-}
-
-/* Prevent background scroll when modal is open */
-html.modal-open-ios,
-body.modal-open-ios {
-    overflow: hidden !important;
-    height: 100% !important;
 }
 </style>
 
@@ -639,13 +624,11 @@ $(document).ready(function() {
         updatePhoneTime();
         populateModalData();
         resetMobileModal();
-        $('html, body').addClass('modal-open-ios');
     });
 
     // Modal schließen - zurücksetzen
     $('#mobileConfirmModal').on('hidden.bs.modal', function() {
         resetMobileModal();
-        $('html, body').removeClass('modal-open-ios');
     });
 
     // Mobile Bestätigung - Bestätigen Button im Handy
