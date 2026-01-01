@@ -241,20 +241,28 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
 <!-- Custom styles for modal -->
 <style>
 #mobileConfirmModal {
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.6) !important;
 }
 #mobileConfirmModal .modal-dialog {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     margin: 0;
-    width: auto;
-    max-width: none;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 #mobileConfirmModal .modal-content {
     background: transparent;
     border: none;
+    width: auto;
+}
+#mobileConfirmModal .phone-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1060;
 }
 </style>
 
