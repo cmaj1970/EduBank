@@ -244,14 +244,12 @@ $this->Html->css('https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/d
     background: rgba(0, 0, 0, 0.6) !important;
 }
 #mobileConfirmModal .modal-dialog {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin: auto;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
     width: 280px;
-    height: 606px; /* 280 * 844 / 390 */
     max-width: 280px;
 }
 #mobileConfirmModal .modal-content {
