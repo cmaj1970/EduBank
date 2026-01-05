@@ -62,7 +62,7 @@ MIT License – siehe [LICENSE](LICENSE)
 
 EduBank ist ein ehrenamtliches Projekt. Entwicklung und Betrieb kosten Zeit und Geld.
 
-Wenn EduBank deiner Schule hilft, freue ich mich über eine freiwillige Unterstützung:
+Wenn dir das Projekt gefällt, freue ich mich über eine freiwillige Unterstützung:
 
 **[→ Jetzt unterstützen via PayPal](https://www.paypal.com/paypalme/carlmajneri)**
 
