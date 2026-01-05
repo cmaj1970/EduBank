@@ -1,0 +1,8 @@
+# Spenden-Optionen für EduBank
+# Diese Datei aktiviert den "Sponsor"-Button auf GitHub
+
+# GitHub Sponsors (falls aktiviert)
+github: cmaj1970
+
+# PayPal
+custom: ["https://www.paypal.com/paypalme/carlmajneri"]

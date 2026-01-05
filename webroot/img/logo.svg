@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <defs>
+    <style>
+      .logo-text { font-family: Arial, sans-serif; font-weight: 700; fill: #ffffff; }
+      .logo-icon { fill: #ffffff; }
+    </style>
+  </defs>
+
+  <!-- Bank-Säulen Icon -->
+  <g class="logo-icon">
+    <!-- Dach/Giebel -->
+    <path d="M 5 18 L 25 8 L 45 18 L 43 18 L 25 10 L 7 18 Z" />
+
+    <!-- Säulen -->
+    <rect x="9" y="19" width="5" height="20" />
+    <rect x="18" y="19" width="5" height="20" />
+    <rect x="27" y="19" width="5" height="20" />
+    <rect x="36" y="19" width="5" height="20" />
+
+    <!-- Basis -->
+    <rect x="6" y="39" width="38" height="3" />
+
+    <!-- Bildungs-Element: Offenes Buch -->
+    <path d="M 25 44 L 17 46 L 17 52 L 25 50 L 33 52 L 33 46 Z" fill="none" stroke="#ffffff" stroke-width="1.5" />
+    <path d="M 25 44 L 25 50" stroke="#ffffff" stroke-width="1" />
+  </g>
+
+  <!-- Text: EduBank -->
+  <text x="52" y="38" class="logo-text" font-size="24">EduBank</text>
+
+  <!-- Untertitel -->
+  <text x="52" y="52" font-family="Arial, sans-serif" font-size="9" fill="#ffffff" opacity="0.8">Banking-Simulation für Schulen</text>
+</svg>

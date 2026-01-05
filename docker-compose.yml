@@ -1,0 +1,56 @@
+services:
+  web:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+    platform: linux/amd64
+    container_name: edubank-web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/app
+    environment:
+      - WEB_DOCUMENT_ROOT=/app/webroot
+    depends_on:
+      - db
+    command: >
+      bash -c "
+        cd /app &&
+        if [ ! -d vendor ]; then
+          composer install --no-dev --no-interaction
+        fi &&
+        /entrypoint supervisord
+      "
+
+  db:
+    image: mysql:5.7
+    platform: linux/amd64
+    container_name: edubank-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: edubank
+      MYSQL_USER: edubank
+      MYSQL_PASSWORD: edubank
+    volumes:
+      - edubank-db-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    platform: linux/amd64
+    container_name: edubank-pma
+    restart: unless-stopped
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8081:80"
+    depends_on:
+      - db
+
+volumes:
+  edubank-db-data:
